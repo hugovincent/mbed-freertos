@@ -12,6 +12,7 @@ OPTIM=-O2
 
 CFLAGS= $(DEBUG) \
 		$(OPTIM) \
+		-std=c99 \
 		-T$(LDSCRIPT) \
 		-I . \
 		-I lib/include \

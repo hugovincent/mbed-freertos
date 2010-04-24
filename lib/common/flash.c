@@ -66,6 +66,7 @@
 
 
 #include <stdlib.h>
+#include <stdint.h>
 
 /* Scheduler include files. */
 #include "FreeRTOS.h"
@@ -75,8 +76,8 @@
 #include "partest.h"
 #include "flash.h"
 
-#define ledSTACK_SIZE		configMINIMAL_STACK_SIZE
-#define ledNUMBER_OF_LEDS	( 3 )
+#define ledSTACK_SIZE		( configMINIMAL_STACK_SIZE + 100 )
+#define ledNUMBER_OF_LEDS	( 4 )
 #define ledFLASH_RATE_BASE	( ( portTickType ) 333 )
 
 /* Variable used by the created tasks to calculate the LED number to use, and
@@ -91,8 +92,9 @@ static portTASK_FUNCTION_PROTO( vLEDFlashTask, pvParameters );
 void vStartLEDFlashTasks( unsigned portBASE_TYPE uxPriority )
 {
 signed portBASE_TYPE xLEDTask;
+	uint32_t pin_map[] = {18, 20, 21, 23};	
 
-	/* Create the three tasks. */
+	/* Create the four tasks. */
 	for( xLEDTask = 0; xLEDTask < ledNUMBER_OF_LEDS; ++xLEDTask )
 	{
 		/* Spawn the task. */
@@ -105,6 +107,7 @@ static portTASK_FUNCTION( vLEDFlashTask, pvParameters )
 {
 portTickType xFlashRate, xLastFlashTime;
 unsigned portBASE_TYPE uxLED;
+	uint32_t pin_map[] = {18, 20, 21, 23};	
 
 	/* The parameters are not used. */
 	( void ) pvParameters;
@@ -113,14 +116,14 @@ unsigned portBASE_TYPE uxLED;
 	portENTER_CRITICAL();
 	{
 		/* See which of the eight LED's we should use. */
-		uxLED = uxFlashTaskNumber;
+		uxLED = pin_map[uxFlashTaskNumber];
 
 		/* Update so the next task uses the next LED. */
 		uxFlashTaskNumber++;
 	}
 	portEXIT_CRITICAL();
 
-	xFlashRate = ledFLASH_RATE_BASE + ( ledFLASH_RATE_BASE * ( portTickType ) uxLED );
+	xFlashRate = ledFLASH_RATE_BASE + ( ledFLASH_RATE_BASE * ( portTickType ) uxFlashTaskNumber );
 	xFlashRate /= portTICK_RATE_MS;
 
 	/* We will turn the LED on and off again in the delay period, so each
@@ -133,11 +136,7 @@ unsigned portBASE_TYPE uxLED;
 
 	for(;;)
 	{
-		/* Delay for half the flash period then turn the LED on. */
-		vTaskDelayUntil( &xLastFlashTime, xFlashRate );
-		vParTestToggleLED( uxLED );
-
-		/* Delay for half the flash period then turn the LED off. */
+		/* Delay for half the flash period then toggle the LED. */
 		vTaskDelayUntil( &xLastFlashTime, xFlashRate );
 		vParTestToggleLED( uxLED );
 	}

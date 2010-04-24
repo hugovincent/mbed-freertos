@@ -82,7 +82,7 @@
 #define configUSE_PREEMPTION		1
 #define configUSE_IDLE_HOOK         0
 #define configUSE_TICK_HOOK         1
-#define configCPU_CLOCK_HZ          ( ( unsigned long ) 72000000 )	/* =12Mhz xtal multiplied by 5 using the PLL. */
+#define configCPU_CLOCK_HZ          ( ( unsigned long ) 60000000 )	/* = 12Mhz xtal multiplied by 5 using the PLL. */
 #define configTICK_RATE_HZ          ( ( portTickType ) 1000 )
 #define configMAX_PRIORITIES		( ( unsigned portBASE_TYPE ) 4 )
 #define configMINIMAL_STACK_SIZE	( ( unsigned short ) 104 )
@@ -113,30 +113,3 @@ to exclude the API function. */
 
 #endif /* FREERTOS_CONFIG_H */
 
-
-#ifndef sbi
-#define sbi(x,y)	x|=(1 << (y))
-#endif
-
-#ifndef cbi 
-#define cbi(x,y)	x&=~(1 << (y))
-#endif
-
-#ifndef tstb
-#define tstb(x,y)	(x & (1 << (y)) ? 1 : 0)
-#endif
-
-#ifndef toggle 
-#define toggle(x,y)	x^=(1 << (y))
-#endif
-
-#ifndef BIT
-#define BIT(x)	(1 << (x))
-
-typedef struct
-{
-	long xColumn;
-	char *pcMessage;
-} xLCDMessage;
-
-#endif

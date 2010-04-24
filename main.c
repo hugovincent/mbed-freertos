@@ -97,10 +97,12 @@
 #define mainCREATOR_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
 #define mainGEN_QUEUE_TASK_PRIORITY			( tskIDLE_PRIORITY ) 
 
-/* Constants to setup the PLL. */
-#define mainPLL_MUL			( ( unsigned portLONG ) ( 8 - 1 ) )
-#define mainPLL_DIV			( ( unsigned portLONG ) 0x0000 )
-#define mainCPU_CLK_DIV		( ( unsigned portLONG ) 0x0003 )
+/* Constants to setup the PLL for 60 MHz cpu clock and USB support.
+ * External crystal = 12 MHz, Fcco = 480 MHz
+ */
+#define mainPLL_MUL			( ( unsigned portLONG ) ( 20 - 1 ) )
+#define mainPLL_DIV			( ( unsigned portLONG ) ( 1 - 1 ) )
+#define mainCPU_CLK_DIV		( ( unsigned portLONG ) ( 8 - 1) )
 #define mainPLL_ENABLE		( ( unsigned portLONG ) 0x0001 )
 #define mainPLL_CONNECT		( ( ( unsigned portLONG ) 0x0002 ) | mainPLL_ENABLE )
 #define mainPLL_FEED_BYTE1	( ( unsigned portLONG ) 0xaa )
@@ -110,6 +112,7 @@
 #define mainOSC_ENABLE		( ( unsigned portLONG ) 0x20 )
 #define mainOSC_STAT		( ( unsigned portLONG ) 0x40 )
 #define mainOSC_SELECT		( ( unsigned portLONG ) 0x01 )
+#define mainUSB_CLK_DIV		( ( unsigned portLONG ) ( 10 - 1 ) ) 
 
 /* Constants to setup the MAM. */
 #define mainMAM_TIM_3		( ( unsigned portCHAR ) 0x03 )
@@ -131,7 +134,7 @@ int main( void )
 	prvSetupHardware();
 	
 	/* Create the uIP task.  This uses the lwIP RTOS abstraction layer.*/
-    xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
+    //xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
 
 	/* Start the standard demo tasks. */
 	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
@@ -163,8 +166,8 @@ static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 	{
 		ulTicksSinceLastDisplay = 0;
 		
-		/* Has an error been found in any task? */
 #if 0
+		/* Has an error been found in any task? */
         if( xAreBlockingQueuesStillRunning() != pdTRUE )
 		{
 			xMessage.pcMessage = "ERROR - BLOCKQ";
@@ -198,11 +201,6 @@ static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
 static void prvSetupHardware( void )
 {
-	#ifdef RUN_FROM_RAM
-		/* Remap the interrupt vectors to RAM if we are are running from RAM. */
-		SCB_MEMMAP = 2;
-	#endif
-	
 	/* Disable the PLL. */
 	PLLCON = 0;
 	PLLFEED = mainPLL_FEED_BYTE1;
@@ -213,8 +211,8 @@ static void prvSetupHardware( void )
 	while( !( SCS & mainOSC_STAT ) );
 	CLKSRCSEL = mainOSC_SELECT; 
 	
-	/* Setup the PLL to multiply the XTAL input by 4. */
-	PLLCFG = ( mainPLL_MUL | mainPLL_DIV );
+	/* Setup the PLL to multiply the XTAL input (12 MHz) by 5. */
+	PLLCFG = ( mainPLL_MUL | (mainPLL_DIV << 16) );
 	PLLFEED = mainPLL_FEED_BYTE1;
 	PLLFEED = mainPLL_FEED_BYTE2;
 
@@ -223,6 +221,7 @@ static void prvSetupHardware( void )
 	PLLFEED = mainPLL_FEED_BYTE1;
 	PLLFEED = mainPLL_FEED_BYTE2;
 	CCLKCFG = mainCPU_CLK_DIV;	
+	USBCLKCFG = mainUSB_CLK_DIV;
 	while( !( PLLSTAT & mainPLL_LOCK ) );
 	
 	/* Connecting the clock. */
@@ -232,18 +231,18 @@ static void prvSetupHardware( void )
 	while( !( PLLSTAT & mainPLL_CONNECTED ) ); 
 	
 	/* 
-	This code is commented out as the MAM does not work on the original revision
-	LPC2368 chips.  If using Rev B chips then you can increase the speed though
-	the use of the MAM.
-	
-	Setup and turn on the MAM.  Three cycle access is used due to the fast
-	PLL used.  It is possible faster overall performance could be obtained by
-	tuning the MAM and PLL settings.
+	 * This code is commented out as the MAM does not work on the original revision
+	 * LPC2368 chips.  If using Rev B chips then you can increase the speed though
+	 * the use of the MAM.
+	 * 
+	 * Setup and turn on the MAM.  Three cycle access is used due to the fast
+	 * PLL used.  It is possible faster overall performance could be obtained by
+	 * tuning the MAM and PLL settings.
+	 */
 	MAMCR = 0;
 	MAMTIM = mainMAM_TIM_3;
 	MAMCR = mainMAM_MODE_FULL;
-	*/
-	
+
 	/* Setup the led's on the MCB2300 board */
 	vParTestInitialise();
 }

@@ -57,9 +57,7 @@
 /* Demo application includes. */
 #include "partest.h"
 
-#define partstFIRST_IO			( ( unsigned portLONG ) 0x01 )
-#define partstNUM_LEDS			( 8 )
-#define partstALL_OUTPUTS_OFF	( ( unsigned portLONG ) 0xff )
+#include <stdint.h>
 
 /*-----------------------------------------------------------
  * Simple parallel port IO routines.
@@ -67,69 +65,56 @@
 
 void vParTestInitialise( void )
 {
-	PINSEL10 = 0;
-	FIO2DIR  = 0x000000FF;
-	FIO2MASK = 0x00000000;
-	FIO2CLR  = 0xFF;
-	SCS |= (1<<0); //fast mode for port 0 and 1
-
-    FIO2CLR = partstALL_OUTPUTS_OFF;
+	// FIXME this is hackish...
+	PINSEL10 = 0x0;
+	FIO1DIR = 0x1<<18 | 0x1<<20 | 0x1<<21 | 0x1<<23;
+	FIO1MASK = 0x0;
+	FIO1CLR = 0x1<<18 | 0x1<<20 | 0x1<<21 | 0x1<<23;
+	SCS |= 0x1; //fast mode for port 0 and 1
 }
 /*-----------------------------------------------------------*/
 
 void vParTestSetLED( unsigned portBASE_TYPE uxLED, signed portBASE_TYPE xValue )
 {
-unsigned portLONG ulLED = partstFIRST_IO;
+	/* Rotate to the wanted bit of port */
+	uint32_t ulLED = 0x1 << uxLED;
 
-	if( uxLED < partstNUM_LEDS )
+	/* Set of clear the output. */
+	if( !xValue )
 	{
-		/* Rotate to the wanted bit of port */
-		ulLED <<= ( unsigned portLONG ) uxLED;
-
-		/* Set of clear the output. */
-		if( xValue )
-		{
-			FIO2CLR = ulLED;
-		}
-		else
-		{
-			FIO2SET = ulLED;
-		}
+		FIO1CLR = ulLED;
+	}
+	else
+	{
+		FIO1SET = ulLED;
 	}
 }
 /*-----------------------------------------------------------*/
 
 void vParTestToggleLED( unsigned portBASE_TYPE uxLED )
 {
-unsigned portLONG ulLED = partstFIRST_IO, ulCurrentState;
+	/* Rotate to the wanted bit of port */
+	uint32_t ulLED = 0x1 << uxLED;
 
-	if( uxLED < partstNUM_LEDS )
+	/* If this bit is already set, clear it, and visa versa. */
+	uint32_t ulCurrentState = FIO1PIN;
+	if( ulCurrentState & ulLED )
 	{
-		/* Rotate to the wanted bit of port 0.  Only P10 to P13 have an LED
-		attached. */
-		ulLED <<= ( unsigned portLONG ) uxLED;
-
-		/* If this bit is already set, clear it, and visa versa. */
-		ulCurrentState = FIO2PIN;
-		if( ulCurrentState & ulLED )
-		{
-			FIO2CLR = ulLED;
-		}
-		else
-		{
-			FIO2SET = ulLED;			
-		}
-	}	
+		FIO1CLR = ulLED;
+	}
+	else
+	{
+		FIO1SET = ulLED;			
+	}
 }
 
 /*-----------------------------------------------------------*/
 unsigned portBASE_TYPE uxParTextGetLED( unsigned portBASE_TYPE uxLED )
 {
-unsigned portLONG ulLED = partstFIRST_IO;
-    
-    ulLED <<= ( unsigned portLONG ) uxLED;
+	/* Rotate to the wanted bit of port */
+	uint32_t ulLED = 0x1 << uxLED;
 
-    return ( FIO2PIN & ulLED );
+    return !(FIO1PIN & ulLED) ? 1 : 0;
 }
 
 
