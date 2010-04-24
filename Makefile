@@ -2,20 +2,18 @@
 # Hugo Vincent, April 24 2010
 
 CC=arm-eabi-gcc
+LD=arm-eabi-ld
 OBJCOPY=arm-eabi-objcopy
 LDSCRIPT=lpc2368.ld
 
-LINKER_FLAGS=-mthumb -nostartfiles \
-			 -Wl,-oRTOSDemo.elf \
-			 -lm -lstdc++ -lc -lgcc
-
 DEBUG=
-OPTIM=-O2
+OPTIM=-Os
+
+BINNAME=RTOSDemo
 
 CFLAGS= $(DEBUG) \
 		$(OPTIM) \
 		-std=gnu99 \
-		-T$(LDSCRIPT) \
 		-I . \
 		-I lib/include \
 		-I freertos/portable/GCC/ARM7_LPC23xx \
@@ -24,15 +22,29 @@ CFLAGS= $(DEBUG) \
 		-D MBED_LPC23xx \
 		-D THUMB_INTERWORK \
 		-mcpu=arm7tdmi \
-		-D PACK_STRUCT_END=__attribute\(\(packed\)\) \
-		-D ALIGN_STRUCT_END=__attribute\(\(aligned\(4\)\)\) \
 		-fomit-frame-pointer \
 		-mthumb-interwork \
 		-fno-dwarf2-cfi-asm \
 		-fno-strict-aliasing \
 		-Wall -Wcast-align -Wimplicit -Wpointer-arith \
-		-Wswitch -Wreturn-type -Wshadow -Wunused
-		
+		-Wswitch -Wreturn-type -Wshadow -Wunused \
+		-ffunction-sections -fdata-sections \
+		-mabi=aapcs -mfloat-abi=soft \
+		-lm -lstdc++
+
+LINKER_FLAGS= \
+		-nostartfiles \
+		-T$(LDSCRIPT) \
+		-Wl,--gc-sections \
+#		-Wl,--print-gc-sections \
+		-Wl,--no-warn-mismatch
+
+GAS_FLAGS= \
+		-mcpu=arm7tdmi \
+		-mthumb-interwork \
+		-mabi=aapcs -mfloat-abi=soft \
+		-x assembler-with-cpp 
+
 THUMB_SOURCE= \
 		main.c \
 		lib/ParTest.c \
@@ -64,16 +76,21 @@ ARM_SOURCE= \
 		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
 		lib/webserver/EMAC_ISR.c
 
+GAS_SOURCE= \
+		crt0.s
+
 THUMB_OBJS = $(THUMB_SOURCE:.c=.o)
-ARM_OBJS = $(ARM_SOURCE:.c=.o)
+ARM_OBJS   = $(ARM_SOURCE:.c=.o)
+GAS_OBJS   = $(GAS_SOURCE:.s=.o)
 
-all: RTOSDemo.bin
+all: $(BINNAME).bin
 
-RTOSDemo.bin : RTOSDemo.elf
-	$(OBJCOPY) RTOSDemo.elf -O binary RTOSDemo.bin
-	 
-RTOSDemo.elf : $(THUMB_OBJS) $(ARM_OBJS) boot.s Makefile
-	$(CC) $(CFLAGS) $(ARM_OBJS) $(THUMB_OBJS) $(LIBS) boot.s $(LINKER_FLAGS) 
+$(BINNAME).bin : $(BINNAME).elf
+	$(OBJCOPY) $(BINNAME).elf -O binary $(BINNAME).bin
+
+$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(GAS_OBJS) Makefile
+	$(CC) $(ARM_OBJS) $(THUMB_OBJS) $(GAS_OBJS) -o $@ $(LINKER_FLAGS)
+	arm-eabi-size --format=sysv -x $@
 
 $(THUMB_OBJS) : %.o : %.c Makefile FreeRTOSConfig.h
 	$(CC) -c $(CFLAGS) -mthumb $< -o $@
@@ -81,6 +98,9 @@ $(THUMB_OBJS) : %.o : %.c Makefile FreeRTOSConfig.h
 $(ARM_OBJS) : %.o : %.c Makefile FreeRTOSConfig.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
+$(GAS_OBJS) : %.o : %.s Makefile
+	$(CC) -c $(GAS_FLAGS) $< -o $@
+
 clean :
-	rm -f $(THUMB_OBJS) $(ARM_OBJS) RTOSDemo.elf
+	rm -f $(THUMB_OBJS) $(ARM_OBJS) $(BINNAME).elf
 	

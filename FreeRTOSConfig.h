@@ -97,7 +97,6 @@
 #define configUSE_CO_ROUTINES 		0
 #define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
 
-
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */
 
@@ -110,6 +109,8 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelay                  1
 #define INCLUDE_xTaskGetCurrentTaskHandle	1
 
+#define PACK_STRUCT_END						__attribute((packed))
+#define ALIGN_STRUCT_END					__attribute((aligned(4)))
 
 #endif /* FREERTOS_CONFIG_H */
 
