@@ -106,12 +106,6 @@ static void prvENET_Send(void);
  */
 static void prvSetMACAddress( void );
 
-/*
- * Port functions required by the uIP stack.
- */
-void clock_init( void );
-clock_time_t clock_time( void );
-
 /*-----------------------------------------------------------*/
 
 /* The semaphore used by the ISR to wake the uIP task. */
@@ -272,7 +266,7 @@ struct uip_eth_addr xAddr;
 void vApplicationProcessFormInput( portCHAR *pcInputString, portBASE_TYPE xInputLength )
 {
 char *c, *pcText;
-static portCHAR cMessageForDisplay[ 32 ];
+//static portCHAR cMessageForDisplay[ 32 ];
 //xLCDMessage xLCDMessage;
 
 	/* Process the form input sent by the IO page of the served HTML. */

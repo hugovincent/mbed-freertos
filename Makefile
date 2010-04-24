@@ -5,14 +5,16 @@ CC=arm-eabi-gcc
 OBJCOPY=arm-eabi-objcopy
 LDSCRIPT=lpc2368.ld
 
-LINKER_FLAGS=-mthumb -nostartfiles -Wl,-oRTOSDemo.elf 
+LINKER_FLAGS=-mthumb -nostartfiles \
+			 -Wl,-oRTOSDemo.elf \
+			 -lm -lstdc++ -lc -lgcc
 
 DEBUG=
 OPTIM=-O2
 
 CFLAGS= $(DEBUG) \
 		$(OPTIM) \
-		-std=c99 \
+		-std=gnu99 \
 		-T$(LDSCRIPT) \
 		-I . \
 		-I lib/include \
@@ -27,7 +29,9 @@ CFLAGS= $(DEBUG) \
 		-fomit-frame-pointer \
 		-mthumb-interwork \
 		-fno-dwarf2-cfi-asm \
-		-fno-strict-aliasing
+		-fno-strict-aliasing \
+		-Wall -Wcast-align -Wimplicit -Wpointer-arith \
+		-Wswitch -Wreturn-type -Wshadow -Wunused
 		
 THUMB_SOURCE= \
 		main.c \

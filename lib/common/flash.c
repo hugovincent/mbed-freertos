@@ -92,7 +92,6 @@ static portTASK_FUNCTION_PROTO( vLEDFlashTask, pvParameters );
 void vStartLEDFlashTasks( unsigned portBASE_TYPE uxPriority )
 {
 signed portBASE_TYPE xLEDTask;
-	uint32_t pin_map[] = {18, 20, 21, 23};	
 
 	/* Create the four tasks. */
 	for( xLEDTask = 0; xLEDTask < ledNUMBER_OF_LEDS; ++xLEDTask )

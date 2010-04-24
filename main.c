@@ -155,9 +155,9 @@ int main( void )
 
 void vApplicationTickHook( void )
 {
-unsigned portBASE_TYPE uxColumn = 0;
+//unsigned portBASE_TYPE uxColumn = 0;
 static unsigned portLONG ulTicksSinceLastDisplay = 0;
-static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+//static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
 	/* Called from every tick interrupt.  Have enough ticks passed to make it
 	time to perform our health status check again? */
