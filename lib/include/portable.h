@@ -110,7 +110,7 @@
 	#include "portmacro.h"
 #endif
 
-#ifdef ROWLEY_LPC23xx
+#ifdef MBED_LPC23xx
 	#include "freertos/portable/GCC/ARM7_LPC23xx/portmacro.h"
 #endif
 
