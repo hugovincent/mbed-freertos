@@ -65,11 +65,9 @@
 
 void vParTestInitialise( void )
 {
-	// FIXME this is hackish...
+	// We have four LEDs on P1.18, P1.20, P1,21, and P1,23.
 	PINSEL10 = 0x0;
-	FIO1DIR = 0x1<<18 | 0x1<<20 | 0x1<<21 | 0x1<<23;
-	FIO1MASK = 0x0;
-	FIO1CLR = 0x1<<18 | 0x1<<20 | 0x1<<21 | 0x1<<23;
+	FIO1DIR |= 0x1<<18 | 0x1<<20 | 0x1<<21 | 0x1<<23;
 	SCS |= 0x1; //fast mode for port 0 and 1
 }
 /*-----------------------------------------------------------*/

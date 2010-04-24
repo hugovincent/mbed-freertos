@@ -76,7 +76,7 @@
 #include "partest.h"
 #include "flash.h"
 
-#define ledSTACK_SIZE		( configMINIMAL_STACK_SIZE + 100 )
+#define ledSTACK_SIZE		( configMINIMAL_STACK_SIZE )
 #define ledNUMBER_OF_LEDS	( 4 )
 #define ledFLASH_RATE_BASE	( ( portTickType ) 333 )
 

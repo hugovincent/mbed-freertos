@@ -128,8 +128,12 @@ portBASE_TYPE xReturn = pdPASS;
   volatile unsigned int regv,tout,id1,id2;
 
   /* Enable P1 Ethernet Pins. */
-  PINSEL2 = configPINSEL2_VALUE;
-  PINSEL3 = (PINSEL3 & ~0x0000000F) | 0x00000005;
+  PINSEL2 = 0x50150105;
+  PINSEL3 = (PINSEL3 & ~0x0000000F) | 0x00000005; // P1.16, P1.17
+
+  /* Power on PHY clock generator */
+  FIO1DIR |= 0x1<<27;
+  FIO1SET = 0x1<<27;
 
   /* Power Up the EMAC controller. */
   PCONP |= 0x40000000;
