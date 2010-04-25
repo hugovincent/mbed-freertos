@@ -68,6 +68,8 @@
  * processing is performed in this task.
  */
 
+extern "C" {
+
 /* Scheduler includes. */
 #include "FreeRTOS.h"
 #include "task.h"
@@ -83,6 +85,10 @@
 #include "GenQTest.h"
 #include "QPeek.h"
 #include "dynamic.h"
+
+} // end extern "C"
+
+#include "CxxTest.h"
 
 /* Demo application definitions. */
 #define mainQUEUE_SIZE						( 3 )
@@ -122,7 +128,7 @@
  * The task that handles the uIP stack.  All TCP/IP processing is performed in
  * this task.
  */
-extern void vuIP_Task( void *pvParameters );
+extern "C" void vuIP_Task( void *pvParameters );
 
 /* Configure the hardware as required by the demo. */
 static void prvSetupHardware( void );
@@ -132,6 +138,9 @@ static void prvSetupHardware( void );
 int main( void )
 {
 	prvSetupHardware();
+
+	CxxTest test;
+	test.someMethod();
 	
 	/* Create the uIP task.  This uses the lwIP RTOS abstraction layer.*/
     xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
@@ -153,7 +162,7 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
-void vApplicationTickHook( void )
+extern "C" void vApplicationTickHook( void )
 {
 //unsigned portBASE_TYPE uxColumn = 0;
 static unsigned portLONG ulTicksSinceLastDisplay = 0;

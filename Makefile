@@ -1,19 +1,20 @@
-# For mbed beta (LPC2368)
-# Hugo Vincent, April 24 2010
+# For mbed beta hardware (LPC2368)
+# Hugo Vincent, April 25 2010
 
-CC=arm-eabi-gcc
-LD=arm-eabi-ld
-OBJCOPY=arm-eabi-objcopy
-LDSCRIPT=lpc2368.ld
+# Note: after installing an arm-eabi-* toolchain using the instructions at
+# http://github.com/jsnyder/arm-eabi-toolchain, run setup-colorgcc.sh in util
+
+TOOLPRE=util/arm-eabi
+LDSCRIPT=util/lpc2368.ld
 
 DEBUG=
 OPTIM=-Os
 
 BINNAME=RTOSDemo
 
-CFLAGS= $(DEBUG) \
+COMMON_FLAGS = \
+		$(DEBUG) \
 		$(OPTIM) \
-		-std=gnu99 \
 		-I . \
 		-I lib/include \
 		-I freertos/portable/GCC/ARM7_LPC23xx \
@@ -24,28 +25,32 @@ CFLAGS= $(DEBUG) \
 		-mcpu=arm7tdmi \
 		-fomit-frame-pointer \
 		-mthumb-interwork \
-		-fno-dwarf2-cfi-asm \
-		-fno-strict-aliasing \
 		-Wall -Wcast-align -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
+		-Wstrict-aliasing=3 -fstrict-aliasing \
 		-ffunction-sections -fdata-sections \
-		-mabi=aapcs -mfloat-abi=soft \
-		-lm -lstdc++
+		-mabi=aapcs -mfloat-abi=soft
+
+CFLAGS = $(COMMON_FLAGS) \
+		-Wstrict-prototypes \
+		-std=gnu99
+
+CXXFLAGS= $(COMMON_FLAGS) \
+		-fno-rtti -fno-exceptions
 
 LINKER_FLAGS= \
 		-nostartfiles \
 		-T$(LDSCRIPT) \
 		-Wl,--gc-sections \
-#		-Wl,--print-gc-sections
+		-lc -lgcc -lstdc++
 
-GAS_FLAGS= \
+ASM_FLAGS= \
 		-mcpu=arm7tdmi \
 		-mthumb-interwork \
 		-mabi=aapcs -mfloat-abi=soft \
 		-x assembler-with-cpp 
 
 THUMB_SOURCE= \
-		main.c \
 		lib/ParTest.c \
 		lib/common/BlockQ.c \
 		lib/common/blocktim.c \
@@ -71,38 +76,53 @@ THUMB_SOURCE= \
 		lib/heap_2.c \
 		lib/syscalls.c
 
+THUMB_CXX_SOURCE= \
+		main.cpp \
+		CxxTest.cpp
+
 ARM_SOURCE= \
 		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
 		lib/webserver/EMAC_ISR.c
-#		lib/uart_ISR.c
 
-GAS_SOURCE= \
-		crt0.s
+ASM_SOURCE= \
+		util/crt0.s
 
-THUMB_OBJS = $(THUMB_SOURCE:.c=.o)
-ARM_OBJS   = $(ARM_SOURCE:.c=.o)
-GAS_OBJS   = $(GAS_SOURCE:.s=.o)
+THUMB_C_OBJS   = $(THUMB_SOURCE:.c=.o)
+THUMB_CXX_OBJS = $(THUMB_CXX_SOURCE:.cpp=.o)
+ARM_C_OBJS     = $(ARM_SOURCE:.c=.o)
+ARM_CXX_OBJS   = $(ARM_CXX_SOURCE:.cpp=.o)
+
+ARM_OBJS   = $(ARM_C_OBJS) $(ARM_CXX_OBJS)
+THUMB_OBJS = $(THUMB_C_OBJS) $(THUMB_CXX_OBJS)
+ASM_OBJS   = $(ASM_SOURCE:.s=.o)
 
 all: $(BINNAME).bin
 
 $(BINNAME).bin : $(BINNAME).elf
-	$(OBJCOPY) $(BINNAME).elf -O binary $(BINNAME).bin
+	cp $(BINNAME).elf $(BINNAME)-stripped.elf
+	$(TOOLPRE)-strip -s -R .comment $(BINNAME)-stripped.elf
+	$(TOOLPRE)-size --format=sysv $(BINNAME)-stripped.elf
+	$(TOOLPRE)-objcopy $(BINNAME)-stripped.elf -O binary $(BINNAME).bin
+	rm $(BINNAME)-stripped.elf
 
-# FIXME right now, all debugging/relocation information is thrown away
-$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(GAS_OBJS)
-	$(CC) $(ARM_OBJS) $(THUMB_OBJS) $(GAS_OBJS) -o $@ $(LINKER_FLAGS)
-	arm-eabi-strip -s -R .comment $@
-	arm-eabi-size --format=sysv -x $@
+$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS)
+	$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ASM_OBJS) -o $@ $(LINKER_FLAGS)
 
-$(THUMB_OBJS) : %.o : %.c FreeRTOSConfig.h
-	$(CC) -c $(CFLAGS) -mthumb $< -o $@
+$(THUMB_C_OBJS) : %.o : %.c FreeRTOSConfig.h
+	$(TOOLPRE)-gcc -c $(CFLAGS) -mthumb $< -o $@
 
-$(ARM_OBJS) : %.o : %.c FreeRTOSConfig.h
-	$(CC) -c $(CFLAGS) $< -o $@
+$(THUMB_CXX_OBJS) : %.o : %.cpp FreeRTOSConfig.h
+	$(TOOLPRE)-g++ -c $(CXXFLAGS) -mthumb $< -o $@
 
-$(GAS_OBJS) : %.o : %.s
-	$(CC) -c $(GAS_FLAGS) $< -o $@
+$(ARM_C_OBJS) : %.o : %.c FreeRTOSConfig.h
+	$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
+
+$(ARM_CXX_OBJS) : %.o : %.cpp FreeRTOSConfig.h
+	$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
+
+$(ASM_OBJS) : %.o : %.s
+	$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
 
 clean :
-	rm -f $(THUMB_OBJS) $(ARM_OBJS) $(BINNAME).elf
+	rm -f $(THUMB_OBJS) $(ARM_OBJS) $(BINNAME).elf $(BINNAME).bin
 	
