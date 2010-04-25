@@ -74,6 +74,7 @@ THUMB_SOURCE= \
 		freertos/tasks.c \
 		freertos/portable/GCC/ARM7_LPC23xx/port.c \
 		lib/heap_2.c \
+		lib/alloc.c \
 		lib/syscalls.c
 
 THUMB_CXX_SOURCE= \
