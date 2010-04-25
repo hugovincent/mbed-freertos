@@ -28,13 +28,13 @@ SECTIONS
 		*(.rodata*)
 		*(.gnu.linkonce.r.*)
 		. = ALIGN(4);
-  } > ROM
+	} > ROM
 
-  . = ALIGN(4);
+	. = ALIGN(4);
 
-  /* .ctors .dtors are used for c++ constructors/destructors */
-  .ctors :
-  {
+	/* .ctors .dtors are used for c++ constructors/destructors */
+	.ctors :
+	{
 	  PROVIDE(__ctors_start__ = . );
 	  KEEP(*(SORT(.ctors.*)))
 	  KEEP(*(.ctors))
@@ -52,6 +52,19 @@ SECTIONS
 		PROVIDE(__dtors_end__ = . );
 		. = ALIGN(4);
 	} > ROM
+
+	/* for exception handling/unwind - some Newlib functions use this. */
+	.ARM.extab : 
+	{
+		*(.ARM.extab* .gnu.linkonce.armextab.*)
+	} > ROM
+
+	__exidx_start = .;
+	.ARM.exidx :
+	{
+		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
+	} > ROM
+	__exidx_end = .;
 
 	. = ALIGN(4);
 
