@@ -36,8 +36,7 @@ LINKER_FLAGS= \
 		-nostartfiles \
 		-T$(LDSCRIPT) \
 		-Wl,--gc-sections \
-#		-Wl,--print-gc-sections \
-		-Wl,--no-warn-mismatch
+#		-Wl,--print-gc-sections
 
 GAS_FLAGS= \
 		-mcpu=arm7tdmi \
@@ -75,6 +74,7 @@ THUMB_SOURCE= \
 ARM_SOURCE= \
 		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
 		lib/webserver/EMAC_ISR.c
+#		lib/uart_ISR.c
 
 GAS_SOURCE= \
 		crt0.s
@@ -88,17 +88,19 @@ all: $(BINNAME).bin
 $(BINNAME).bin : $(BINNAME).elf
 	$(OBJCOPY) $(BINNAME).elf -O binary $(BINNAME).bin
 
-$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(GAS_OBJS) Makefile
+# FIXME right now, all debugging/relocation information is thrown away
+$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(GAS_OBJS)
 	$(CC) $(ARM_OBJS) $(THUMB_OBJS) $(GAS_OBJS) -o $@ $(LINKER_FLAGS)
+	arm-eabi-strip -s -R .comment $@
 	arm-eabi-size --format=sysv -x $@
 
-$(THUMB_OBJS) : %.o : %.c Makefile FreeRTOSConfig.h
+$(THUMB_OBJS) : %.o : %.c FreeRTOSConfig.h
 	$(CC) -c $(CFLAGS) -mthumb $< -o $@
 
-$(ARM_OBJS) : %.o : %.c Makefile FreeRTOSConfig.h
+$(ARM_OBJS) : %.o : %.c FreeRTOSConfig.h
 	$(CC) -c $(CFLAGS) $< -o $@
 
-$(GAS_OBJS) : %.o : %.s Makefile
+$(GAS_OBJS) : %.o : %.s
 	$(CC) -c $(GAS_FLAGS) $< -o $@
 
 clean :
