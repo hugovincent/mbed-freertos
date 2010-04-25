@@ -2,7 +2,7 @@
 # Hugo Vincent, April 25 2010
 
 # Note: after installing an arm-eabi-* toolchain using the instructions at
-# http://github.com/jsnyder/arm-eabi-toolchain, run setup-colorgcc.sh in util
+# http://github.com/hugovincent/arm-eabi-toolchain, run setup-colorgcc.sh in util
 
 TOOLPRE=util/arm-eabi
 LDSCRIPT=util/lpc2368.ld

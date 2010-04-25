@@ -3,7 +3,7 @@ Ripped and mixed from FreeRTOS 6.0.4 by Hugo Vincent.
 www.freertos.org
 
 Tested with the Codesourcery 2009q3-68 toolchain, built from source with
-http://github.com/jsnyder/arm-eabi-toolchain on Mac OS X 10.6. 
+http://github.com/hugovincent/arm-eabi-toolchain on Mac OS X 10.6
 
 IMPORTANT NOTE: this is for mbed beta program hardware, which used the
 LPC2368 instead of the newer LPC1768. I intend to port this to support both 
