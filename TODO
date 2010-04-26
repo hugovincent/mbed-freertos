@@ -2,7 +2,6 @@ BUGS:
 [ ] Fix UART threading/queuing/interrupt(?) reliability issue.
 [ ] Fix UART baud rate issue and test fractional baud rate algorithm better.
 [ ] Test ethernet code.
-[ ] Fix/test WDT code.
 [ ] Fix/debug power saving (Idle Mode) problem.
 [ ] Refactor UART code to support all 4 UARTs.
 [ ] Optimize UART code (maybe a ring buffer would be better?).
@@ -41,4 +40,8 @@ contributions!).
 
 EXTERNAL DEVICE DRIVERS:
 (to be determined)
+
+-------------------------------------------------------------------------------
+DONE:
+[x] Fix/test WDT code.
 

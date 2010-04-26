@@ -103,7 +103,7 @@ ASM_OBJS   = $(ASM_SOURCE:.s=.o)
 all: $(BINNAME).bin
 
 $(BINNAME).bin : $(BINNAME).elf
-	@echo "  [Converting to binary format: $(BINNAME).bin]"
+	@echo "  [Converting to binary ] $(BINNAME).bin"
 	@cp $(BINNAME).elf $(BINNAME)-stripped.elf
 	@$(TOOLPRE)-strip -s -R .comment $(BINNAME)-stripped.elf
 	@$(TOOLPRE)-size --format=sysv $(BINNAME)-stripped.elf | grep Total | awk '{print "   -> Total size (bytes):", $$2}'
@@ -111,7 +111,7 @@ $(BINNAME).bin : $(BINNAME).elf
 	@rm $(BINNAME)-stripped.elf
 
 $(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS)
-	@echo "  [Linking...           ]"
+	@echo "  [Linking and stripping] $@"
 	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ASM_OBJS) -o $@ $(LINKER_FLAGS)
 
 $(THUMB_C_OBJS) : %.o : %.c FreeRTOSConfig.h

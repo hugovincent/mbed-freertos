@@ -123,6 +123,9 @@ extern "C" {
 #define mainMAM_TIM_3		( ( unsigned portCHAR ) 0x03 )
 #define mainMAM_MODE_FULL	( ( unsigned portCHAR ) 0x02 )
 
+/* Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 2s timeout) */
+#define mainWDT_TIMEOUT		( 1000000 * 2 )
+
 /* The task that handles the uIP stack.  All TCP/IP processing is performed in
  * this task.
  */
@@ -151,6 +154,13 @@ int main( void )
     vStartQueuePeekTasks();   
     vStartDynamicPriorityTasks();
 
+		uart0PutChar('h', 0);
+		uart0PutChar('e', 0);
+		uart0PutChar('r', 0);
+		uart0PutChar('e', 0);
+		uart0PutChar('\r', 0);
+		uart0PutChar('\n', 0);
+
 	/* Start the scheduler. */
 	vTaskStartScheduler();
 
@@ -159,10 +169,18 @@ int main( void )
 }
 /*-----------------------------------------------------------*/
 
+static void prvWDT_FeedWatchdog( void )
+{
+	portENTER_CRITICAL();
+	WDFEED = 0xAA; WDFEED = 0x55;
+	portEXIT_CRITICAL();
+}
+/*-----------------------------------------------------------*/
+
 extern "C" void vApplicationIdleHook( void )
 {
 	/* Put processor core into Idle Mode to conserve power */
-	//PCON |= 0x1;  // FIXME this is crashy
+	PCON |= 0x1; // FIXME this is crashy
 }
 /*-----------------------------------------------------------*/
 
@@ -175,14 +193,8 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 	ulTicksSinceLastDisplay++;
 	if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
 	{
+		prvWDT_FeedWatchdog();
 		ulTicksSinceLastDisplay = 0;
-
-		uart0PutChar('h', 0);
-		uart0PutChar('e', 0);
-		uart0PutChar('r', 0);
-		uart0PutChar('e', 0);
-		uart0PutChar('\r', 0);
-		uart0PutChar('\n', 0);
 
 #if 0
 		/* Has an error been found in any task? */
@@ -219,7 +231,7 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
 static void prvSetupHardware( void )
 {
-	portDISABLE_INTERRUPTS ();
+	portENTER_CRITICAL();
 	
 	/* Disable the PLL. */
 	PLLCON = 0;
@@ -259,13 +271,11 @@ static void prvSetupHardware( void )
 	
 	/* Setup the watchdog timer (2 second timeout). */
 	// FIXME check/clear reset-reason for WDT reset
-#if 0
 	WDMOD = 0x03; // enable and reset
-	WDTC = 3000000;
+	WDTC = mainWDT_TIMEOUT;
 	WDFEED = 0xAA; WDFEED = 0x55;
-#endif
 
-	portENABLE_INTERRUPTS ();
+	portEXIT_CRITICAL();
 
 	/* Setup the led's on the mbed board. */
 	vParTestInitialise();
