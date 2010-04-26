@@ -1,6 +1,6 @@
 extern "C" {
-#include "FreeRTOS.h"
-#include "partest.h"
+#include <FreeRTOS.h>
+#include "hardware/gpio.h"
 #include "CxxTest.h"
 }
 

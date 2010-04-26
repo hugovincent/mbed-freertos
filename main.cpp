@@ -77,16 +77,16 @@ extern "C" {
 #include "semphr.h"
 
 /* Demo app includes. */
-#include "BlockQ.h"
-#include "death.h"
-#include "blocktim.h"
-#include "flash.h"
-#include "partest.h"
-#include "GenQTest.h"
-#include "QPeek.h"
-#include "dynamic.h"
+#include "example_tasks/BlockQ.h"
+#include "example_tasks/death.h"
+#include "example_tasks/blocktim.h"
+#include "example_tasks/flash.h"
+#include "example_tasks/GenQTest.h"
+#include "example_tasks/QPeek.h"
+#include "example_tasks/dynamic.h"
 
-#include "lib/uart/uart0.h"
+#include "hardware/gpio.h"
+#include "hardware/uart.h"
 
 } // end extern "C"
 
@@ -104,12 +104,13 @@ extern "C" {
 #define mainCREATOR_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
 #define mainGEN_QUEUE_TASK_PRIORITY			( tskIDLE_PRIORITY ) 
 
-/* Constants to setup the PLL for 60 MHz cpu clock and USB support.
- * External crystal = 12 MHz, Fcco = 480 MHz
+/* Constants to setup the PLL for 72 MHz cpu clock and USB support.
+ * External crystal = 12 MHz, Fcco = 288 MHz
  */
-#define mainPLL_MUL			( ( unsigned portLONG ) ( 20 - 1 ) )
-#define mainPLL_DIV			( ( unsigned portLONG ) ( 1 - 1 ) )
-#define mainCPU_CLK_DIV		( ( unsigned portLONG ) ( 8 - 1) )
+#define mainPLL_MUL			( ( unsigned portLONG ) 12 )
+#define mainPLL_DIV			( ( unsigned portLONG ) 1 )
+#define mainCPU_CLK_DIV		( ( unsigned portLONG ) 4 )
+#define mainUSB_CLK_DIV		( ( unsigned portLONG ) 6 ) 
 #define mainPLL_ENABLE		( ( unsigned portLONG ) 0x0001 )
 #define mainPLL_CONNECT		( ( ( unsigned portLONG ) 0x0002 ) | mainPLL_ENABLE )
 #define mainPLL_LOCK		( ( unsigned portLONG ) 0x4000000 )
@@ -117,14 +118,13 @@ extern "C" {
 #define mainOSC_ENABLE		( ( unsigned portLONG ) 0x20 )
 #define mainOSC_STAT		( ( unsigned portLONG ) 0x40 )
 #define mainOSC_SELECT		( ( unsigned portLONG ) 0x01 )
-#define mainUSB_CLK_DIV		( ( unsigned portLONG ) ( 10 - 1 ) ) 
 
 /* Constants to setup the MAM. */
-#define mainMAM_TIM_3		( ( unsigned portCHAR ) 0x03 )
+#define mainMAM_TIM_4		( ( unsigned portCHAR ) 0x04 )
 #define mainMAM_MODE_FULL	( ( unsigned portCHAR ) 0x02 )
 
-/* Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 2s timeout) */
-#define mainWDT_TIMEOUT		( 1000000 * 2 )
+/* Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 4s timeout) */
+#define mainWDT_TIMEOUT		( 1000000 * 4 )
 
 /* The task that handles the uIP stack.  All TCP/IP processing is performed in
  * this task.
@@ -154,12 +154,12 @@ int main( void )
     vStartQueuePeekTasks();   
     vStartDynamicPriorityTasks();
 
-		uart0PutChar('h', 0);
-		uart0PutChar('e', 0);
-		uart0PutChar('r', 0);
-		uart0PutChar('e', 0);
-		uart0PutChar('\r', 0);
-		uart0PutChar('\n', 0);
+	uart0PutChar('b', 0);
+	uart0PutChar('o', 0);
+	uart0PutChar('o', 0);
+	uart0PutChar('t', 0);
+	uart0PutChar('\r', 0);
+	uart0PutChar('\n', 0);
 
 	/* Start the scheduler. */
 	vTaskStartScheduler();
@@ -196,6 +196,12 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 		prvWDT_FeedWatchdog();
 		ulTicksSinceLastDisplay = 0;
 
+		uart0PutChar(' ', 0);
+		uart0PutChar('t', 0);
+		uart0PutChar('i', 0);
+		uart0PutChar('c', 0);
+		uart0PutChar('\r', 0);
+		uart0PutChar('\n', 0);
 #if 0
 		/* Has an error been found in any task? */
         if( xAreBlockingQueuesStillRunning() != pdTRUE )
@@ -242,8 +248,8 @@ static void prvSetupHardware( void )
 	while( !( SCS & mainOSC_STAT ) );
 	CLKSRCSEL = mainOSC_SELECT; 
 	
-	/* Setup the PLL to multiply the XTAL input (12 MHz) by 5. */
-	PLLCFG = ( mainPLL_MUL | (mainPLL_DIV << 16) );
+	/* Setup the PLL to multiply the XTAL input (12 MHz) by 6. */
+	PLLCFG = ( (mainPLL_MUL - 1) | ((mainPLL_DIV - 1) << 16) );
 	PLLFEED = 0xAA; PLLFEED = 0x55;
 
 	/* Turn on and wait for the PLL to lock. */
@@ -252,8 +258,8 @@ static void prvSetupHardware( void )
 	while( !( PLLSTAT & mainPLL_LOCK ) );
 
 	/* Set clock dividors for CPU and USB blocks. */
-	CCLKCFG = mainCPU_CLK_DIV;	
-	USBCLKCFG = mainUSB_CLK_DIV;
+	CCLKCFG = (mainCPU_CLK_DIV - 1);	
+	USBCLKCFG = (mainUSB_CLK_DIV - 1);
 	
 	/* Connect the PLL and wait for it to connect. */
 	PLLCON = mainPLL_CONNECT;
@@ -261,15 +267,15 @@ static void prvSetupHardware( void )
 	PLLFEED = 0x55;
 	while( !( PLLSTAT & mainPLL_CONNECTED ) ); 
 	
-	/* Setup and turn on the MAM.  Three cycle access is used due to the fast
+	/* Setup and turn on the MAM.  Four cycle access is used due to the fast
 	 * PLL used.  It is possible faster overall performance could be obtained by
 	 * tuning the MAM and PLL settings.
 	 */
 	MAMCR = 0;
-	MAMTIM = mainMAM_TIM_3;
+	MAMTIM = mainMAM_TIM_4;
 	MAMCR = mainMAM_MODE_FULL;
 	
-	/* Setup the watchdog timer (2 second timeout). */
+	/* Setup the watchdog timer (4 second timeout). */
 	// FIXME check/clear reset-reason for WDT reset
 	WDMOD = 0x03; // enable and reset
 	WDTC = mainWDT_TIMEOUT;

@@ -1,15 +1,15 @@
 BUGS:
 [ ] Fix UART threading/queuing/interrupt(?) reliability issue.
-[ ] Fix UART baud rate issue and test fractional baud rate algorithm better.
+[ ] Refactor UART code to support all 4 UARTs.
 [ ] Test ethernet code.
 [ ] Fix/debug power saving (Idle Mode) problem.
-[ ] Refactor UART code to support all 4 UARTs.
 [ ] Optimize UART code (maybe a ring buffer would be better?).
 [ ] Test/fix/finish the syscalls interface.
 [ ] Fix reentrancy in allocator wrapper.
 [ ] Check battery-backed RAM wrt memory map/linker script.
 
 GENERALIZATIONS:
+[ ] Fix ParTest into general purpose GPIO api.
 [ ] Try to tidy up and generalize the IRQ handling mess. Perhaps that 
     crt0.s-based solution was nicer after all.
 [ ] Provide bootcode and linker script for LPC1768-based mbed devices. 
@@ -44,4 +44,5 @@ EXTERNAL DEVICE DRIVERS:
 -------------------------------------------------------------------------------
 DONE:
 [x] Fix/test WDT code.
+[x] Fix UART baud rate issue and test fractional baud rate algorithm better.
 

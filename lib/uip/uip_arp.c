@@ -59,7 +59,7 @@
  */
 
 
-#include "uip_arp.h"
+#include "uip/uip_arp.h"
 
 #include <string.h>
 

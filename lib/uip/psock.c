@@ -36,9 +36,9 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "uipopt.h"
-#include "psock.h"
-#include "uip.h"
+#include "uip/uipopt.h"
+#include "uip/psock.h"
+#include "uip/uip.h"
 
 #define STATE_NONE 0
 #define STATE_ACKED 1

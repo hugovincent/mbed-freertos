@@ -16,10 +16,9 @@ COMMON_FLAGS = \
 		$(DEBUG) \
 		$(OPTIM) \
 		-I . \
-		-I lib/include \
+		-I include \
+		-I freertos/include \
 		-I freertos/portable/GCC/ARM7_LPC23xx \
-		-I lib/webserver \
-		-I lib/uip \
 		-D MBED_LPC23xx \
 		-D THUMB_INTERWORK \
 		-mcpu=arm7tdmi \
@@ -51,31 +50,31 @@ ASM_FLAGS= \
 		-x assembler-with-cpp 
 
 THUMB_SOURCE= \
-		lib/ParTest.c \
-		lib/common/BlockQ.c \
-		lib/common/blocktim.c \
-		lib/common/flash.c \
-		lib/common/integer.c \
-		lib/common/GenQTest.c \
-		lib/common/QPeek.c \
-		lib/common/dynamic.c \
-		lib/webserver/uIP_Task.c \
-		lib/webserver/emac.c \
-		lib/webserver/httpd.c \
-		lib/webserver/httpd-cgi.c \
-		lib/webserver/httpd-fs.c \
-		lib/webserver/http-strings.c \
+		example_tasks/BlockQ.c \
+		example_tasks/blocktim.c \
+		example_tasks/flash.c \
+		example_tasks/integer.c \
+		example_tasks/GenQTest.c \
+		example_tasks/QPeek.c \
+		example_tasks/dynamic.c \
+		webserver/uIP_Task.c \
 		lib/uip/uip_arp.c \
 		lib/uip/psock.c \
 		lib/uip/timer.c \
 		lib/uip/uip.c \
-		lib/uart/uart0.c \
-		lib/uart/FractionalBaud.c \
+		lib/uip/httpd.c \
+		lib/uip/httpd-cgi.c \
+		lib/uip/httpd-fs.c \
+		lib/uip/http-strings.c \
+		hardware/uart/uart.c \
+		hardware/uart/uartFractionalBaud.c \
+		hardware/gpio/ParTest.c \
+		hardware/emac/emac.c \
 		freertos/list.c \
 		freertos/queue.c \
 		freertos/tasks.c \
 		freertos/portable/GCC/ARM7_LPC23xx/port.c \
-		lib/heap_2.c \
+		freertos/portable/MemMang/heap_2.c \
 		lib/alloc.c \
 		lib/syscalls.c
 
@@ -85,8 +84,8 @@ THUMB_CXX_SOURCE= \
 
 ARM_SOURCE= \
 		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
-		lib/webserver/EMAC_ISR.c \
-		lib/uart/uart0ISR.c
+		hardware/emac/emacISR.c \
+		hardware/uart/uartISRs.c
 
 ASM_SOURCE= \
 		util/crt0.s
@@ -114,19 +113,19 @@ $(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS)
 	@echo "  [Linking and stripping] $@"
 	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ASM_OBJS) -o $@ $(LINKER_FLAGS)
 
-$(THUMB_C_OBJS) : %.o : %.c FreeRTOSConfig.h
+$(THUMB_C_OBJS) : %.o : %.c
 	@echo "  [Compiling   (Thumb/C)] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) -mthumb $< -o $@
 
-$(THUMB_CXX_OBJS) : %.o : %.cpp FreeRTOSConfig.h
+$(THUMB_CXX_OBJS) : %.o : %.cpp
 	@echo "  [Compiling (Thumb/C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) -mthumb $< -o $@
 
-$(ARM_C_OBJS) : %.o : %.c FreeRTOSConfig.h
+$(ARM_C_OBJS) : %.o : %.c
 	@echo "  [Compiling     (ARM/C)] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
 
-$(ARM_CXX_OBJS) : %.o : %.cpp FreeRTOSConfig.h
+$(ARM_CXX_OBJS) : %.o : %.cpp
 	@echo "  [Compiling   (ARM/C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 

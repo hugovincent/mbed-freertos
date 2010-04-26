@@ -28,8 +28,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 
-#include "lib/uart/uart0.h"
-#include "lib/rtc/rtc.h"
+#include "hardware/uart.h"
+//#include "hardware/rtc.h"
 
 //
 //  Forward prototypes
