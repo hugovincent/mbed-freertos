@@ -57,8 +57,6 @@
 /* Demo application includes. */
 #include "partest.h"
 
-#include <stdint.h>
-
 /*-----------------------------------------------------------
  * Simple parallel port IO routines.
  *-----------------------------------------------------------*/
@@ -75,7 +73,7 @@ void vParTestInitialise( void )
 void vParTestSetLED( unsigned portBASE_TYPE uxLED, signed portBASE_TYPE xValue )
 {
 	/* Rotate to the wanted bit of port */
-	uint32_t ulLED = 0x1 << uxLED;
+	portLONG ulLED = 0x1 << uxLED;
 
 	/* Set of clear the output. */
 	if( !xValue )
@@ -92,10 +90,10 @@ void vParTestSetLED( unsigned portBASE_TYPE uxLED, signed portBASE_TYPE xValue )
 void vParTestToggleLED( unsigned portBASE_TYPE uxLED )
 {
 	/* Rotate to the wanted bit of port */
-	uint32_t ulLED = 0x1 << uxLED;
+	portLONG ulLED = 0x1 << uxLED;
 
 	/* If this bit is already set, clear it, and visa versa. */
-	uint32_t ulCurrentState = FIO1PIN;
+	portLONG ulCurrentState = FIO1PIN;
 	if( ulCurrentState & ulLED )
 	{
 		FIO1CLR = ulLED;
@@ -110,7 +108,7 @@ void vParTestToggleLED( unsigned portBASE_TYPE uxLED )
 unsigned portBASE_TYPE uxParTextGetLED( unsigned portBASE_TYPE uxLED )
 {
 	/* Rotate to the wanted bit of port */
-	uint32_t ulLED = 0x1 << uxLED;
+	portLONG ulLED = 0x1 << uxLED;
 
     return !(FIO1PIN & ulLED) ? 1 : 0;
 }

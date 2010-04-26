@@ -66,7 +66,6 @@
 
 
 #include <stdlib.h>
-#include <stdint.h>
 
 /* Scheduler include files. */
 #include "FreeRTOS.h"
@@ -78,7 +77,7 @@
 
 #define ledSTACK_SIZE		( configMINIMAL_STACK_SIZE )
 #define ledNUMBER_OF_LEDS	( 4 )
-#define ledFLASH_RATE_BASE	( ( portTickType ) 333 )
+#define ledFLASH_RATE_BASE	( ( portTickType ) 500 )
 
 /* Variable used by the created tasks to calculate the LED number to use, and
 the rate at which they should flash the LED. */
@@ -106,7 +105,7 @@ static portTASK_FUNCTION( vLEDFlashTask, pvParameters )
 {
 portTickType xFlashRate, xLastFlashTime;
 unsigned portBASE_TYPE uxLED;
-	uint32_t pin_map[] = {18, 20, 21, 23};	
+	portLONG pin_map[] = {18, 20, 21, 23};	
 
 	/* The parameters are not used. */
 	( void ) pvParameters;
@@ -122,7 +121,7 @@ unsigned portBASE_TYPE uxLED;
 	}
 	portEXIT_CRITICAL();
 
-	xFlashRate = ledFLASH_RATE_BASE + ( ledFLASH_RATE_BASE * ( portTickType ) uxFlashTaskNumber );
+	xFlashRate = ledFLASH_RATE_BASE + (ledFLASH_RATE_BASE * (portTickType)uxFlashTaskNumber);
 	xFlashRate /= portTICK_RATE_MS;
 
 	/* We will turn the LED on and off again in the delay period, so each
