@@ -23,7 +23,7 @@ static xQueueHandle xTX0Queue;
 // Communication flag between the interrupt service routine and serial API
 static volatile portCHAR *pcTHREEmpty0;
 
-signed portBASE_TYPE uart0Init (unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength)
+signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength)
 {
 	unsigned portLONG ulDivisor, ulFracDiv;
 	static unsigned portLONG sulWantedBaud = 115200;
@@ -37,20 +37,21 @@ signed portBASE_TYPE uart0Init (unsigned portLONG ulWantedBaud, unsigned portBAS
 		uxQueueLength = suxQueueLength;
 	suxQueueLength = uxQueueLength;
 
-	uart0ISRCreateQueues(uxQueueLength, &xRX0Queue, &xTX0Queue, &pcTHREEmpty0);
+	uart0ISRCreateQueues(suxQueueLength, &xRX0Queue, &xTX0Queue, &pcTHREEmpty0);
 
-	if ((xRX0Queue == serINVALID_QUEUE) || (xTX0Queue == serINVALID_QUEUE) || (ulWantedBaud == (unsigned portLONG) 0))
+	if ((xRX0Queue == serINVALID_QUEUE) || (xTX0Queue == serINVALID_QUEUE) || (sulWantedBaud == (unsigned portLONG) 0))
 		return 0;
 
 	portENTER_CRITICAL();
 	{
-		// Setup the pin selection & apply power to the UART
+		// Setup the pin selection & apply clocks/power to the UART
 		// (power should be on at reset, but specifically enable it just in case)
 		PINSEL0 |= 0x00000050;
+		PCLKSEL0 |= 0x1<<7;
 		PCONP |= 0x1<<3;
 
 		// Setup a fractional baud rate
-		FindBaudWithFractional(ulWantedBaud, &ulDivisor, &ulFracDiv);
+		FindBaudWithFractional(sulWantedBaud, &ulDivisor, &ulFracDiv);
 		U0FDR = ulFracDiv;
 
 		// Set the DLAB bit so we can access the divisor
@@ -68,9 +69,8 @@ signed portBASE_TYPE uart0Init (unsigned portLONG ulWantedBaud, unsigned portBAS
 		U0FCR = UART_FCR_EN | UART_FCR_CLR;
 
 		// Setup the VIC for the UART
-		VICIntSelect &= ~VIC_UART0;
-		VICVectAddr2 = (portLONG)uart0ISR;
-		VICVectCntl2 = VIC_VectCntl_ENABLE | VIC_Channel_UART0;
+		VICIntSelect &= ~VIC_UART0; // normal IRQ (not FIQ)
+		VICVectAddr6 = (portLONG)&uart0ISR;
 		VICIntEnable = VIC_UART0;
 
 		// Enable UART0 interrupts

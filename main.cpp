@@ -175,7 +175,7 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 	{
 		ulTicksSinceLastDisplay = 0;
 
-		for (int j = 0; j < 10; j++)
+	//	for (int j = 0; j < 10; j++)
 		{
 			uart0PutChar('h', 0);
 			uart0PutChar('e', 0);

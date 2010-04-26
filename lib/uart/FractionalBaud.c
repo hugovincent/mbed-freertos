@@ -95,7 +95,6 @@ void FindBaudWithFractional(unsigned portLONG ulWantedBaud,
 	// Setup the baud rate:  Calculate the divisor value
 	*ulDivisor = configCPU_CLOCK_HZ / (ulWantedBaud * 16);
 
-#if 0
 	// Check for integer divisor, otherwise compute fractional divisors
 	if (configCPU_CLOCK_HZ % (ulWantedBaud * 16) != 0)
 	{
@@ -114,6 +113,5 @@ void FindBaudWithFractional(unsigned portLONG ulWantedBaud,
 			}
 		}
 	}
-#endif
 	*ulFracDiv = (ulDivAddVal & 0x0F) | ((ulMulVal & 0x0F) << 4);
 }

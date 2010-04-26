@@ -26,7 +26,7 @@ static xQueueHandle xRX0Queue;
 static xQueueHandle xTX0Queue; 
 static volatile portCHAR lTHREEmpty0;
 
-void uart0ISRCreateQueues (unsigned portBASE_TYPE uxQueueLength, xQueueHandle *pxRX0Queue, xQueueHandle *pxTX0Queue, portCHAR volatile **ppcTHREEmptyFlag)
+void uart0ISRCreateQueues(unsigned portBASE_TYPE uxQueueLength, xQueueHandle *pxRX0Queue, xQueueHandle *pxTX0Queue, portCHAR volatile **ppcTHREEmptyFlag)
 {
 	// Create the queues used to hold Rx and Tx characters
 	*pxRX0Queue = xRX0Queue = xQueueCreate(uxQueueLength, (unsigned portBASE_TYPE)sizeof(signed portCHAR));
@@ -37,7 +37,7 @@ void uart0ISRCreateQueues (unsigned portBASE_TYPE uxQueueLength, xQueueHandle *p
 	*ppcTHREEmptyFlag = &lTHREEmpty0;
 }
 
-void uart0ISR_Handler (void)
+void uart0ISR_Handler(void)
 {
 	signed portCHAR cChar;
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
@@ -92,7 +92,7 @@ void uart0ISR_Handler (void)
 	}
 }
 
-void uart0ISR (void)
+void uart0ISR(void)
 {
 	/* Save the context of the interrupted task. */
 	portSAVE_CONTEXT();

@@ -17,7 +17,6 @@
 #define VIC_UART1     (0x00000080)
 #define VIC_Channel_UART0       (6)
 #define VIC_Channel_UART1       (7)
-#define VIC_VectCntl_ENABLE     (0x00000020)
 
 // Constants to setup and access the VIC
 #define serINVALID_QUEUE  ((xQueueHandle) 0)
