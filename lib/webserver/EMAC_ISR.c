@@ -30,6 +30,7 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 }
 /*-----------------------------------------------------------*/
 
+__attribute__((naked))
 void vEMAC_ISR_Wrapper( void )
 {
 	/* Save the context of the interrupted task. */

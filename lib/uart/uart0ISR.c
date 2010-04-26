@@ -92,6 +92,7 @@ void uart0ISR_Handler(void)
 	}
 }
 
+__attribute__((naked))
 void uart0ISR(void)
 {
 	/* Save the context of the interrupted task. */
