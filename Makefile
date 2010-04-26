@@ -29,7 +29,7 @@ COMMON_FLAGS = \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
 		-Wstrict-aliasing=3 -fstrict-aliasing \
 		-ffunction-sections -fdata-sections \
-		-mabi=aapcs -mfloat-abi=soft
+		-mabi=aapcs -mapcs-frame -mfloat-abi=soft
 
 CFLAGS = $(COMMON_FLAGS) \
 		-Wstrict-prototypes \
@@ -42,7 +42,7 @@ LINKER_FLAGS= \
 		-nostartfiles \
 		-T$(LDSCRIPT) \
 		-Wl,--gc-sections \
-		-lc -lgcc -lstdc++
+		-lm -lstdc++
 
 ASM_FLAGS= \
 		-mcpu=arm7tdmi \
@@ -69,6 +69,8 @@ THUMB_SOURCE= \
 		lib/uip/psock.c \
 		lib/uip/timer.c \
 		lib/uip/uip.c \
+		lib/uart/uart0.c \
+		lib/uart/FractionalBaud.c \
 		freertos/list.c \
 		freertos/queue.c \
 		freertos/tasks.c \
@@ -83,7 +85,8 @@ THUMB_CXX_SOURCE= \
 
 ARM_SOURCE= \
 		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
-		lib/webserver/EMAC_ISR.c
+		lib/webserver/EMAC_ISR.c \
+		lib/uart/uart0ISR.c
 
 ASM_SOURCE= \
 		util/crt0.s

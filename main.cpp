@@ -86,13 +86,15 @@ extern "C" {
 #include "QPeek.h"
 #include "dynamic.h"
 
+#include "lib/uart/uart0.h"
+
 } // end extern "C"
 
 #include "CxxTest.h"
 
 /* Demo application definitions. */
 #define mainQUEUE_SIZE						( 3 )
-#define mainCHECK_DELAY						( ( portTickType ) 5000 / portTICK_RATE_MS )
+#define mainCHECK_DELAY						( ( portTickType ) 1000 / portTICK_RATE_MS )
 #define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 6 )
 
 /* Task priorities. */
@@ -139,11 +141,11 @@ int main( void )
 {
 	prvSetupHardware();
 
-	CxxTest test;
-	test.someMethod();
+	//CxxTest test;
+	//test.someMethod();
 	
-	/* Create the uIP task.  This uses the lwIP RTOS abstraction layer.*/
-    xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
+	/* Create the uIP task. This uses the lwIP RTOS abstraction layer. */
+    //xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
 
 	/* Start the standard demo tasks. */
 	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
@@ -164,9 +166,7 @@ int main( void )
 
 extern "C" void vApplicationTickHook( void )
 {
-//unsigned portBASE_TYPE uxColumn = 0;
 static unsigned portLONG ulTicksSinceLastDisplay = 0;
-//static portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
 	/* Called from every tick interrupt.  Have enough ticks passed to make it
 	time to perform our health status check again? */
@@ -174,7 +174,17 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 	if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
 	{
 		ulTicksSinceLastDisplay = 0;
-		
+
+		for (int j = 0; j < 10; j++)
+		{
+			uart0PutChar('h', 0);
+			uart0PutChar('e', 0);
+			uart0PutChar('r', 0);
+			uart0PutChar('e', 0);
+			uart0PutChar('\r', 0);
+			uart0PutChar('\n', 0);
+		}
+
 #if 0
 		/* Has an error been found in any task? */
         if( xAreBlockingQueuesStillRunning() != pdTRUE )
@@ -254,6 +264,9 @@ static void prvSetupHardware( void )
 
 	/* Setup the led's on the MCB2300 board */
 	vParTestInitialise();
+
+	/* Setup the debug UART (talks to the PC via the mbed USB CDC channel). */
+	uart0Init(115200, 64);
 }
 
 
