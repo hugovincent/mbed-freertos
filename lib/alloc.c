@@ -1,15 +1,16 @@
 /* 
- * This is a glue between newlib and FreeRTOS heap2 allocator !
+ * This is a glue between newlib and FreeRTOS heap2 allocator.
  * You need to understand how heap2 works and its limitations,
- * otherwise you will run out of memory.
+ * otherwise you *will* run out of memory.
  *
- * Michal Demin - 2010
+ * Copyright 2010, Michal Demin.
  *
- * TODO: reent is there for a reason !
- *
+ * FIXME: reent is there for a reason !
  */
 
 #include <stdlib.h>
+#include <string.h>
+
 #include "FreeRTOS.h"
 #include "task.h"
 

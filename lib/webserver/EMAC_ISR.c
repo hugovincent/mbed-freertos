@@ -30,15 +30,14 @@ portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 }
 /*-----------------------------------------------------------*/
 
-__attribute__((naked))
-void vEMAC_ISR_Wrapper( void )
+__attribute__((naked)) void vEMAC_ISR_Wrapper()
 {
 	/* Save the context of the interrupted task. */
     portSAVE_CONTEXT();
     
     /* Call the handler.  This must be a separate function unless you can
     guarantee that no stack will be used. */
-    __asm volatile ( "bl vEMAC_ISR_Handler" );
+    asm volatile ( "bl vEMAC_ISR_Handler" );
     
     /* Restore the context of whichever task is going to run next. */
     portRESTORE_CONTEXT();

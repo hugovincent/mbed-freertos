@@ -1,0 +1,44 @@
+BUGS:
+[ ] Fix UART threading/queuing/interrupt(?) reliability issue.
+[ ] Fix UART baud rate issue and test fractional baud rate algorithm better.
+[ ] Test ethernet code.
+[ ] Fix/test WDT code.
+[ ] Fix/debug power saving (Idle Mode) problem.
+[ ] Refactor UART code to support all 4 UARTs.
+[ ] Optimize UART code (maybe a ring buffer would be better?).
+[ ] Test/fix/finish the syscalls interface.
+[ ] Fix reentrancy in allocator wrapper.
+[ ] Check battery-backed RAM wrt memory map/linker script.
+
+GENERALIZATIONS:
+[ ] Try to tidy up and generalize the IRQ handling mess. Perhaps that 
+    crt0.s-based solution was nicer after all.
+[ ] Provide bootcode and linker script for LPC1768-based mbed devices. 
+[ ] All the peripheral drivers should be C++-ified and made as API-compatible
+    with mbed standard library as is possible and desirable within the context 
+    of an RTOS.
+[ ] All application-level APIs should work the same on either mbed processor type.
+
+ADDITIONS:
+[ ] Add mbed local file system support. Some details here: 
+		http://mbed.org/users/jsnyder/notebook/elua-preliminary-port/
+		http://svn.berlios.de/wsvn/elua/trunk/src/?op=log&rev=0&sc=0&isdir=1
+[ ] Integrate local FS with syscalls/std. library.
+[ ] Switch to lwIP instead of uIP (maybe?). uIP is kindof ugly...
+[ ] Add more standard library and syscall niceities. 
+
+ON-CHIP PERIPHERAL DRIVERS:
+[ ] Add I2C master (all 3 busses).
+[ ] Add SPI master.
+[ ] Add ADC.
+[ ] Add PWM.
+[ ] Add RTC.
+[ ] Add USB device with CDC virtual serial port.
+
+I personally have no plans at present to support CAN, SD/MMC controller,
+general USB device/host, general SSP, I2S, DAC (although I welcome
+contributions!).
+
+EXTERNAL DEVICE DRIVERS:
+(to be determined)
+

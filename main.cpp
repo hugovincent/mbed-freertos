@@ -90,10 +90,9 @@ extern "C" {
 
 } // end extern "C"
 
-#include "CxxTest.h"
+//#include "CxxTest.h"
 
 /* Demo application definitions. */
-#define mainQUEUE_SIZE						( 3 )
 #define mainCHECK_DELAY						( ( portTickType ) 1000 / portTICK_RATE_MS )
 #define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 6 )
 
@@ -113,8 +112,6 @@ extern "C" {
 #define mainCPU_CLK_DIV		( ( unsigned portLONG ) ( 8 - 1) )
 #define mainPLL_ENABLE		( ( unsigned portLONG ) 0x0001 )
 #define mainPLL_CONNECT		( ( ( unsigned portLONG ) 0x0002 ) | mainPLL_ENABLE )
-#define mainPLL_FEED_BYTE1	( ( unsigned portLONG ) 0xaa )
-#define mainPLL_FEED_BYTE2	( ( unsigned portLONG ) 0x55 )
 #define mainPLL_LOCK		( ( unsigned portLONG ) 0x4000000 )
 #define mainPLL_CONNECTED	( ( unsigned portLONG ) 0x2000000 )
 #define mainOSC_ENABLE		( ( unsigned portLONG ) 0x20 )
@@ -126,8 +123,7 @@ extern "C" {
 #define mainMAM_TIM_3		( ( unsigned portCHAR ) 0x03 )
 #define mainMAM_MODE_FULL	( ( unsigned portCHAR ) 0x02 )
 
-/* 
- * The task that handles the uIP stack.  All TCP/IP processing is performed in
+/* The task that handles the uIP stack.  All TCP/IP processing is performed in
  * this task.
  */
 extern "C" void vuIP_Task( void *pvParameters );
@@ -158,9 +154,15 @@ int main( void )
 	/* Start the scheduler. */
 	vTaskStartScheduler();
 
-    /* Will only get here if there was insufficient memory to create the idle
-    task. */
+    /* Will only get here if there was insufficient memory to create the idle task. */
 	return 0; 
+}
+/*-----------------------------------------------------------*/
+
+extern "C" void vApplicationIdleHook( void )
+{
+	/* Put processor core into Idle Mode to conserve power */
+	//PCON |= 0x1;  // FIXME this is crashy
 }
 /*-----------------------------------------------------------*/
 
@@ -168,22 +170,19 @@ extern "C" void vApplicationTickHook( void )
 {
 static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
-	/* Called from every tick interrupt.  Have enough ticks passed to make it
-	time to perform our health status check again? */
+	/* Called from every tick interrupt. Have enough ticks passed to make it
+	 * time to perform our health status check again? */
 	ulTicksSinceLastDisplay++;
 	if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
 	{
 		ulTicksSinceLastDisplay = 0;
 
-	//	for (int j = 0; j < 10; j++)
-		{
-			uart0PutChar('h', 0);
-			uart0PutChar('e', 0);
-			uart0PutChar('r', 0);
-			uart0PutChar('e', 0);
-			uart0PutChar('\r', 0);
-			uart0PutChar('\n', 0);
-		}
+		uart0PutChar('h', 0);
+		uart0PutChar('e', 0);
+		uart0PutChar('r', 0);
+		uart0PutChar('e', 0);
+		uart0PutChar('\r', 0);
+		uart0PutChar('\n', 0);
 
 #if 0
 		/* Has an error been found in any task? */
@@ -220,58 +219,58 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
 static void prvSetupHardware( void )
 {
+	portDISABLE_INTERRUPTS ();
+	
 	/* Disable the PLL. */
 	PLLCON = 0;
-	PLLFEED = mainPLL_FEED_BYTE1;
-	PLLFEED = mainPLL_FEED_BYTE2;
+	PLLFEED = 0xAA; PLLFEED = 0x55;
 	
-	/* Configure clock source. */
+	/* Turn on the oscillator clock source and wait for it to start. */
 	SCS |= mainOSC_ENABLE;
 	while( !( SCS & mainOSC_STAT ) );
 	CLKSRCSEL = mainOSC_SELECT; 
 	
 	/* Setup the PLL to multiply the XTAL input (12 MHz) by 5. */
 	PLLCFG = ( mainPLL_MUL | (mainPLL_DIV << 16) );
-	PLLFEED = mainPLL_FEED_BYTE1;
-	PLLFEED = mainPLL_FEED_BYTE2;
+	PLLFEED = 0xAA; PLLFEED = 0x55;
 
-	/* Turn on and wait for the PLL to lock... */
+	/* Turn on and wait for the PLL to lock. */
 	PLLCON = mainPLL_ENABLE;
-	PLLFEED = mainPLL_FEED_BYTE1;
-	PLLFEED = mainPLL_FEED_BYTE2;
+	PLLFEED = 0xAA; PLLFEED = 0x55;
+	while( !( PLLSTAT & mainPLL_LOCK ) );
+
+	/* Set clock dividors for CPU and USB blocks. */
 	CCLKCFG = mainCPU_CLK_DIV;	
 	USBCLKCFG = mainUSB_CLK_DIV;
-	while( !( PLLSTAT & mainPLL_LOCK ) );
 	
-	/* Connecting the clock. */
+	/* Connect the PLL and wait for it to connect. */
 	PLLCON = mainPLL_CONNECT;
-	PLLFEED = mainPLL_FEED_BYTE1;
-	PLLFEED = mainPLL_FEED_BYTE2;
+	PLLFEED = 0xAA;
+	PLLFEED = 0x55;
 	while( !( PLLSTAT & mainPLL_CONNECTED ) ); 
 	
-	/* 
-	 * This code is commented out as the MAM does not work on the original revision
-	 * LPC2368 chips.  If using Rev B chips then you can increase the speed though
-	 * the use of the MAM.
-	 * 
-	 * Setup and turn on the MAM.  Three cycle access is used due to the fast
+	/* Setup and turn on the MAM.  Three cycle access is used due to the fast
 	 * PLL used.  It is possible faster overall performance could be obtained by
 	 * tuning the MAM and PLL settings.
 	 */
 	MAMCR = 0;
 	MAMTIM = mainMAM_TIM_3;
 	MAMCR = mainMAM_MODE_FULL;
+	
+	/* Setup the watchdog timer (2 second timeout). */
+	// FIXME check/clear reset-reason for WDT reset
+#if 0
+	WDMOD = 0x03; // enable and reset
+	WDTC = 3000000;
+	WDFEED = 0xAA; WDFEED = 0x55;
+#endif
 
-	/* Setup the led's on the MCB2300 board */
+	portENABLE_INTERRUPTS ();
+
+	/* Setup the led's on the mbed board. */
 	vParTestInitialise();
 
-	/* Setup the debug UART (talks to the PC via the mbed USB CDC channel). */
+	/* Setup the debug UART (talks to the PC through the mbed's second microcontroller). */
 	uart0Init(115200, 64);
 }
-
-
-
-
-
-
 

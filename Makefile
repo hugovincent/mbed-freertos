@@ -27,7 +27,7 @@ COMMON_FLAGS = \
 		-mthumb-interwork \
 		-Wall -Wcast-align -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
-		-Wstrict-aliasing=3 -fstrict-aliasing \
+		-fno-strict-aliasing \
 		-ffunction-sections -fdata-sections \
 		-mabi=aapcs -mapcs-frame -mfloat-abi=soft
 
@@ -103,30 +103,38 @@ ASM_OBJS   = $(ASM_SOURCE:.s=.o)
 all: $(BINNAME).bin
 
 $(BINNAME).bin : $(BINNAME).elf
-	cp $(BINNAME).elf $(BINNAME)-stripped.elf
-	$(TOOLPRE)-strip -s -R .comment $(BINNAME)-stripped.elf
-	$(TOOLPRE)-size --format=sysv $(BINNAME)-stripped.elf
-	$(TOOLPRE)-objcopy $(BINNAME)-stripped.elf -O binary $(BINNAME).bin
-	rm $(BINNAME)-stripped.elf
+	@echo "  [Converting to binary format: $(BINNAME).bin]"
+	@cp $(BINNAME).elf $(BINNAME)-stripped.elf
+	@$(TOOLPRE)-strip -s -R .comment $(BINNAME)-stripped.elf
+	@$(TOOLPRE)-size --format=sysv $(BINNAME)-stripped.elf | grep Total | awk '{print "   -> Total size (bytes):", $$2}'
+	@$(TOOLPRE)-objcopy $(BINNAME)-stripped.elf -O binary $(BINNAME).bin
+	@rm $(BINNAME)-stripped.elf
 
 $(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS)
-	$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ASM_OBJS) -o $@ $(LINKER_FLAGS)
+	@echo "  [Linking...           ]"
+	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ASM_OBJS) -o $@ $(LINKER_FLAGS)
 
 $(THUMB_C_OBJS) : %.o : %.c FreeRTOSConfig.h
-	$(TOOLPRE)-gcc -c $(CFLAGS) -mthumb $< -o $@
+	@echo "  [Compiling   (Thumb/C)] $<"
+	@$(TOOLPRE)-gcc -c $(CFLAGS) -mthumb $< -o $@
 
 $(THUMB_CXX_OBJS) : %.o : %.cpp FreeRTOSConfig.h
-	$(TOOLPRE)-g++ -c $(CXXFLAGS) -mthumb $< -o $@
+	@echo "  [Compiling (Thumb/C++)] $<"
+	@$(TOOLPRE)-g++ -c $(CXXFLAGS) -mthumb $< -o $@
 
 $(ARM_C_OBJS) : %.o : %.c FreeRTOSConfig.h
-	$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
+	@echo "  [Compiling     (ARM/C)] $<"
+	@$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
 
 $(ARM_CXX_OBJS) : %.o : %.cpp FreeRTOSConfig.h
-	$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
+	@echo "  [Compiling   (ARM/C++)] $<"
+	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
 $(ASM_OBJS) : %.o : %.s
-	$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
+	@echo "  [Assembling  (ARM/asm)] $<"
+	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
 
 clean :
-	rm -f $(THUMB_OBJS) $(ARM_OBJS) $(BINNAME).elf $(BINNAME).bin
+	@echo "  [Cleaning...          ]"
+	@rm -f $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS) $(BINNAME).elf $(BINNAME).bin
 	

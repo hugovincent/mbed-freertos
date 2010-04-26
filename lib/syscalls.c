@@ -29,7 +29,6 @@
 #include <sys/wait.h>
 
 #include "lib/uart/uart0.h"
-#include "lib/uart/uart1.h"
 #include "lib/rtc/rtc.h"
 
 //
@@ -127,7 +126,7 @@ static int findslot (int fh)
 //
 static int remap_handle (int fh)
 {
-  CHECK_INIT(_REENT);
+  // FIXME: CHECK_INIT(_REENT);
 
   if (fh == STDIN_FILENO)
     return MONITOR_STDIN;
@@ -282,11 +281,13 @@ int _read (int fd, char *ptr, int len)
 
     case MONITOR_UART1 :
       {
+#if 0
         for (i = 0; i < len; i++)
           if (!uart1GetChar ((signed portCHAR *) ptr++, xBlockTime))
             break;
 
         bytesUnRead = len - i;
+#endif
       }
       break;
 
@@ -427,8 +428,10 @@ int _write (int fd, const char *ptr, int len)
             telnetdPutChar ('\r');
 #endif
 
+#if 0
             if (!uart1PutChar ('\r', xBlockTime))
               break;
+#endif
           }
 
 #ifdef CFG_TELNETD
@@ -436,8 +439,10 @@ int _write (int fd, const char *ptr, int len)
 #endif
 #endif
 
+#if 0
           if (!uart1PutChar (*ptr++, xBlockTime))
             break;
+#endif
         }
 
         bytesUnWritten = len - i;
