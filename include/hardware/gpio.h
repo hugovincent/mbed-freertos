@@ -51,12 +51,15 @@
     licensing and training services.
 */
 
-#ifndef PARTEST_H
-#define PARTEST_H
+#ifndef GPIO_H
+#define GPIO_H
 
-void vParTestInitialise( void );
-void vParTestSetLED( unsigned portBASE_TYPE uxLED, signed portBASE_TYPE xValue );
-void vParTestToggleLED( unsigned portBASE_TYPE uxLED );
+// FIXME register pins, set direction, read pins, register interrupt
+
+void vGpioInitialise(void);
+void vGpioSet(unsigned portBASE_TYPE uxPin, signed portBASE_TYPE xValue);
+void vGpioToggle(unsigned portBASE_TYPE uxPin);
+unsigned portBASE_TYPE uxGpioGet(unsigned portBASE_TYPE uxPin);
 
 #endif
 

@@ -277,29 +277,29 @@ void vApplicationProcessFormInput( portCHAR *pcInputString, portBASE_TYPE xInput
 		/* Turn LED's on or off in accordance with the check box status. */
 		if( strstr( c, "LED0=1" ) != NULL )
 		{
-			vParTestSetLED( 5, 0 );
+			vGpioSet( 5, 0 );
 		}
 		else
 		{
-			vParTestSetLED( 5, 1 );
+			vGpioSet( 5, 1 );
 		}		
 
 		if( strstr( c, "LED1=1" ) != NULL )
 		{
-			vParTestSetLED( 6, 0 );
+			vGpioSet( 6, 0 );
 		}
 		else
 		{
-			vParTestSetLED( 6, 1 );
+			vGpioSet( 6, 1 );
 		}		
 
 		if( strstr( c, "LED2=1" ) != NULL )
 		{
-			vParTestSetLED( 7, 0 );
+			vGpioSet( 7, 0 );
 		}
 		else
 		{
-			vParTestSetLED( 7, 1 );
+			vGpioSet( 7, 1 );
 		}
 
 		/* Find the start of the text to be displayed on the LCD. */

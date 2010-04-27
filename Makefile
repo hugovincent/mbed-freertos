@@ -68,7 +68,7 @@ THUMB_SOURCE= \
 		lib/uip/http-strings.c \
 		hardware/uart/uart.c \
 		hardware/uart/uartFractionalBaud.c \
-		hardware/gpio/ParTest.c \
+		hardware/gpio/gpio.c \
 		hardware/emac/emac.c \
 		freertos/list.c \
 		freertos/queue.c \
@@ -100,6 +100,11 @@ THUMB_OBJS = $(THUMB_C_OBJS) $(THUMB_CXX_OBJS)
 ASM_OBJS   = $(ASM_SOURCE:.s=.o)
 
 all: $(BINNAME).bin
+
+.PHONEY: disasm
+disasm:
+	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
+	@$(TOOLPRE)-objdump --disassemble $(BINNAME).elf > $(BINNAME)-disassembled.s
 
 $(BINNAME).bin : $(BINNAME).elf
 	@echo "  [Converting to binary ] $(BINNAME).bin"

@@ -57,60 +57,44 @@
 /* Demo application includes. */
 #include "hardware/gpio.h"
 
-/*-----------------------------------------------------------
- * Simple parallel port IO routines.
- *-----------------------------------------------------------*/
-
-void vParTestInitialise( void )
+void vGpioInitialise()
 {
 	// We have four LEDs on P1.18, P1.20, P1,21, and P1,23.
 	PINSEL10 = 0x0;
-	FIO1DIR |= 0x1<<18 | 0x1<<20 | 0x1<<21 | 0x1<<23;
+	FIO1DIR |= (0x1 << 18) | (0x1 << 20) | (0x1 << 21) | (0x1 << 23);
 	SCS |= 0x1; //fast mode for port 0 and 1
 }
-/*-----------------------------------------------------------*/
 
-void vParTestSetLED( unsigned portBASE_TYPE uxLED, signed portBASE_TYPE xValue )
+void vGpioSet(unsigned portBASE_TYPE uxPin, signed portBASE_TYPE xValue)
 {
-	/* Rotate to the wanted bit of port */
-	portLONG ulLED = 0x1 << uxLED;
-
 	/* Set of clear the output. */
-	if( !xValue )
+	if (!xValue)
 	{
-		FIO1CLR = ulLED;
+		FIO1CLR = 0x1 << uxPin;
 	}
 	else
 	{
-		FIO1SET = ulLED;
+		FIO1SET = 0x1 << uxPin;
 	}
 }
-/*-----------------------------------------------------------*/
 
-void vParTestToggleLED( unsigned portBASE_TYPE uxLED )
+void vGpioToggle(unsigned portBASE_TYPE uxPin)
 {
-	/* Rotate to the wanted bit of port */
-	portLONG ulLED = 0x1 << uxLED;
-
 	/* If this bit is already set, clear it, and visa versa. */
 	portLONG ulCurrentState = FIO1PIN;
-	if( ulCurrentState & ulLED )
+	if (ulCurrentState & (0x1 << uxPin))
 	{
-		FIO1CLR = ulLED;
+		FIO1CLR = 0x1 << uxPin;
 	}
 	else
 	{
-		FIO1SET = ulLED;			
+		FIO1SET = 0x1 << uxPin;			
 	}
 }
 
-/*-----------------------------------------------------------*/
-unsigned portBASE_TYPE uxParTextGetLED( unsigned portBASE_TYPE uxLED )
+unsigned portBASE_TYPE uxGpioGet(unsigned portBASE_TYPE uxPin)
 {
-	/* Rotate to the wanted bit of port */
-	portLONG ulLED = 0x1 << uxLED;
-
-    return !(FIO1PIN & ulLED) ? 1 : 0;
+    return !(FIO1PIN & (0x1 << uxPin)) ? 1 : 0;
 }
 
 

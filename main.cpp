@@ -196,10 +196,12 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 		prvWDT_FeedWatchdog();
 		ulTicksSinceLastDisplay = 0;
 
+		for (int j = 0; j<20; j++ ) {
 		uart0PutChar(' ', 0);
 		uart0PutChar('t', 0);
 		uart0PutChar('i', 0);
 		uart0PutChar('c', 0);
+		}
 		uart0PutChar('\r', 0);
 		uart0PutChar('\n', 0);
 #if 0
@@ -284,9 +286,9 @@ static void prvSetupHardware( void )
 	portEXIT_CRITICAL();
 
 	/* Setup the led's on the mbed board. */
-	vParTestInitialise();
+	vGpioInitialise();
 
 	/* Setup the debug UART (talks to the PC through the mbed's second microcontroller). */
-	uart0Init(115200, 64);
+	uart0Init(115200, 128);
 }
 
