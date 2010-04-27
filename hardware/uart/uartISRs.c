@@ -26,7 +26,7 @@ static xQueueHandle xRX0Queue;
 static xQueueHandle xTX0Queue; 
 static volatile portCHAR lTHREEmpty0;
 
-void uart0ISRCreateQueues(unsigned portBASE_TYPE uxQueueLength, xQueueHandle *pxRX0Queue, xQueueHandle *pxTX0Queue, portCHAR volatile **ppcTHREEmptyFlag)
+void vUart0ISRCreateQueues(unsigned portBASE_TYPE uxQueueLength, xQueueHandle *pxRX0Queue, xQueueHandle *pxTX0Queue, portCHAR volatile **ppcTHREEmptyFlag)
 {
 	// Create the queues used to hold Rx and Tx characters
 	*pxRX0Queue = xRX0Queue = xQueueCreate(uxQueueLength, (unsigned portBASE_TYPE)sizeof(signed portCHAR));
@@ -37,7 +37,7 @@ void uart0ISRCreateQueues(unsigned portBASE_TYPE uxQueueLength, xQueueHandle *px
 	*ppcTHREEmptyFlag = &lTHREEmpty0;
 }
 
-void uart0ISR_Handler(void)
+__attribute__((interrupt)) void vUart0ISR(void)
 {
 	signed portCHAR cChar;
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
@@ -90,18 +90,5 @@ void uart0ISR_Handler(void)
 		/* Giving the semaphore woke a task. */
 		portYIELD_FROM_ISR();
 	}
-}
-
-__attribute__((naked)) void uart0ISR()
-{
-	/* Save the context of the interrupted task. */
-	portSAVE_CONTEXT();
-
-	/* Call the handler.  This must be a separate function unless you can
-	   guarantee that no stack will be used. */
-	asm volatile ( "bl uart0ISR_Handler" );
-
-	/* Restore the context of whichever task is going to run next. */
-	portRESTORE_CONTEXT();
 }
 

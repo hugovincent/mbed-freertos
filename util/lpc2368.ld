@@ -10,6 +10,7 @@ MEMORY
 	RAM (rw)	: ORIGIN = 0x40000000, LENGTH = 32k
 	USBRAM (rw) : ORIGIN = 0x7FD00000, LENGTH = 8k
 	ETHRAM (rw) : ORIGIN = 0x7FE00000, LENGTH = 16k
+	BATRAM (rw) : ORIGIN = 0xE0084000, LENGTH = 2k
 }
 
 /* Section Definitions */
@@ -136,6 +137,13 @@ SECTIONS
 		*(.ethram)
 		__ethram_end__ = . ;
 	} > ETHRAM
+
+	.batram (NOLOAD):
+	{
+		__batram_beg__ = . ;
+		*(.batram)
+		__batram_end__ = . ;
+	} > BATRAM
 
 	/* Stabs debugging sections.  */
 	.stab          0 : { *(.stab) }

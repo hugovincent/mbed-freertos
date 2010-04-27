@@ -2,20 +2,18 @@ BUGS:
 [ ] Fix UART threading/queuing/interrupt(?) reliability issue.
 [ ] Refactor UART code to support all 4 UARTs.
 [ ] Test ethernet code.
-[ ] Fix/debug power saving (Idle Mode) problem.
+[ ] Fix/debug power saving (Idle Mode) crashing problem.
 [ ] Optimize UART code (maybe a ring buffer would be better?).
 [ ] Test/fix/finish the syscalls interface.
 [ ] Fix reentrancy in allocator wrapper.
-[ ] Check battery-backed RAM wrt memory map/linker script.
 
 GENERALIZATIONS:
-[ ] Fix ParTest into general purpose GPIO api.
-[ ] Try to tidy up and generalize the IRQ handling mess. Perhaps that 
-    crt0.s-based solution was nicer after all.
-[ ] Provide bootcode and linker script for LPC1768-based mbed devices. 
+[ ] Switch over to the mbed-type register access conventions.
 [ ] All the peripheral drivers should be C++-ified and made as API-compatible
     with mbed standard library as is possible and desirable within the context 
     of an RTOS.
+[ ] Fix ParTest into general purpose GPIO api.
+[ ] Provide bootcode and linker script for LPC1768-based mbed devices. 
 [ ] All application-level APIs should work the same on either mbed processor type.
 
 ADDITIONS:
@@ -45,4 +43,9 @@ EXTERNAL DEVICE DRIVERS:
 DONE:
 [x] Fix/test WDT code.
 [x] Fix UART baud rate issue and test fractional baud rate algorithm better.
+[x] Check battery-backed RAM wrt memory map/linker script.
+[x] Try to tidy up and generalize the IRQ handling mess. Perhaps that 
+    crt0.s-based solution was nicer after all. UPDATE: with latest GCC, and no 
+	internal compiler errors, __attribute__((interrupt)) seems to be the best
+	option.
 

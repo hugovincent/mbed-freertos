@@ -36,7 +36,7 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 		uxQueueLength = suxQueueLength;
 	suxQueueLength = uxQueueLength;
 
-	uart0ISRCreateQueues(suxQueueLength, &xRX0Queue, &xTX0Queue, &pcTHREEmpty0);
+	vUart0ISRCreateQueues(suxQueueLength, &xRX0Queue, &xTX0Queue, &pcTHREEmpty0);
 
 	if ((xRX0Queue == serINVALID_QUEUE) || (xTX0Queue == serINVALID_QUEUE) || (sulWantedBaud == (unsigned portLONG) 0))
 		return 0;
@@ -68,7 +68,7 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 
 		// Setup the VIC for the UART
 		VICIntSelect &= ~VIC_UART0; // normal IRQ (not FIQ)
-		VICVectAddr6 = (portLONG)&uart0ISR;
+		VICVectAddr6 = (portLONG)&vUart0ISR;
 		VICIntEnable = VIC_UART0;
 
 		// Enable UART0 interrupts
