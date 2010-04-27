@@ -105,8 +105,8 @@ $(BINNAME).bin : $(BINNAME).elf
 	@echo "  [Converting to binary ] $(BINNAME).bin"
 	@cp $(BINNAME).elf $(BINNAME)-stripped.elf
 	@$(TOOLPRE)-strip -s -R .comment $(BINNAME)-stripped.elf
-	@$(TOOLPRE)-size --format=sysv $(BINNAME)-stripped.elf | grep Total | awk '{print "   -> Total size (bytes):", $$2}'
 	@$(TOOLPRE)-objcopy $(BINNAME)-stripped.elf -O binary $(BINNAME).bin
+	@ls -l $(BINNAME).bin | awk '{print "   -> Total size (bytes):", $$5}'
 	@rm $(BINNAME)-stripped.elf
 
 $(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS)
