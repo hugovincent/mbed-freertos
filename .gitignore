@@ -1,5 +1,6 @@
 **.o
 *.elf
 *.bin
+*.map
 *-disassembled.s
-util/arm-eabi-*
+util/arm-none-eabi-*

@@ -1,14 +1,14 @@
 # For mbed beta hardware (LPC2368)
 # Hugo Vincent, April 25 2010
 
-# Note: after installing an arm-eabi-* toolchain using the instructions at
-# http://github.com/hugovincent/arm-eabi-toolchain, run setup-colorgcc.sh in util
+# Note: after installing an arm-eabi-none* toolchain using the instructions at
+# http://github.com/hugovincent/arm-eabi-toolchain, run setup-colorgcc.sh in util/
 
-TOOLPRE=util/arm-eabi
+TOOLPRE=util/arm-none-eabi
 LDSCRIPT=util/lpc2368.ld
 
 DEBUG=
-OPTIM=-Os
+OPTIM=-O2
 
 BINNAME=RTOSDemo
 
@@ -21,6 +21,7 @@ COMMON_FLAGS = \
 		-I freertos/portable/GCC/ARM7_LPC23xx \
 		-D MBED_LPC23xx \
 		-D THUMB_INTERWORK \
+		-D NDEBUG \
 		-mcpu=arm7tdmi \
 		-fomit-frame-pointer \
 		-mthumb-interwork \
@@ -28,25 +29,32 @@ COMMON_FLAGS = \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
 		-fno-strict-aliasing \
 		-ffunction-sections -fdata-sections \
-		-mabi=aapcs -mapcs-frame -mfloat-abi=soft
+		-mfloat-abi=soft -mtp=soft
 
 CFLAGS = $(COMMON_FLAGS) \
 		-Wstrict-prototypes \
 		-std=gnu99
 
 CXXFLAGS= $(COMMON_FLAGS) \
-		-fno-rtti -fno-exceptions
+		-fno-rtti \
+		-fno-exceptions \
+		-fno-unwind-tables \
+		-fno-enforce-eh-specs \
+		-fno-use-cxa-get-exception-ptr \
+		-fno-stack-protector \
+		-Weffc++ \
+		-nostdlib -nostartfiles -nodefaultlibs -nostdinc++
 
 LINKER_FLAGS= \
 		-nostartfiles \
 		-T$(LDSCRIPT) \
 		-Wl,--gc-sections \
-		-lm -lstdc++
+		-Wl,--Map=$(BINNAME).map \
+		-lm
 
 ASM_FLAGS= \
 		-mcpu=arm7tdmi \
 		-mthumb-interwork \
-		-mabi=aapcs -mfloat-abi=soft \
 		-x assembler-with-cpp 
 
 THUMB_SOURCE= \
@@ -74,12 +82,11 @@ THUMB_SOURCE= \
 		freertos/queue.c \
 		freertos/tasks.c \
 		freertos/portable/GCC/ARM7_LPC23xx/port.c \
-		freertos/portable/MemMang/heap_2.c \
-		lib/alloc.c \
 		lib/syscalls.c
 
 THUMB_CXX_SOURCE= \
 		main.cpp \
+		lib/min_c++.cpp \
 		CxxTest.cpp
 
 ARM_SOURCE= \
@@ -140,5 +147,5 @@ $(ASM_OBJS) : %.o : %.s
 
 clean :
 	@echo "  [Cleaning...          ]"
-	@rm -f $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS) $(BINNAME).elf $(BINNAME).bin
+	@rm -f $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS) $(BINNAME).elf $(BINNAME).bin $(BINNAME).map $(BINNAME)-disassembled.s
 	

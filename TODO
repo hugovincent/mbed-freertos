@@ -3,20 +3,21 @@ Last Update: 27 April 2010.
 Numbers in [ ] are priorities, 'f' is "distant future".
 
 BUGS:
+[1] Rewrite FreeRTOS stack mangling code which seems to be eating my stack.
 [1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
-[1] Fix/debug power saving (Idle Mode) crashing problem.
-[1] Interrupt handling in FreeRTOS portable code... should be the same as in my code.
+[1] Fix/debug power saving (Idle Mode) occasional crashing problem.
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
-[2] Test/fix/finish the syscalls interface.
-[3] Fix reentrancy in allocator wrapper.
-[3] Fix reentrancy elsewhere in standard library.
-[f] Test ethernet code.
+[2] Test/fix/finish the syscalls interface. Fix reentrancy.
+[f] Test/fix ethernet code.
 
 GENERALIZATIONS:
 [1] Switch over to the mbed-type register access conventions.
 [1] Refactor PLL and WDT code out of main.cpp...
 [2] Finish GPIO driver.
+[2] FreeRTOS only provides a kernel. We need to supply the rest of the OS.
+		Filesystem.
+		File-like objects for UARTs as in UNIX.
 [2] All the peripheral drivers should be C++-ified and made as API-compatible
     with mbed standard library as is possible and desirable within the context 
     of an RTOS.

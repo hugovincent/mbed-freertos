@@ -6,145 +6,128 @@
 /* Memory Definitions */
 MEMORY
 {
-	ROM (rx)	: ORIGIN = 0x00000000, LENGTH = (512k-4k)
-	RAM (rw)	: ORIGIN = 0x40000000, LENGTH = 32k
-	USBRAM (rw) : ORIGIN = 0x7FD00000, LENGTH = 8k
-	ETHRAM (rw) : ORIGIN = 0x7FE00000, LENGTH = 16k
-	BATRAM (rw) : ORIGIN = 0xE0084000, LENGTH = 2k
+	Flash (rx)  : ORIGIN = 0x00000000, LENGTH = 512k
+	Ram (rw)    : ORIGIN = 0x40000000, LENGTH = 32k
+	UsbRam (rw) : ORIGIN = 0x7FD00000, LENGTH = 8k
+	EthRam (rw) : ORIGIN = 0x7FE00000, LENGTH = 16k
+	BatRam (rw) : ORIGIN = 0xE0084000, LENGTH = 2k
 }
 
 /* Section Definitions */
 SECTIONS
 {
+	/* ------------------------- START OF ROM CODE ------------------------- */
+
 	/* first section is .text which is used for code */
-	.text :
+	.text : AT ( 0x0 )
 	{
-		KEEP(*(.RESET))				/* Startup code from .init-section */
-		*(.text .text.*)			/* remaining code */
-		*(.gnu.linkonce.t.*)
-		*(.glue_7)
-		*(.glue_7t)
-		*(.gcc_except_table)
-		*(.rodata)					/* read-only data (constants) */
-		*(.rodata*)
-		*(.gnu.linkonce.r.*)
-		. = ALIGN(4);
-	} > ROM
+		util/crt0.o ( .vectors )			/* Exception vectors from crt0.s */
+		util/crt0.o ( .text )				/* remaining boot code */
+		*( .text )
+		*( .text.* )
+		*( .gnu.linkonce.t.* )
+		*( .glue_7 )
+		*( .glue_7t )
+		*( .gcc_except_table )
+		*( .rodata )						/* read-only data (constants) */
+		*( .rodata* )
+		*( .gnu.linkonce.r.* )
+	} > Flash
 
+
+	/* .ctors .dtors and are used for c++ constructors/destructors */
 	. = ALIGN(4);
-
-	/* .ctors .dtors are used for c++ constructors/destructors */
 	.ctors :
 	{
-	  PROVIDE(__ctors_start__ = . );
-	  KEEP(*(SORT(.ctors.*)))
-	  KEEP(*(.ctors))
-	  . = ALIGN(4);
-	  PROVIDE(__ctors_end__ = . );
-	  . = ALIGN(4);
-	} > ROM
-
+		__ctors_start__ = . ;
+		KEEP(*(SORT( .ctors.* )))
+		KEEP(*( .ctors ))
+		. = ALIGN(4);
+		__ctors_end__ = . ;
+		. = ALIGN(4);
+	} > Flash
 	.dtors :
 	{
-		PROVIDE(__dtors_start__ = . ); 
-		KEEP(*(SORT(.dtors.*)))
-		KEEP(*(.dtors))
+		__dtors_start__ = . ; 
+		KEEP(*(SORT( .dtors.* )))
+		KEEP(*( .dtors ))
 		. = ALIGN(4);
-		PROVIDE(__dtors_end__ = . );
+		__dtors_end__ = . ;
 		. = ALIGN(4);
-	} > ROM
+	} > Flash
 
-	/* for exception handling/unwind - some Newlib functions use this. */
+	/* .ARM.exidx and .ARM.extab are used for exception handling */
 	.ARM.extab : 
 	{
-		*(.ARM.extab* .gnu.linkonce.armextab.*)
-	} > ROM
-
-	__exidx_start = .;
+		*( .ARM.extab* )
+		*( .gnu.linkonce.armextab.* )
+	} > Flash
+	__exidx_start = . ;
 	.ARM.exidx :
 	{
-		*(.ARM.exidx* .gnu.linkonce.armexidx.*)
-	} > ROM
-	__exidx_end = .;
+		*( .ARM.exidx* )
+		*( .gnu.linkonce.armexidx.* )
+		. = ALIGN(4);
+	} > Flash
+	__exidx_end = . ;
 
 	. = ALIGN(4);
+	__text_end__ = . ;
 
-	_etext = . ;
-	PROVIDE (etext = . );
-
-	/* .data section which is used for initialized data */
-	.data : AT (_etext)
+	/* .data section -- used for initialized data */
+	.data : AT ( __text_end__ ) 
 	{
-		_data = . ;
-		KEEP(*(.vectmapped)) /* mthomas: when code in ROM and vectors remapped */
 		. = ALIGN(4);
-		*(.fastrun) /* mthomas: for "RAMFUNC" */
-		. = ALIGN(4);
+		__data_start__ = . ;
 		SORT(CONSTRUCTORS)
 		. = ALIGN(4);
-		*(.data)
-		*(.data.*)
-		*(.gnu.linkonce.d*)
+		*( .data )
+		*( .data.* )
+		*( .gnu.linkonce.d* )
 		. = ALIGN(4);
-	} > RAM
+		__data_end__ = . ;
+	} > Ram
 
-	. = ALIGN(4);
-	_edata = . ;
-	PROVIDE (edata = . );
+	/* -------------------------- END OF ROM CODE -------------------------- */
 
-	/* .bss section which is used for uninitialized data */
+	/* .bss section -- used for uninitialized data */
 	.bss (NOLOAD) :
 	{
+		. = ALIGN(4);
 		__bss_start__ = . ;
-		*(.bss) 
-		*(.bss.*) /* mthomas 7/2006 */
-		*(.gnu.linkonce.b*)
-		*(COMMON)
+		*( .bss )
+		*( .bss.* )
+		*( .gnu.linkonce.b* )
+		*( COMMON )
 		. = ALIGN(4);
-	} > RAM
+		__bss_end__ = . ;
+	} > Ram
 
+	/* Stack and Heap setup */
+	__top_of_stack__ = ORIGIN(Ram) + LENGTH(Ram) - 4;
+	__stack_min__ = __top_of_stack__ - Stack_Size_Total;
 	. = ALIGN(4);
-	__bss_end__ = . ;
-	PROVIDE (__bss_end = . );
+	__start_of_heap__ = . ;
 
-	.stack ALIGN(256) :
-	{
-		*(.stack)
-		*(.STACK)
-		PROVIDE (_stack = . );
-		. = ALIGN(4);
-	} > RAM
-
-	_end = . ;
-	PROVIDE (end = . );
-
-	.heap :
-	{
-		*(.HEAP)
-		. = ALIGN(4);
-	} > RAM
-
+	/* C data can be defined as being in special purpose rams using
+	 * __attribute__ ((section ("ethram"))) for example. */
 	.usbram (NOLOAD):
 	{
-		__usbram_beg__ = . ;
-		*(.usbram)
-		__usbram_end__ = . ;
-	} > USBRAM
-
+		*( .usbram )
+		*( .usbram.* )
+	} > UsbRam
 	.ethram (NOLOAD):
 	{
-		__ethram_beg__ = . ;
-		*(.ethram)
-		__ethram_end__ = . ;
-	} > ETHRAM
-
+		*( .ethram )
+		*( .ethram.* )
+	} > EthRam
 	.batram (NOLOAD):
 	{
-		__batram_beg__ = . ;
-		*(.batram)
-		__batram_end__ = . ;
-	} > BATRAM
+		*( .batram )
+		*( .batram.* )
+	} > BatRam
 
+	/* -------------------------- DEBUG STUFF (not in binary) -------------- */
 	/* Stabs debugging sections.  */
 	.stab          0 : { *(.stab) }
 	.stabstr       0 : { *(.stabstr) }
@@ -180,3 +163,4 @@ SECTIONS
 	.debug_varnames  0 : { *(.debug_varnames) }
 }
 
+ENTRY( Vectors )
