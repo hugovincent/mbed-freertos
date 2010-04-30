@@ -108,21 +108,13 @@ ASM_OBJS   = $(ASM_SOURCE:.s=.o)
 
 all: $(BINNAME).bin
 
-.PHONEY: disasm
-disasm:
-	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
-	@$(TOOLPRE)-objdump --disassemble $(BINNAME).elf > $(BINNAME)-disassembled.s
-
 $(BINNAME).bin : $(BINNAME).elf
 	@echo "  [Converting to binary ] $(BINNAME).bin"
-	@cp $(BINNAME).elf $(BINNAME)-stripped.elf
-	@$(TOOLPRE)-strip -s -R .comment $(BINNAME)-stripped.elf
-	@$(TOOLPRE)-objcopy $(BINNAME)-stripped.elf -O binary $(BINNAME).bin
-	@ls -l $(BINNAME).bin | awk '{print "   -> Total size (bytes):", $$5}'
-	@rm $(BINNAME)-stripped.elf
+	@$(TOOLPRE)-objcopy $(BINNAME).elf -O binary $(BINNAME).bin
+	@python util/memory-usage.py $(BINNAME).elf
 
 $(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS)
-	@echo "  [Linking and stripping] $@"
+	@echo "  [Linking...           ] $@"
 	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ASM_OBJS) -o $@ $(LINKER_FLAGS)
 
 $(THUMB_C_OBJS) : %.o : %.c
@@ -144,6 +136,12 @@ $(ARM_CXX_OBJS) : %.o : %.cpp
 $(ASM_OBJS) : %.o : %.s
 	@echo "  [Assembling  (ARM/asm)] $<"
 	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
+
+
+.PHONY: disasm clean
+disasm:
+	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
+	@$(TOOLPRE)-objdump --disassemble $(BINNAME).elf > $(BINNAME)-disassembled.s
 
 clean :
 	@echo "  [Cleaning...          ]"
