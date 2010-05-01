@@ -37,7 +37,7 @@ void vUart0ISRCreateQueues(unsigned portBASE_TYPE uxQueueLength, xQueueHandle *p
 	*ppcTHREEmptyFlag = &lTHREEmpty0;
 }
 
-__attribute__((interrupt)) void vUart0ISR(void)
+void vUart0ISR_Handler(void)
 {
 	signed portCHAR cChar;
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
@@ -92,3 +92,15 @@ __attribute__((interrupt)) void vUart0ISR(void)
 	}
 }
 
+__attribute__ ((naked)) void vUart0ISR_Wrapper(void)
+{
+	/* Save the context of the interrupted task. */
+	portSAVE_CONTEXT();
+
+	/* Call the handler to do the work.  This must be a separate
+	function to ensure the stack frame is set up correctly. */
+	vUart0ISR_Handler();
+
+	/* Restore the context of whichever task will execute next. */
+	portRESTORE_CONTEXT();
+}

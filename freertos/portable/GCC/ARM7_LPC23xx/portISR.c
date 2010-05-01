@@ -109,7 +109,7 @@ void vPortYieldProcessor( void )
 	portSAVE_CONTEXT();
 
 	/* Find the highest priority task that is ready to run. */
-	__asm volatile( "bl			vTaskSwitchContext" );
+	vTaskSwitchContext();
 
 	/* Restore the context of the new task. */
 	portRESTORE_CONTEXT();	
@@ -121,7 +121,6 @@ void vPortYieldProcessor( void )
  * the preemptive scheduler is being used.
  */
 
-
 #if configUSE_PREEMPTION == 0
 
 	/* The cooperative scheduler requires a normal IRQ service routine to 
@@ -129,7 +128,12 @@ void vPortYieldProcessor( void )
 	void vNonPreemptiveTick( void ) __attribute__ ((interrupt ("IRQ")));
 	void vNonPreemptiveTick( void )
 	{	
+		/* Increment the tick count - which may wake some tasks but as the
+		preemptive scheduler is not being used any woken task is not given
+		processor time no matter what its priority. */
 		vTaskIncrementTick();
+
+		/* Ready for the next interrupt. */
 		T0IR = 2;
 		VICVectAddr = portCLEAR_VIC_INTERRUPT;
 	}
@@ -144,10 +148,11 @@ void vPortYieldProcessor( void )
 		/* Save the context of the interrupted task. */
 		portSAVE_CONTEXT();	
 
-		/* Increment the RTOS tick count, then look for the highest priority 
-		task that is ready to run. */
-		__asm volatile( "bl vTaskIncrementTick" );
-		__asm volatile( "bl vTaskSwitchContext" );
+		/* Increment the tick count - this may wake a task. */
+		vTaskIncrementTick();
+		
+		/* Find the highest priority task that is ready to run. */
+		vTaskSwitchContext();
 
 		/* Ready for the next interrupt. */
 		T0IR = 2;

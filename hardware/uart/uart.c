@@ -29,19 +29,26 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 	static unsigned portBASE_TYPE suxQueueLength = 64;
 
 	if (!ulWantedBaud)
+	{
 		ulWantedBaud = sulWantedBaud;
+	}
 	sulWantedBaud = ulWantedBaud;
 
 	if (!uxQueueLength)
+	{
 		uxQueueLength = suxQueueLength;
+	}
 	suxQueueLength = uxQueueLength;
 
 	vUart0ISRCreateQueues(suxQueueLength, &xRX0Queue, &xTX0Queue, &pcTHREEmpty0);
 
-	if ((xRX0Queue == serINVALID_QUEUE) || (xTX0Queue == serINVALID_QUEUE) || (sulWantedBaud == (unsigned portLONG) 0))
+	if ((xRX0Queue == serINVALID_QUEUE) || (xTX0Queue == serINVALID_QUEUE) 
+			|| (sulWantedBaud == (unsigned portLONG) 0))
+	{
 		return 0;
+	}
 
-	portENTER_CRITICAL();
+	taskENTER_CRITICAL();
 	{
 		// Setup the pin selection & apply clocks to the UART. Reset PCLK to default CCLK/4.
 		PINSEL0 |= 0x00000050;
@@ -68,13 +75,13 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 
 		// Setup the VIC for the UART
 		VICIntSelect &= ~VIC_UART0; // normal IRQ (not FIQ)
-		VICVectAddr6 = (portLONG)&vUart0ISR;
+		VICVectAddr6 = (portLONG)&vUart0ISR_Wrapper;
 		VICIntEnable = VIC_UART0;
 
 		// Enable UART0 interrupts
 		U0IER |= UART_IER_EI;
 	}
-	portEXIT_CRITICAL();
+	taskEXIT_CRITICAL();
 
 	return 1;
 }
@@ -88,7 +95,7 @@ signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockT
 {
 	signed portBASE_TYPE xReturn = 0;
 
-	portENTER_CRITICAL();
+	taskENTER_CRITICAL();
 	{
 		// Is there space to write directly to the UART?
 		if (*pcTHREEmpty0 == (portCHAR) pdTRUE)
@@ -114,12 +121,8 @@ signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockT
 			}
 		}
 	}
-	portEXIT_CRITICAL();
+	taskEXIT_CRITICAL();
 
 	return xReturn;
 }
 
-void uart0GetRxQueue(xQueueHandle *qh)
-{
-	*qh = xRX0Queue;
-}

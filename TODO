@@ -3,6 +3,7 @@ Last Update: 27 April 2010.
 Numbers in [ ] are priorities, 'f' is "distant future".
 
 BUGS:
+[1] Fix header dependecies in Makefile
 [1] Rewrite FreeRTOS stack mangling code which seems to be eating my stack.
 [1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
 [1] Fix/debug power saving (Idle Mode) occasional crashing problem.
@@ -26,6 +27,7 @@ GENERALIZATIONS:
 [f] All application-level APIs should work the same on either mbed processor type.
 
 ADDITIONS:
+[2] Investigate clock vs MAM settings wrt overall performance.
 [2] Add more standard library and syscall niceities. 
 [3] Add mbed local file system support. Some details here: 
 		http://mbed.org/users/jsnyder/notebook/elua-preliminary-port/
@@ -53,15 +55,4 @@ EXTERNAL DEVICE DRIVERS:
 [1] Intersil ISL9208 multicell lithium battery analog front end (via I2C).
 [1] Linear LTC1960 lithium battery charger and powerpath controller (via SPI).
 [1] Temperature sensors (TBD) (via I2C or maybe 1-wire, TBD).
-
--------------------------------------------------------------------------------
-DONE:
-[x] Fix/test WDT code.
-[x] Fix UART baud rate issue and test fractional baud rate algorithm better.
-[x] Check battery-backed RAM wrt memory map/linker script.
-[x] Try to tidy up and generalize the IRQ handling mess. Perhaps that 
-    crt0.s-based solution was nicer after all. UPDATE: with latest GCC, and no 
-	internal compiler errors, __attribute__((interrupt)) seems to be the best
-	option.
-[x] Fix UART threading/queuing/interrupt(?) reliability issue.
 

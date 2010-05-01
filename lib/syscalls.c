@@ -57,6 +57,10 @@ struct _reent *__get_reent	_PARAMS ((void));
 static int	checkerror	_PARAMS ((int));
 static int	error		_PARAMS ((int));
 
+/* This relies on linker magic to get stack and heap pointers */
+extern unsigned int __start_of_heap__, __stack_min__;
+static void *heap_end = NULL;
+
 /* Struct used to keep track of the file position, just so we
    can implement fseek(fh,x,SEEK_CUR).  */
 struct fdent
@@ -432,31 +436,32 @@ int _getpid_r (struct _reent *ptr)
 	return 1;
 }
 
+/* Low-level bulk RAM allocator -- used by Newlib's Malloc */
 void *_sbrk_r (struct _reent *ptr, ptrdiff_t incr)
 {
-	/* This relies on linker magic to get stack and heap pointers */
-	extern int __start_of_heap__, __stack_min__;
-	static int *cur_heap_end = 0;
-	int *prev_heap_end;
+	void *prev_heap_end, *next_heap_end;
 
-	if (cur_heap_end == 0)
-		cur_heap_end = &__start_of_heap__;
-
-	prev_heap_end = cur_heap_end;
-	if ((cur_heap_end + incr) > &__stack_min__)
+	/* Initialize on first call */
+	if (heap_end == NULL)
 	{
-		/*
-		extern void abort(void);
-		_write_r (ptr, 2, "Newlib-- _sbrk(): Heap overflow, dieing.\n", 32);
-		abort();
-		*/
+		heap_end = (void *)&__start_of_heap__;
+	}
+
+	prev_heap_end = heap_end;
+
+	/* Align to always be on 8-byte boundaries */
+	next_heap_end = (void *)((((unsigned int)heap_end + incr) + 7) & ~7);  
+
+	/* Check if this allocation would collide with the heap */
+	if (next_heap_end > (void *)&__stack_min__)
+	{
 		errno = ENOMEM;
-		return (caddr_t)(-1);
+		return NULL;
 	}
 	else
 	{
-		cur_heap_end += incr;
-		return (caddr_t)prev_heap_end;
+		heap_end = next_heap_end;
+		return (void *)prev_heap_end;
 	}
 }
 
@@ -650,18 +655,24 @@ void vPortFree( void *pv )
 /*void vPortInitialiseBlocks( void )
 {
 	// FIXME
-}
+}*/
 
 size_t xPortGetFreeHeapSize( void )
 {
-	// FIXME
-	return 0;
-}*/
+	/* FIXME this isn't really correct, it reports only the RAM which is available to the
+	 * system, but which hasn't yet been assigned to Newlibs Malloc implementation. */
+	
+	/* Initialize on first call */
+	if (heap_end == 0)
+		heap_end = (void *)&__start_of_heap__;
 
+	return &__stack_min__ - (unsigned int *)heap_end;
+}
+
+#if 0
 // Function to add multithread support to newlib
 struct _reent *__getreent( void )
 {
-#if 0
 	NU_HISR *HisrPtr;
 	NU_TASK *TaskPtr;
 
@@ -676,9 +687,9 @@ struct _reent *__getreent( void )
 		return TaskPtr->_impure_ptr;
 	}
 	return HisrPtr->_impure_ptr;
-#endif
 	return _impure_ptr;
 }
+#endif
 
 #if 0
 /*** From reent.c ***/

@@ -1,6 +1,5 @@
-**.o
 *.elf
 *.bin
-*.map
 *-disassembled.s
 util/arm-none-eabi-*
+.buildtmp/**

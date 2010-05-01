@@ -6,6 +6,7 @@
 
 TOOLPRE=util/arm-none-eabi
 LDSCRIPT=util/lpc2368.ld
+ODIR=.buildtmp
 
 DEBUG=
 OPTIM=-O2
@@ -19,9 +20,9 @@ COMMON_FLAGS = \
 		-I include \
 		-I freertos/include \
 		-I freertos/portable/GCC/ARM7_LPC23xx \
-		-D MBED_LPC23xx \
-		-D THUMB_INTERWORK \
-		-D NDEBUG \
+		-DMBED_LPC23xx -DPLAT_NAME="\"mbed (LPC2368)\"" \
+		-DTHUMB_INTERWORK \
+		-DNDEBUG\
 		-mcpu=arm7tdmi \
 		-fomit-frame-pointer \
 		-mthumb-interwork \
@@ -49,7 +50,6 @@ LINKER_FLAGS= \
 		-nostartfiles \
 		-T$(LDSCRIPT) \
 		-Wl,--gc-sections \
-		-Wl,--Map=$(BINNAME).map \
 		-lm
 
 ASM_FLAGS= \
@@ -94,17 +94,17 @@ ARM_SOURCE= \
 		hardware/emac/emacISR.c \
 		hardware/uart/uartISRs.c
 
-ASM_SOURCE= \
+ARM_ASM_SOURCE= \
 		util/crt0.s
 
-THUMB_C_OBJS   = $(THUMB_SOURCE:.c=.o)
-THUMB_CXX_OBJS = $(THUMB_CXX_SOURCE:.cpp=.o)
-ARM_C_OBJS     = $(ARM_SOURCE:.c=.o)
-ARM_CXX_OBJS   = $(ARM_CXX_SOURCE:.cpp=.o)
+THUMB_C_OBJS   = $(patsubst %,$(ODIR)/%, $(THUMB_SOURCE:.c=.o))
+THUMB_CXX_OBJS = $(patsubst %,$(ODIR)/%, $(THUMB_CXX_SOURCE:.cpp=.o))
+ARM_C_OBJS     = $(patsubst %,$(ODIR)/%, $(ARM_SOURCE:.c=.o))
+ARM_CXX_OBJS   = $(patsubst %,$(ODIR)/%, $(ARM_CXX_SOURCE:.cpp=.o))
+ARM_ASM_OBJS   = $(patsubst %,$(ODIR)/%, $(ARM_ASM_SOURCE:.s=.o))
 
-ARM_OBJS   = $(ARM_C_OBJS) $(ARM_CXX_OBJS)
-THUMB_OBJS = $(THUMB_C_OBJS) $(THUMB_CXX_OBJS)
-ASM_OBJS   = $(ASM_SOURCE:.s=.o)
+ARM_OBJS       = $(ARM_C_OBJS) $(ARM_CXX_OBJS)
+THUMB_OBJS     = $(THUMB_C_OBJS) $(THUMB_CXX_OBJS)
 
 all: $(BINNAME).bin
 
@@ -113,30 +113,36 @@ $(BINNAME).bin : $(BINNAME).elf
 	@$(TOOLPRE)-objcopy $(BINNAME).elf -O binary $(BINNAME).bin
 	@python util/memory-usage.py $(BINNAME).elf
 
-$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS)
+$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ARM_ASM_OBJS) 
 	@echo "  [Linking...           ] $@"
-	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ASM_OBJS) -o $@ $(LINKER_FLAGS)
+	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ARM_ASM_OBJS) -o $@ $(LINKER_FLAGS)
 
-$(THUMB_C_OBJS) : %.o : %.c
+$(THUMB_C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
 	@echo "  [Compiling   (Thumb/C)] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) -mthumb $< -o $@
 
-$(THUMB_CXX_OBJS) : %.o : %.cpp
+$(THUMB_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
 	@echo "  [Compiling (Thumb/C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) -mthumb $< -o $@
 
-$(ARM_C_OBJS) : %.o : %.c
+$(ARM_C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
 	@echo "  [Compiling     (ARM/C)] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
 
-$(ARM_CXX_OBJS) : %.o : %.cpp
+$(ARM_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
 	@echo "  [Compiling   (ARM/C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
-$(ASM_OBJS) : %.o : %.s
+$(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
 	@echo "  [Assembling  (ARM/asm)] $<"
 	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
 
+$(ODIR)/exists:
+	@mkdir -p $(ODIR)/hardware/uart $(ODIR)/hardware/gpio $(ODIR)/hardware/emac
+	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip $(ODIR)/util
+	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM7_LPC23xx
+	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM_CM3
+	@touch $(ODIR)/exists
 
 .PHONY: disasm clean
 disasm:
@@ -145,5 +151,5 @@ disasm:
 
 clean :
 	@echo "  [Cleaning...          ]"
-	@rm -f $(THUMB_OBJS) $(ARM_OBJS) $(ASM_OBJS) $(BINNAME).elf $(BINNAME).bin $(BINNAME).map $(BINNAME)-disassembled.s
+	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s
 	

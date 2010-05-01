@@ -4,7 +4,7 @@
 
 extern xSemaphoreHandle xEMACSemaphore;
 
-__attribute__((interrupt ("IRQ") )) void vEmacISR( void )
+void vEmacISR_Handler ( void )
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
@@ -22,3 +22,15 @@ __attribute__((interrupt ("IRQ") )) void vEmacISR( void )
     }
 }
 
+__attribute__ ((naked)) void vEmacISR_Wrapper ( void )
+{
+	/* Save the context of the interrupted task. */
+	portSAVE_CONTEXT();
+
+	/* Call the handler to do the work.  This must be a separate
+	function to ensure the stack frame is set up correctly. */
+	vEmacISR_Handler();
+
+	/* Restore the context of whichever task will execute next. */
+	portRESTORE_CONTEXT();
+}

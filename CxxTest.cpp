@@ -4,14 +4,18 @@ extern "C" {
 #include "CxxTest.h"
 }
 
-#include <string>
+//#include <string>
 
 int CxxTest::someMethod() {
 
-	// FIXME this isn't a very good test cos it gets optimized out... FAIL!
+#if 0
 	std::string *t = new std::string();
 	*t = "Hello world";
 	delete t;
+	char *v = new char[100];
+	v = "Hello world";
+	delete[] v;
+#endif
 
 	vGpioToggle( 18 );
 	return 0;

@@ -45,10 +45,10 @@
 @  Stack configuration definitions (sizes in bytes) 
 
 .equ UND_Stack_Size,     0x00000004
-.equ SVC_Stack_Size,     0x00000200
+.equ SVC_Stack_Size,     0x00000400
 .equ ABT_Stack_Size,     0x00000004
 .equ FIQ_Stack_Size,     0x00000004
-.equ IRQ_Stack_Size,     0x00000100
+.equ IRQ_Stack_Size,     0x00000200
 .equ USR_Stack_Size,     0x00000004
 
 .global Stack_Size_Total
@@ -132,10 +132,10 @@ Reset_Handler:
                 LDR     R3, =__data_end__ 
                 CMP     R2, R3
                 BEQ     DataIsEmpty
-LoopRel:        CMP     R2, R3 
+LoopReloc:      CMP     R2, R3 
                 LDRLO   R0, [R1], #4 
                 STRLO   R0, [R2], #4 
-                BLO     LoopRel 
+                BLO     LoopReloc
 DataIsEmpty:
  
 @  ----------------------------------------------------------------------------
@@ -146,9 +146,9 @@ DataIsEmpty:
                 LDR     R2, =__bss_end__ 
                 CMP     R1,R2
                 BEQ     BSSIsEmpty
-LoopZI:         CMP     R1, R2 
+LoopFill:       CMP     R1, R2 
                 STRLO   R0, [R1], #4 
-                BLO     LoopZI 
+                BLO     LoopFill
 BSSIsEmpty:
 
 @  ----------------------------------------------------------------------------

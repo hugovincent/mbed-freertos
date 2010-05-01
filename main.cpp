@@ -96,7 +96,7 @@ extern "C" {
 
 /* Demo application definitions. */
 #define mainCHECK_DELAY						( ( portTickType ) 1000 / portTICK_RATE_MS )
-#define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 6 )
+#define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 8 )
 
 /* Task priorities. */
 #define mainQUEUE_POLL_PRIORITY				( tskIDLE_PRIORITY + 2 )
@@ -125,8 +125,8 @@ extern "C" {
 #define mainMAM_TIM_4		( ( unsigned portCHAR ) 0x04 )
 #define mainMAM_MODE_FULL	( ( unsigned portCHAR ) 0x02 )
 
-/* Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 4s timeout) */
-#define mainWDT_TIMEOUT		( 1000000 * 4 )
+/* Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 3s timeout) */
+#define mainWDT_TIMEOUT		( 1000000 * 3 )
 
 /* The task that handles the uIP stack.  All TCP/IP processing is performed in
  * this task.
@@ -141,54 +141,47 @@ static void prvSetupHardware( void );
 
 static void prvWDT_FeedWatchdog( void )
 {
-	portENTER_CRITICAL();
+//	taskENTER_CRITICAL();
 	{
 		WDFEED = 0xAA; WDFEED = 0x55;
 	}
-	portEXIT_CRITICAL();
+//	taskEXIT_CRITICAL();
 }
-
 
 int main( void )
 {
-	//initialize_stdio();
 	prvSetupHardware();
-	vGpioSet ( 18 , 1 );
 
 	/* Create the uIP task. This uses the lwIP RTOS abstraction layer. */
-    //xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
+    xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", mainBASIC_WEB_STACK_SIZE, NULL, mainCHECK_TASK_PRIORITY - 1, NULL );
 
 	/* Start the standard demo tasks. */
-    vStartLEDFlashTasks( mainFLASH_PRIORITY );
+	vStartLEDFlashTasks( mainFLASH_PRIORITY );
 	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
     vCreateBlockTimeTasks();
     vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
     vStartQueuePeekTasks();   
     vStartDynamicPriorityTasks();
 
-	//CxxTest test;
-	//test.someMethod();
+	CxxTest test;
+	test.someMethod();
 
-	uart0PutChar('b', 0);
-	uart0PutChar('o', 0);
-	uart0PutChar('o', 0);
-	uart0PutChar('t', 0);
-	uart0PutChar('\r', 0);
-	uart0PutChar('\n', 0);
-
+	printf("FreeRTOS Kernel, v" tskKERNEL_VERSION_NUMBER " for " PLAT_NAME \
+			" booted, starting scheduler.");
 	while (1)
 	{
+		vGpioToggle (18);
 		prvWDT_FeedWatchdog();
-		vGpioToggle(20);
-		for (volatile int j = 0 ; j < 1000000; j++)
-			;
+		for (volatile int j = 0; j < 500000; j++);
 	}
 
 	/* Start the scheduler. */
 	vTaskStartScheduler();
 
-    /* Will only get here if there was insufficient memory to create the idle task. */
-	return 0; 
+    /* Will only get here if there was insufficient memory to create the idle task.
+	   Wait for WDT to reset. */
+	while (1);
+	return 0; /* Avoid compiler warning. */
 }
 
 extern "C" void vApplicationIdleHook( void )
@@ -208,16 +201,9 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 	{
 		prvWDT_FeedWatchdog();
 		ulTicksSinceLastDisplay = 0;
+		vGpioToggle(23);
 
-		for (int j = 0; j<20; j++ )
-		{
-			uart0PutChar(' ', 0);
-			uart0PutChar('t', 0);
-			uart0PutChar('i', 0);
-			uart0PutChar('c', 0);
-		}
-		uart0PutChar('\r', 0);
-		uart0PutChar('\n', 0);
+		printf(" tic\n");
 #if 0
 		/* Has an error been found in any task? */
         if( xAreBlockingQueuesStillRunning() != pdTRUE )
@@ -252,59 +238,56 @@ static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
 static void prvSetupHardware( void )
 {
-	portENTER_CRITICAL();
-	{
-		/* Disable the PLL. */
-		PLLCON = 0;
-		PLLFEED = 0xAA; PLLFEED = 0x55;
-		
-		/* Turn on the oscillator clock source and wait for it to start. */
-		SCS |= mainOSC_ENABLE;
-		while( !( SCS & mainOSC_STAT ) );
-		CLKSRCSEL = mainOSC_SELECT; 
-		
-		/* Setup the PLL to multiply the XTAL input (12 MHz) by 6. */
-		PLLCFG = ( (mainPLL_MUL - 1) | ((mainPLL_DIV - 1) << 16) );
-		PLLFEED = 0xAA; PLLFEED = 0x55;
+	/* Disable the PLL. */
+	PLLCON = 0;
+	PLLFEED = 0xAA; PLLFEED = 0x55;
+	
+	/* Turn on the oscillator clock source and wait for it to start. */
+	SCS |= mainOSC_ENABLE;
+	while( !( SCS & mainOSC_STAT ) );
+	CLKSRCSEL = mainOSC_SELECT; 
+	
+	/* Setup the PLL to multiply the XTAL input (12 MHz) by 6. */
+	PLLCFG = ( (mainPLL_MUL - 1) | ((mainPLL_DIV - 1) << 16) );
+	PLLFEED = 0xAA; PLLFEED = 0x55;
 
-		/* Turn on and wait for the PLL to lock. */
-		PLLCON = mainPLL_ENABLE;
-		PLLFEED = 0xAA; PLLFEED = 0x55;
-		while( !( PLLSTAT & mainPLL_LOCK ) );
+	/* Turn on and wait for the PLL to lock. */
+	PLLCON = mainPLL_ENABLE;
+	PLLFEED = 0xAA; PLLFEED = 0x55;
+	while( !( PLLSTAT & mainPLL_LOCK ) );
 
-		/* Set clock dividors for CPU and USB blocks. */
-		CCLKCFG = (mainCPU_CLK_DIV - 1);	
-		USBCLKCFG = (mainUSB_CLK_DIV - 1);
-		
-		/* Connect the PLL and wait for it to connect. */
-		PLLCON = mainPLL_CONNECT;
-		PLLFEED = 0xAA;
-		PLLFEED = 0x55;
-		while( !( PLLSTAT & mainPLL_CONNECTED ) ); 
-		
-		/* Setup and turn on the MAM.  Four cycle access is used due to the fast
-		 * PLL used.  It is possible faster overall performance could be obtained by
-		 * tuning the MAM and PLL settings.
-		 */
-		MAMCR = 0;
-		MAMTIM = mainMAM_TIM_4;
-		MAMCR = mainMAM_MODE_FULL;
-		
-		/* Enable fast mode on GPIO ports 0 and 1. */
-		SCS = 0x1;
+	/* Set clock dividors for CPU and USB blocks. */
+	CCLKCFG = (mainCPU_CLK_DIV - 1);	
+	USBCLKCFG = (mainUSB_CLK_DIV - 1);
+	
+	/* Connect the PLL and wait for it to connect. */
+	PLLCON = mainPLL_CONNECT;
+	PLLFEED = 0xAA;
+	PLLFEED = 0x55;
+	while( !( PLLSTAT & mainPLL_CONNECTED ) ); 
+	
+	/* Setup and turn on the MAM.  Four cycle access is used due to the fast
+	 * PLL used.  It is possible faster overall performance could be obtained by
+	 * tuning the MAM and PLL settings.
+	 */
+	MAMCR = 0;
+	MAMTIM = mainMAM_TIM_4;
+	MAMCR = mainMAM_MODE_FULL;
+	
+	/* Enable fast mode on GPIO ports 0 and 1. */
+	SCS = 0x1;
 
-		/* Setup the watchdog timer (4 second timeout). */
-		// FIXME check/clear reset-reason for WDT reset
-		WDMOD = 0x03; // enable and reset
-		WDTC = mainWDT_TIMEOUT;
-		WDFEED = 0xAA; WDFEED = 0x55;
-	}
-	portEXIT_CRITICAL();
+	/* Setup the watchdog timer (4 second timeout). */
+	// FIXME check/clear reset-reason for WDT reset
+	WDMOD = 0x03; // enable and reset
+	WDTC = mainWDT_TIMEOUT;
+	WDFEED = 0xAA; WDFEED = 0x55;
 
 	/* Setup the led's on the mbed board. */
 	vGpioInitialise();
 
 	/* Setup the debug UART (talks to the PC through the mbed's second microcontroller). */
 	uart0Init(115200, 128);
+	initialise_stdio();
 }
 

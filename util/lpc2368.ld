@@ -21,8 +21,8 @@ SECTIONS
 	/* first section is .text which is used for code */
 	.text : AT ( 0x0 )
 	{
-		util/crt0.o ( .vectors )			/* Exception vectors from crt0.s */
-		util/crt0.o ( .text )				/* remaining boot code */
+		*util/crt0.o ( .vectors )			/* Exception vectors from crt0.s */
+		*util/crt0.o ( .text )				/* remaining boot code */
 		*( .text )
 		*( .text.* )
 		*( .gnu.linkonce.t.* )
@@ -36,24 +36,19 @@ SECTIONS
 
 
 	/* .ctors .dtors and are used for c++ constructors/destructors */
-	. = ALIGN(4);
 	.ctors :
 	{
 		__ctors_start__ = . ;
 		KEEP(*(SORT( .ctors.* )))
 		KEEP(*( .ctors ))
-		. = ALIGN(4);
 		__ctors_end__ = . ;
-		. = ALIGN(4);
 	} > Flash
 	.dtors :
 	{
 		__dtors_start__ = . ; 
 		KEEP(*(SORT( .dtors.* )))
 		KEEP(*( .dtors ))
-		. = ALIGN(4);
 		__dtors_end__ = . ;
-		. = ALIGN(4);
 	} > Flash
 
 	/* .ARM.exidx and .ARM.extab are used for exception handling */
@@ -67,24 +62,20 @@ SECTIONS
 	{
 		*( .ARM.exidx* )
 		*( .gnu.linkonce.armexidx.* )
-		. = ALIGN(4);
 	} > Flash
 	__exidx_end = . ;
 
-	. = ALIGN(4);
+	. = ALIGN(8);
 	__text_end__ = . ;
 
 	/* .data section -- used for initialized data */
 	.data : AT ( __text_end__ ) 
 	{
-		. = ALIGN(4);
 		__data_start__ = . ;
 		SORT(CONSTRUCTORS)
-		. = ALIGN(4);
 		*( .data )
 		*( .data.* )
 		*( .gnu.linkonce.d* )
-		. = ALIGN(4);
 		__data_end__ = . ;
 	} > Ram
 
@@ -93,20 +84,19 @@ SECTIONS
 	/* .bss section -- used for uninitialized data */
 	.bss (NOLOAD) :
 	{
-		. = ALIGN(4);
 		__bss_start__ = . ;
 		*( .bss )
 		*( .bss.* )
 		*( .gnu.linkonce.b* )
 		*( COMMON )
-		. = ALIGN(4);
+		. = ALIGN(8);
 		__bss_end__ = . ;
 	} > Ram
 
 	/* Stack and Heap setup */
-	__top_of_stack__ = ORIGIN(Ram) + LENGTH(Ram) - 4;
-	__stack_min__ = __top_of_stack__ - Stack_Size_Total;
-	. = ALIGN(4);
+	__top_of_stack__ = ALIGN(ORIGIN(Ram) + LENGTH(Ram), 8);
+	__stack_min__ = ALIGN(__top_of_stack__ - Stack_Size_Total, 8);
+	. = ALIGN(8);
 	__start_of_heap__ = . ;
 
 	/* C data can be defined as being in special purpose rams using

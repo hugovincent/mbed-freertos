@@ -54,6 +54,8 @@
 #ifndef GPIO_H
 #define GPIO_H
 
+#include <FreeRTOS.h>
+
 // FIXME register pins, set direction, read pins, register interrupt
 
 void vGpioInitialise(void);

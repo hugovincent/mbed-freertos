@@ -10,7 +10,7 @@ def sh(command):
 	return os.popen(command, "r").read()
 
 def format_kb(num_bytes):
-	return '%.2f kB' % (num_bytes / 1024.0)
+	return '%5.1f kB' % (num_bytes / 1024.0)
 
 #------------------------------------------------------------------------------
 # Parse symbol table
@@ -51,16 +51,18 @@ for line in sh('grep "_Stack_Size," util/crt0.s | grep "\.equ"').strip().split('
 
 # Parse ELF program headers (for definitive total flash and RAM usage)
 program_headers = sh('arm-none-eabi-readelf -l %s' % sys.argv[1])
-total_ram = int(program_headers.split('\n')[8].split()[5:-2][0], 16)
 total_text = int(program_headers.split('\n')[7].split()[5:-3][0], 16)
+total_ram = int(program_headers.split('\n')[8].split()[5:-2][0], 16)
+total_init_ram = int(program_headers.split('\n')[8].split()[4:-3][0], 16)
 
 #------------------------------------------------------------------------------
-# Summarize usage
+# Summarize usage (note: sizes are approximate due to padding for alignment)
 print
-print 'Flash: total code usage:   %s' % format_kb(total_text + total_ram) # Initialized RAM data is loaded from flash
-print 'RAM:   total static usage: %s' % format_kb(total_ram)
-print '       stack usage:        %s' % format_kb(total_stack)
-print '       available heap:     %s' % format_kb(memories['Ram'] - total_stack - total_ram)
+print 'Flash: total code usage:       %s' % format_kb(total_text + total_init_ram)
+print 'RAM:   stack usage:            %s' % format_kb(total_stack)
+print '       static heap usage:      %s' % format_kb(total_ram)
+print '       dynamic heap available: %s (approx.)' % format_kb(memories['Ram'] - \
+		total_stack - total_ram)
 
 #------------------------------------------------------------------------------
 # FIXME add a more detailed print out: top 5 flash/RAM users, attempt to summarize library usage

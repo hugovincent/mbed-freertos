@@ -30,6 +30,6 @@
 #define serNO_BLOCK       ((portTickType) 0)
 
 void vUart0ISRCreateQueues (unsigned portBASE_TYPE uxQueueLength, xQueueHandle *pxRX0Queue, xQueueHandle *pxTX0Queue, portCHAR volatile **ppcTHREEmptyFlag);
-void vUart0ISR(void);
+void vUart0ISR_Wrapper(void);
 
 #endif
