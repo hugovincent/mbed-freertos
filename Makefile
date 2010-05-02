@@ -97,14 +97,17 @@ ARM_SOURCE= \
 ARM_ASM_SOURCE= \
 		util/crt0.s
 
-THUMB_C_OBJS   = $(patsubst %,$(ODIR)/%, $(THUMB_SOURCE:.c=.o))
-THUMB_CXX_OBJS = $(patsubst %,$(ODIR)/%, $(THUMB_CXX_SOURCE:.cpp=.o))
-ARM_C_OBJS     = $(patsubst %,$(ODIR)/%, $(ARM_SOURCE:.c=.o))
-ARM_CXX_OBJS   = $(patsubst %,$(ODIR)/%, $(ARM_CXX_SOURCE:.cpp=.o))
-ARM_ASM_OBJS   = $(patsubst %,$(ODIR)/%, $(ARM_ASM_SOURCE:.s=.o))
+THUMB_C_OBJS   = $(patsubst %.c,$(ODIR)/%.o, $(THUMB_SOURCE))
+THUMB_CXX_OBJS = $(patsubst %.cpp,$(ODIR)/%.o, $(THUMB_CXX_SOURCE))
+ARM_C_OBJS     = $(patsubst %.c,$(ODIR)/%.o, $(ARM_SOURCE))
+ARM_CXX_OBJS   = $(patsubst %.cpp,$(ODIR)/%.o, $(ARM_CXX_SOURCE))
+ARM_ASM_OBJS   = $(patsubst %.s,$(ODIR)/%.o, $(ARM_ASM_SOURCE))
 
 ARM_OBJS       = $(ARM_C_OBJS) $(ARM_CXX_OBJS)
 THUMB_OBJS     = $(THUMB_C_OBJS) $(THUMB_CXX_OBJS)
+
+DEPS_C         = $(patsubst %.c,$(ODIR)/%.d, $(ARM_SOURCE) $(THUMB_SOURCE))
+DEPS_CXX       = $(patsubst %.cpp,$(ODIR)/%.d, $(ARM_CXX_SOURCE) $(THUMB_CXX_SOURCE))
 
 all: $(BINNAME).bin
 
@@ -117,19 +120,19 @@ $(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ARM_ASM_OBJS)
 	@echo "  [Linking...           ] $@"
 	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ARM_ASM_OBJS) -o $@ $(LINKER_FLAGS)
 
-$(THUMB_C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
+$(THUMB_C_OBJS) : $(ODIR)/%.o : %.c $(DEPS_C)
 	@echo "  [Compiling   (Thumb/C)] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) -mthumb $< -o $@
 
-$(THUMB_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
+$(THUMB_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(DEPS_CXX)
 	@echo "  [Compiling (Thumb/C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) -mthumb $< -o $@
 
-$(ARM_C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
+$(ARM_C_OBJS) : $(ODIR)/%.o : %.c $(DEPS_C)
 	@echo "  [Compiling     (ARM/C)] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
 
-$(ARM_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
+$(ARM_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(DEPS_CXX)
 	@echo "  [Compiling   (ARM/C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
@@ -144,12 +147,25 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM_CM3
 	@touch $(ODIR)/exists
 
-.PHONY: disasm clean
-disasm:
+$(ODIR)/deps:
+	@echo "  [Check dependencies...]"
+	@touch $(ODIR)/deps
+
+$(DEPS_C) : $(ODIR)/%.d : %.c $(ODIR)/exists $(ODIR)/deps
+	@$(TOOLPRE)-gcc -MM $(CFLAGS) -MT $(patsubst %.c,$(ODIR)/%.o, $<) $< -MF $@
+
+$(DEPS_CXX) : $(ODIR)/%.d : %.cpp $(ODIR)/exists $(ODIR)/deps
+	@$(TOOLPRE)-g++ -MM $(CXXFLAGS) -MT $(patsubst %.cpp,$(ODIR)/%.o, $<) $< -MF $@
+
+-include $(shell find . -name "*.d")
+
+.PHONY: disasm 
+disasm :
 	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
 	@$(TOOLPRE)-objdump --disassemble $(BINNAME).elf > $(BINNAME)-disassembled.s
 
-clean :
+.PHONY: clean
+clean:
 	@echo "  [Cleaning...          ]"
 	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s
-	
+

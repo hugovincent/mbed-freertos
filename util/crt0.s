@@ -45,10 +45,10 @@
 @  Stack configuration definitions (sizes in bytes) 
 
 .equ UND_Stack_Size,     0x00000004
-.equ SVC_Stack_Size,     0x00000400
+.equ SVC_Stack_Size,     0x00000200
 .equ ABT_Stack_Size,     0x00000004
 .equ FIQ_Stack_Size,     0x00000004
-.equ IRQ_Stack_Size,     0x00000200
+.equ IRQ_Stack_Size,     0x00000100
 .equ USR_Stack_Size,     0x00000004
 
 .global Stack_Size_Total
