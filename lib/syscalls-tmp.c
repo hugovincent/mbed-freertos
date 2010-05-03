@@ -1,15 +1,11 @@
-//
-//  $Id: syscalls.c 351 2009-01-12 03:05:14Z jcw $
-//  $Revision: 351 $
-//  $Author: jcw $
-//  $Date: 2009-01-11 22:05:14 -0500 (Sun, 11 Jan 2009) $
-//  $HeadURL: http://tinymicros.com/svn_public/arm/lpc2148_demo/trunk/newlib/syscalls.c $
-//
+// $Id: syscalls.c 351 2009-01-12 03:05:14Z jcw $
+// $Revision: 351 $
+// $Author: jcw $
+// $Date: 2009-01-11 22:05:14 -0500 (Sun, 11 Jan 2009) $
+// $HeadURL: http://tinymicros.com/svn_public/arm/lpc2148_demo/trunk/newlib/syscalls.c $
 
-//
-//  Support files for GNU libc.  Files in the system namespace go here.
-//  Files in the C namespace (ie those that do not start with an underscore) go in .c
-//  
+// Support files for GNU libc.  Files in the system namespace go here.
+// Files in the C namespace (ie those that do not start with an underscore) go in .c
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -31,9 +27,7 @@
 #include "hardware/uart.h"
 //#include "hardware/rtc.h"
 
-//
-//  Forward prototypes
-//
+// Forward prototypes
 int     _mkdir        _PARAMS ((const char *, mode_t));
 int     _chmod        _PARAMS ((const char *, mode_t));
 int     _read         _PARAMS ((int, char *, int));
@@ -71,9 +65,7 @@ do                                 \
 }                                  \
 while (0)
 
-//
-//  Adjust our internal handles to stay away from std* handles
-//
+// Adjust our internal handles to stay away from std* handles
 #define FILE_HANDLE_OFFSET (0x20)
 
 #define MONITOR_STDIN  0
@@ -83,9 +75,6 @@ while (0)
 #define MONITOR_UART1  4
 #define MONITOR_USB    5
 
-// 
-//
-//
 typedef struct
 {
   int handle;
@@ -97,10 +86,6 @@ typedef struct
 }
 openFiles_t;
 
-
-//
-//
-//
 #define MAX_OPEN_FILES 10
 static openFiles_t openfiles [MAX_OPEN_FILES];
 
@@ -121,9 +106,7 @@ static int findslot (int fh)
   return slot;
 }
 
-//
-//  Function to convert std(in|out|err) handles to internal versions.  
-//
+// Function to convert std(in|out|err) handles to internal versions.  
 static int remap_handle (int fh)
 {
   // FIXME: CHECK_INIT(_REENT);
@@ -677,12 +660,10 @@ void *_sbrk_r (struct _reent *ptr, ptrdiff_t incr)
   return (caddr_t) prev_heap_end;
 }
 
-//
-//  This is a problem.  FatFS has no way to go from a file handle back to a file,
-//  since file name information isn't stored with the handle.  Tried to think of
-//  a good way to handle this, couldn't come up with anything.  For now, it
-//  returns ENOSYS (not implemented).
-//
+// This is a problem.  FatFS has no way to go from a file handle back to a file,
+// since file name information isn't stored with the handle.  Tried to think of
+// a good way to handle this, couldn't come up with anything.  For now, it
+// returns ENOSYS (not implemented).
 int _fstat (int fd __attribute__ ((unused)), struct stat *st __attribute__ ((unused)))
 {
   return set_errno (ENOSYS);
@@ -758,9 +739,7 @@ int _gettimeofday (struct timeval *tp, struct timezone *tzp)
 #endif
   }
 
-  //
-  //  Return fixed data for the timezone
-  //
+  // Return fixed data for the timezone
   if (tzp)
   {
     tzp->tz_minuteswest = 0;
@@ -770,9 +749,7 @@ int _gettimeofday (struct timeval *tp, struct timezone *tzp)
   return 0;
 }
 
-//
-//  Return a clock that ticks at 100Hz
-//
+// Return a clock that ticks at 100Hz
 clock_t _times (struct tms *tp)
 {
   clock_t timeval = (clock_t) xTaskGetTickCount ();
@@ -817,11 +794,9 @@ int _rename (const char *oldpath, const char *newpath)
 #endif
 }
 
-//
-//  Default crossdev -t options for ARM newlib doesn't define HAVE_RENAME, so
-//  it's trying to use the link/unlink process.  FatFS doesn't support link(),
-//  so override the newlib rename() to make it work correctly.
-//
+// Default crossdev -t options for ARM newlib doesn't define HAVE_RENAME, so
+// it's trying to use the link/unlink process.  FatFS doesn't support link(),
+// so override the newlib rename() to make it work correctly.
 int rename (const char *oldpath, const char *newpath)
 {
   return _rename (oldpath, newpath);

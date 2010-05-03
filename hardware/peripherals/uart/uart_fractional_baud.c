@@ -1,3 +1,8 @@
+/* Fractional baud rate generation for LPC23xx (and proably other LPCxxxx) UARTs.
+ *
+ * Hugo Vincent, April 28 2010.
+ */
+
 #include "FreeRTOSConfig.h"
 #include <math.h>
 

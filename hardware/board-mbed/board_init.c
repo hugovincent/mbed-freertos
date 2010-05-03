@@ -1,3 +1,6 @@
+/* Board-specific Initialisation.
+ * Hugo Vincent, 2 May 2010.
+ */
 
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
