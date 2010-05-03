@@ -154,8 +154,10 @@ BSSIsEmpty:
 @  ----------------------------------------------------------------------------
 @  Call the low level initialization functions (sets up clocks etc)
                 .extern LowLevelInit, BoardInit
+                ADD LR, PC, #4
                 LDR R0, =LowLevelInit
                 BX      R0
+                ADD LR, PC, #4
                 LDR R0, =BoardInit
                 BX      R0
 
@@ -164,6 +166,7 @@ BSSIsEmpty:
 @  their constructors called first. This shim is in lib/min_c++.cpp and
 @  is called __cxx_main, which becomes _Z10__cxx_mainv due to C++ name mangling).
                 .extern _Z10__cxx_mainv
+                ADD LR, PC, #4
                 LDR R0, =_Z10__cxx_mainv
                 BX      R0
 
