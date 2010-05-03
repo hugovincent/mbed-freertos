@@ -152,22 +152,25 @@ LoopFill:       CMP     R1, R2
 BSSIsEmpty:
 
 @  ----------------------------------------------------------------------------
-@  Call the low level initialization function (sets up clocks etc)
-                .extern LowLevelInit
-				LDR R0, =LowLevelInit
-				BX      R0
+@  Call the low level initialization functions (sets up clocks etc)
+                .extern LowLevelInit, BoardInit
+                LDR R0, =LowLevelInit
+                BX      R0
+                LDR R0, =BoardInit
+                BX      R0
 
 @  ----------------------------------------------------------------------------
 @  Finally, enter the C code (via a shim that ensures global C++ objects have 
-@  their constructors called first)
-                .extern __cxx_main
-                LDR R0, =__cxx_main
+@  their constructors called first. This shim is in lib/min_c++.cpp and
+@  is called __cxx_main, which becomes _Z10__cxx_mainv due to C++ name mangling).
+                .extern _Z10__cxx_mainv
+                LDR R0, =_Z10__cxx_mainv
                 BX      R0
 
 @  ----------------------------------------------------------------------------
 @  If C main ever returns, reset the device
-				LDR R0,	=Reset_Handler
-				BX		R0
+                LDR R0, =Reset_Handler
+                BX      R0
 
 .end
 

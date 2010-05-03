@@ -38,7 +38,7 @@ for line in sh('arm-none-eabi-objdump -t %s' % sys.argv[1]).strip().split('\n'):
 
 # Parse RAM/flash capacities from linker-script
 memories = {}
-for line in sh('cat util/lpc2368.ld | grep " (r.) *:"').strip().split('\n'):
+for line in sh('cat hardware/cpu-lpc2368/lpc2368.ld | grep " (r.) *:"').strip().split('\n'):
 	memory = line.strip().split()
 	# Parse 'k' suffixes
 	memsize = 1024 * int(memory[-1][:-1])
@@ -46,7 +46,7 @@ for line in sh('cat util/lpc2368.ld | grep " (r.) *:"').strip().split('\n'):
 
 # Parse stack allocations from boot code (assembly)
 total_stack = 0
-for line in sh('grep "_Stack_Size," util/crt0.s | grep "\.equ"').strip().split('\n'):
+for line in sh('grep "_Stack_Size," hardware/cpu-common/crt0.s | grep "\.equ"').strip().split('\n'):
 	total_stack += int(line.split()[2], 16)
 
 # Parse ELF program headers (for definitive total flash and RAM usage)

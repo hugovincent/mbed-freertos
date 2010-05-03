@@ -68,6 +68,9 @@
  * processing is performed in this task.
  */
 
+#include <string.h>
+#include <stdlib.h>
+
 // Scheduler includes.
 #include "FreeRTOS.h"
 #include "task.h"
@@ -83,15 +86,11 @@
 #include "example_tasks/QPeek.h"
 #include "example_tasks/dynamic.h"
 
-#include "hardware/gpio.h"
-#include "hardware/uart.h"
-
-#include <string.h>
-#include <stdlib.h>
+#include "CxxTest.h"
 
 // Demo application definitions.
 #define mainCHECK_DELAY						( ( portTickType ) 1000 / portTICK_RATE_MS )
-#define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 8 )
+#define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 6 )
 
 // Task priorities.
 #define mainQUEUE_POLL_PRIORITY				( tskIDLE_PRIORITY + 2 )
@@ -101,37 +100,10 @@
 #define mainCREATOR_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
 #define mainGEN_QUEUE_TASK_PRIORITY			( tskIDLE_PRIORITY )
 
-// Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 3s timeout)
-#define mainWDT_TIMEOUT		( 1000000 * 3 )
-
-// The task that handles the uIP stack.  All TCP/IP processing is
-// performed in this task.
-extern "C" void vuIP_Task( void *pvParameters );
-
-// This initialises the stdio layer in Newlib.
-extern "C" void initialise_stdio (void);
-
-// Configure the hardware as required by the demo.
-static void prvSetupHardware( void );
-
-static void prvWDT_FeedWatchdog( void )
-{
-	taskENTER_CRITICAL();
-	{
-		WDFEED = 0xAA; WDFEED = 0x55;
-	}
-	taskEXIT_CRITICAL();
-}
-
-#include <Tests.cpp>
-
-#include "CxxTest.h"
 CxxTest cxxTest;
 
 int main( void )
 {
-	prvSetupHardware();
-
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks( mainFLASH_PRIORITY );
 	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
@@ -141,17 +113,10 @@ int main( void )
 	vStartDynamicPriorityTasks();
 
 	// Create the uIP task. This uses the lwIP RTOS abstraction layer.
-//	xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", 
-//			mainBASIC_WEB_STACK_SIZE, NULL, mainQUEUE_POLL_PRIORITY, NULL );
+	//	xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP",
+	//			mainBASIC_WEB_STACK_SIZE, NULL, mainQUEUE_POLL_PRIORITY, NULL );
 
 	cxxTest.someMethod();
-
-	uart0PutChar('b', 0);
-	uart0PutChar('o', 0);
-	uart0PutChar('o', 0);
-	uart0PutChar('t', 0);
-	uart0PutChar('\r', 0);
-	uart0PutChar('\n', 0);
 
 	// Start the scheduler.
 	printf("FreeRTOS Kernel, v" tskKERNEL_VERSION_NUMBER " for " PLAT_NAME \
@@ -162,88 +127,74 @@ int main( void )
 	while (1);	// Wait for WDT to reset.
 }
 
-extern "C" void vApplicationIdleHook( void )
+//-----------------------------------------------------------------------------
+// FreeRTOS Callback Hooks:
+extern "C"
 {
-	// Put processor core into Idle Mode to conserve power.
-	PCON |= 0x1;
-
-	// And we're back... let's just NOP for a bit just in case.
-	portNOP();
-	portNOP();
-	portNOP();
-	portNOP();
-}
-
-extern "C" void vApplicationMallocFailedHook( void )
-{
-	printf("[FreeRTOS] Error: memory allocation failed!\n");
-	while (1); // Wait for WDT to reset.
-}
-
-extern "C" void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
-{
-	printf("[FreeRTOS] Error: task \"%s\" had a stack overflow!\n", pcTaskName);
-	while(1); // Wait for WDT to reset.
-}
-
-extern "C" void vApplicationTickHook( void )
-{
-	static unsigned portLONG ulTicksSinceLastDisplay = 0;
-
-	// Called from every tick interrupt. Have enough ticks passed to make it
-	// time to perform our health status check again?
-	ulTicksSinceLastDisplay++;
-	if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
+	void vApplicationIdleHook( void )
 	{
-		prvWDT_FeedWatchdog();
-		ulTicksSinceLastDisplay = 0;
+		// Put processor core into Idle Mode to conserve power.
+		PCON |= 0x1;
 
-		printf(" tic\n");
+		// And we're back... let's just NOP for a bit just in case.
+		portNOP();
+		portNOP();
+		portNOP();
+		portNOP();
+	}
 
-		// Has an error been found in any task?
-		if( xAreBlockingQueuesStillRunning() != pdTRUE )
+	void vApplicationMallocFailedHook( void )
+	{
+		printf("[FreeRTOS] Error: memory allocation failed!\n");
+		while (1); // Wait for WDT to reset.
+	}
+
+	void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
+	{
+		printf("[FreeRTOS] Error: task \"%s\" had a stack overflow!\n", pcTaskName);
+		while(1); // Wait for WDT to reset.
+	}
+
+	void vApplicationTickHook( void )
+	{
+		static unsigned portLONG ulTicksSinceLastDisplay = 0;
+
+		// Called from every tick interrupt. Have enough ticks passed to make it
+		// time to perform our health status check again?
+		ulTicksSinceLastDisplay++;
+		if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
 		{
-			//	xMessage.pcMessage = "ERROR - BLOCKQ";
-		}
+			//WDT_FeedWatchdog();
+			ulTicksSinceLastDisplay = 0;
 
-		if( xAreBlockTimeTestTasksStillRunning() != pdTRUE )
-		{
-			//	xMessage.pcMessage = "ERROR - BLOCKTIM";
-		}
+			printf(" tic\n");
 
-		if( xAreGenericQueueTasksStillRunning() != pdTRUE )
-		{
-			//	xMessage.pcMessage = "ERROR - GENQ";
-		}
+			// Has an error been found in any task?
+			if( xAreBlockingQueuesStillRunning() != pdTRUE )
+			{
+				//xMessage.pcMessage = "ERROR - BLOCKQ";
+			}
 
-		if( xAreQueuePeekTasksStillRunning() != pdTRUE )
-		{
-			//	xMessage.pcMessage = "ERROR - PEEKQ";
-		}
+			if( xAreBlockTimeTestTasksStillRunning() != pdTRUE )
+			{
+				//xMessage.pcMessage = "ERROR - BLOCKTIM";
+			}
 
-		if( xAreDynamicPriorityTasksStillRunning() != pdTRUE )
-		{
-			//	xMessage.pcMessage = "ERROR - DYNAMIC";
+			if( xAreGenericQueueTasksStillRunning() != pdTRUE )
+			{
+				//xMessage.pcMessage = "ERROR - GENQ";
+			}
+
+			if( xAreQueuePeekTasksStillRunning() != pdTRUE )
+			{
+				//xMessage.pcMessage = "ERROR - PEEKQ";
+			}
+
+			if( xAreDynamicPriorityTasksStillRunning() != pdTRUE )
+			{
+				//xMessage.pcMessage = "ERROR - DYNAMIC";
+			}
 		}
 	}
-}
-
-static void prvSetupHardware( void )
-{
-#if 0
-	// Setup the watchdog timer (3 second timeout).
-	// FIXME check/clear reset-reason for WDT reset
-	WDMOD = 0x03; // enable and reset
-	WDTC = mainWDT_TIMEOUT;
-	WDFEED = 0xAA; WDFEED = 0x55;
-#endif
-
-	// Setup the led's on the mbed board.
-	vGpioInitialise();
-
-	// Setup the debug UART (talks to the PC through the mbed's second 
-	// microcontroller) and connect it to stdio.
-	uart0Init(115200, 128);
-	initialise_stdio();
 }
 

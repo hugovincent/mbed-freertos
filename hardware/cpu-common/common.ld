@@ -3,16 +3,6 @@
  * modified by Hugo Vincent <http://hugovincent.com>
  */
 
-/* Memory Definitions */
-MEMORY
-{
-	Flash (rx)  : ORIGIN = 0x00000000, LENGTH = 512k
-	Ram (rw)    : ORIGIN = 0x40000000, LENGTH = 32k
-	UsbRam (rw) : ORIGIN = 0x7FD00000, LENGTH = 8k
-	EthRam (rw) : ORIGIN = 0x7FE00000, LENGTH = 16k
-	BatRam (rw) : ORIGIN = 0xE0084000, LENGTH = 2k
-}
-
 /* Section Definitions */
 SECTIONS
 {
@@ -21,8 +11,10 @@ SECTIONS
 	/* first section is .text which is used for code */
 	.text : AT ( 0x0 )
 	{
-		*util/crt0.o ( .vectors )			/* Exception vectors from crt0.s */
-		*util/crt0.o ( .text )				/* remaining boot code */
+		*crt0.o ( .vectors )				/* Exception vectors from crt0.s */
+		*crt0.o ( .text )					/* remaining boot code */
+		*device_init.o ( .text )
+		*device_init.o ( .text.* )
 		*( .text )
 		*( .text.* )
 		*( .gnu.linkonce.t.* )
@@ -33,7 +25,6 @@ SECTIONS
 		*( .rodata* )
 		*( .gnu.linkonce.r.* )
 	} > Flash
-
 
 	/* .ctors .dtors and are used for c++ constructors/destructors */
 	.ctors :
@@ -65,7 +56,6 @@ SECTIONS
 	} > Flash
 	__exidx_end = . ;
 
-	. = ALIGN(8);
 	__text_end__ = . ;
 
 	/* .data section -- used for initialized data */
@@ -106,24 +96,6 @@ SECTIONS
 	__top_of_stack__ = ALIGN(ORIGIN(Ram) + LENGTH(Ram), 8);
 	__stack_min__ = ALIGN(__top_of_stack__ - Stack_Size_Total, 8);
 
-	/* C data can be defined as being in special purpose rams using
-	 * __attribute__ ((section ("ethram"))) for example. */
-	.usbram (NOLOAD):
-	{
-		*( .usbram )
-		*( .usbram.* )
-	} > UsbRam
-	.ethram (NOLOAD):
-	{
-		*( .ethram )
-		*( .ethram.* )
-	} > EthRam
-	.batram (NOLOAD):
-	{
-		*( .batram )
-		*( .batram.* )
-	} > BatRam
-
 	/* -------------------------- DEBUG STUFF (not in binary) -------------- */
 	/* Stabs debugging sections.  */
 	.stab          0 : { *(.stab) }
@@ -161,3 +133,4 @@ SECTIONS
 }
 
 ENTRY( Vectors )
+

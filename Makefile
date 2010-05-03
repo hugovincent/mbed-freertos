@@ -14,7 +14,7 @@
 #
 
 TOOLPRE=util/arm-none-eabi
-LDSCRIPT=hardware/target-lpc2368/lpc2368.ld
+LDSCRIPT=hardware/cpu-lpc2368/lpc2368.ld
 
 ODIR=.buildtmp
 BINNAME=RTOSDemo
@@ -89,10 +89,10 @@ THUMB_SOURCE= \
 		lib/uip/httpd-cgi.c \
 		lib/uip/httpd-fs.c \
 		lib/uip/http-strings.c \
-		hardware/uart/uart.c \
-		hardware/uart/uartFractionalBaud.c \
-		hardware/gpio/gpio.c \
-		hardware/emac/emac.c \
+		hardware/peripherals/uart/uart.c \
+		hardware/peripherals/uart/uart_fractional_baud.c \
+		hardware/peripherals/gpio/gpio.c \
+		hardware/peripherals/emac/emac.c \
 		freertos/list.c \
 		freertos/queue.c \
 		freertos/tasks.c \
@@ -102,17 +102,20 @@ THUMB_SOURCE= \
 
 THUMB_CXX_SOURCE= \
 		main.cpp \
-		lib/min_c++.cpp \
 		CxxTest.cpp
 
 ARM_SOURCE= \
 		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
-		hardware/emac/emacISR.c \
-		hardware/uart/uartISRs.c \
-		hardware/target-lpc2368/device_init.c
+		hardware/peripherals/emac/emacISR.c \
+		hardware/peripherals/uart/uartISRs.c \
+		hardware/cpu-lpc2368/device_init.c \
+		hardware/board-mbed/board_init.c 
+
+ARM_CXX_SOURCE= \
+		lib/min_c++.cpp
 
 ARM_ASM_SOURCE= \
-		hardware/target-lpc2368/crt0.s
+		hardware/cpu-lpc2368/crt0.s
 
 #------------------------------------------------------------------------------
 # Build Rules:
@@ -165,9 +168,10 @@ $(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
 
 # This target ensures the temporary build product directories exist
 $(ODIR)/exists:
-	@mkdir -p $(ODIR)/hardware/uart $(ODIR)/hardware/gpio $(ODIR)/hardware/emac
-	@mkdir -p $(ODIR)/hardware/target-lpc2368 $(ODIR)/hardware/target-lpc1768
-	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip $(ODIR)/util
+	@mkdir -p $(ODIR)/hardware/peripherals/uart $(ODIR)/hardware/peripherals/gpio 
+	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/board-mbed
+	@mkdir -p $(ODIR)/hardware/cpu-lpc2368 $(ODIR)/hardware/cpu-lpc1768
+	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip
 	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM7_LPC23xx
 	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM_CM3
 	@mkdir -p $(ODIR)/freertos/portable/MemMang

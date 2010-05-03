@@ -13,7 +13,7 @@
 #include <hardware/uart.h>
 #include "uartISRs.h"
 
-#include "uartFractionalBaud.h"
+#include "uart_fractional_baud.h"
 
 // Queues used to hold received characters, and characters waiting to be transmitted
 static xQueueHandle xRX0Queue; 
