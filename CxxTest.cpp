@@ -1,10 +1,8 @@
-extern "C" {
 #include <FreeRTOS.h>
 #include "hardware/gpio.h"
-#include "CxxTest.h"
-}
 
-#include <string>
+#include "CxxTest.h"
+//#include <string>
 
 int CxxTest::someMethod() {
 

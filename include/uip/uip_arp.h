@@ -54,6 +54,9 @@
 
 #include "uip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 extern struct uip_eth_addr uip_ethaddr;
 
@@ -148,5 +151,9 @@ void uip_arp_timer(void);
 
 /** @} */
 /** @} */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP_ARP_H__ */

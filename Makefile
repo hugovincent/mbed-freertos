@@ -14,7 +14,7 @@
 #
 
 TOOLPRE=util/arm-none-eabi
-LDSCRIPT=util/lpc2368.ld
+LDSCRIPT=hardware/target-lpc2368/lpc2368.ld
 
 ODIR=.buildtmp
 BINNAME=RTOSDemo
@@ -108,10 +108,11 @@ THUMB_CXX_SOURCE= \
 ARM_SOURCE= \
 		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
 		hardware/emac/emacISR.c \
-		hardware/uart/uartISRs.c
+		hardware/uart/uartISRs.c \
+		hardware/target-lpc2368/device_init.c
 
 ARM_ASM_SOURCE= \
-		util/crt0.s
+		hardware/target-lpc2368/crt0.s
 
 #------------------------------------------------------------------------------
 # Build Rules:
@@ -165,6 +166,7 @@ $(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
 # This target ensures the temporary build product directories exist
 $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/uart $(ODIR)/hardware/gpio $(ODIR)/hardware/emac
+	@mkdir -p $(ODIR)/hardware/target-lpc2368 $(ODIR)/hardware/target-lpc1768
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip $(ODIR)/util
 	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM7_LPC23xx
 	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM_CM3

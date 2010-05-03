@@ -54,8 +54,16 @@
 #ifndef GEN_Q_TEST_H
 #define GEN_Q_TEST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vStartGenericQueueTasks( unsigned portBASE_TYPE uxPriority );
 portBASE_TYPE xAreGenericQueueTasksStillRunning( void );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* GEN_Q_TEST_H */
 

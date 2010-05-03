@@ -54,8 +54,16 @@
 #ifndef SUICIDE_TASK_H
 #define SUICIDE_TASK_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vCreateSuicidalTasks( unsigned portBASE_TYPE uxPriority );
 portBASE_TYPE xIsCreateTaskStillRunning( void );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

@@ -56,6 +56,10 @@
 #include "uipopt.h"
 #include "FreeRTOSConfig.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Repressentation of an IP address.
  *
@@ -1632,6 +1636,9 @@ u16_t uip_tcpchksum(void);
  */
 u16_t uip_udpchksum(void);
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP_H__ */
 

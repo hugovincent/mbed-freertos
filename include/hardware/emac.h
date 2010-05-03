@@ -9,6 +9,10 @@
 #ifndef __EMAC_H
 #define __EMAC_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* MAC address definition.  The MAC address must be unique on the network. */
 #define emacETHADDR0 0
 #define emacETHADDR1 0xbd
@@ -313,6 +317,9 @@ void           DoSend_EMAC(unsigned short FrameSize);
 void vEMACWaitForInput( void );
 unsigned int uiGetEMACRxData( unsigned char *ucBuffer );
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

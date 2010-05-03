@@ -54,8 +54,16 @@
 #ifndef DYNAMIC_MANIPULATION_H
 #define DYNAMIC_MANIPULATION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vStartDynamicPriorityTasks( void );
 portBASE_TYPE xAreDynamicPriorityTasksStillRunning( void );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

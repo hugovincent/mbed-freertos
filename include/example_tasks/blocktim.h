@@ -54,8 +54,16 @@
 #ifndef BLOCK_TIME_TEST_H
 #define BLOCK_TIME_TEST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vCreateBlockTimeTasks( void );
 portBASE_TYPE xAreBlockTimeTestTasksStillRunning( void );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

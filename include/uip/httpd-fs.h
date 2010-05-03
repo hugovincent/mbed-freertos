@@ -35,6 +35,10 @@
 #ifndef __HTTPD_FS_H__
 #define __HTTPD_FS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HTTPD_FS_STATISTICS 1
 
 struct httpd_fs_file {
@@ -53,5 +57,9 @@ u16_t httpd_fs_count(char *name);
 #endif /* HTTPD_FS_STATISTICS */
 
 void httpd_fs_init(void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __HTTPD_FS_H__ */

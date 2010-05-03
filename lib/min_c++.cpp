@@ -34,3 +34,25 @@ extern "C" int __aeabi_atexit(void *object, void (*destructor)(void *), void *ds
 {
 	return 0;
 }
+
+extern unsigned long __ctors_start__, __ctors__end, __dtors_start__, __dtors_end__;
+extern int main();
+
+extern "C" void __cxx_main(void)
+{
+    // call all the static constructors in the list.
+    for(unsigned long *constructor(&__ctors_start__); constructor < &__dtors_end__; ++constructor)
+	{
+        ((void (*) (void)) (*constructor)) ();
+	}
+ 
+    // call proper main function
+    main();
+
+    // call all the static destructors in the list.
+    for(unsigned long *destructor(&__dtors_start__); destructor < &__dtors_end__; ++destructor)
+	{
+        ((void (*) (void)) (*destructor)) ();
+	}
+}
+

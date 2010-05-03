@@ -54,8 +54,16 @@
 #ifndef INTEGER_TASKS_H
 #define INTEGER_TASKS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vStartIntegerMathTasks( unsigned portBASE_TYPE uxPriority );
 portBASE_TYPE xAreIntegerMathsTaskStillRunning( void );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

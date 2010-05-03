@@ -54,7 +54,15 @@
 #ifndef FLASH_LED_H
 #define FLASH_LED_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vStartLEDFlashTasks( unsigned portBASE_TYPE uxPriority );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

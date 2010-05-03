@@ -10,8 +10,16 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 signed portBASE_TYPE uart0Init (unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength);
 signed portBASE_TYPE uart0GetChar (signed portCHAR *pcRxedChar, portTickType xBlockTime);
 signed portBASE_TYPE uart0PutChar (signed portCHAR cOutChar, portTickType xBlockTime);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

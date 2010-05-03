@@ -68,29 +68,24 @@
  * processing is performed in this task.
  */
 
-extern "C" {
+// Scheduler includes.
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "semphr.h"
 
-	// Scheduler includes.
-	#include "FreeRTOS.h"
-	#include "task.h"
-	#include "queue.h"
-	#include "semphr.h"
+// Demo app includes.
+#include "example_tasks/BlockQ.h"
+#include "example_tasks/death.h"
+#include "example_tasks/blocktim.h"
+#include "example_tasks/flash.h"
+#include "example_tasks/GenQTest.h"
+#include "example_tasks/QPeek.h"
+#include "example_tasks/dynamic.h"
 
-	// Demo app includes.
-	#include "example_tasks/BlockQ.h"
-	#include "example_tasks/death.h"
-	#include "example_tasks/blocktim.h"
-	#include "example_tasks/flash.h"
-	#include "example_tasks/GenQTest.h"
-	#include "example_tasks/QPeek.h"
-	#include "example_tasks/dynamic.h"
+#include "hardware/gpio.h"
+#include "hardware/uart.h"
 
-	#include "hardware/gpio.h"
-	#include "hardware/uart.h"
-
-} // end extern "C"
-
-#include "CxxTest.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -105,25 +100,6 @@ extern "C" {
 #define mainFLASH_PRIORITY                  ( tskIDLE_PRIORITY + 2 )
 #define mainCREATOR_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
 #define mainGEN_QUEUE_TASK_PRIORITY			( tskIDLE_PRIORITY )
-
-// Constants to setup the PLL for 72 MHz cpu clock and USB support.
-// External crystal = 12 MHz, Fcco = 288 MHz
-
-#define mainPLL_MUL			( ( unsigned portLONG ) 12 )
-#define mainPLL_DIV			( ( unsigned portLONG ) 1 )
-#define mainCPU_CLK_DIV		( ( unsigned portLONG ) 4 )
-#define mainUSB_CLK_DIV		( ( unsigned portLONG ) 6 )
-#define mainPLL_ENABLE		( ( unsigned portLONG ) 0x0001 )
-#define mainPLL_CONNECT		( ( ( unsigned portLONG ) 0x0002 ) | mainPLL_ENABLE )
-#define mainPLL_LOCK		( ( unsigned portLONG ) 0x4000000 )
-#define mainPLL_CONNECTED	( ( unsigned portLONG ) 0x2000000 )
-#define mainOSC_ENABLE		( ( unsigned portLONG ) 0x20 )
-#define mainOSC_STAT		( ( unsigned portLONG ) 0x40 )
-#define mainOSC_SELECT		( ( unsigned portLONG ) 0x01 )
-
-// Constants to setup the MAM.
-#define mainMAM_TIM_4		( ( unsigned portCHAR ) 0x04 )
-#define mainMAM_MODE_FULL	( ( unsigned portCHAR ) 0x02 )
 
 // Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 3s timeout)
 #define mainWDT_TIMEOUT		( 1000000 * 3 )
@@ -149,6 +125,9 @@ static void prvWDT_FeedWatchdog( void )
 
 #include <Tests.cpp>
 
+#include "CxxTest.h"
+CxxTest cxxTest;
+
 int main( void )
 {
 	prvSetupHardware();
@@ -164,6 +143,15 @@ int main( void )
 	// Create the uIP task. This uses the lwIP RTOS abstraction layer.
 //	xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", 
 //			mainBASIC_WEB_STACK_SIZE, NULL, mainQUEUE_POLL_PRIORITY, NULL );
+
+	cxxTest.someMethod();
+
+	uart0PutChar('b', 0);
+	uart0PutChar('o', 0);
+	uart0PutChar('o', 0);
+	uart0PutChar('t', 0);
+	uart0PutChar('\r', 0);
+	uart0PutChar('\n', 0);
 
 	// Start the scheduler.
 	printf("FreeRTOS Kernel, v" tskKERNEL_VERSION_NUMBER " for " PLAT_NAME \
@@ -189,7 +177,7 @@ extern "C" void vApplicationIdleHook( void )
 extern "C" void vApplicationMallocFailedHook( void )
 {
 	printf("[FreeRTOS] Error: memory allocation failed!\n");
-	vGpioSet(23,1); // FIXME
+	while (1); // Wait for WDT to reset.
 }
 
 extern "C" void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
@@ -209,7 +197,6 @@ extern "C" void vApplicationTickHook( void )
 	{
 		prvWDT_FeedWatchdog();
 		ulTicksSinceLastDisplay = 0;
-		vGpioToggle(23);
 
 		printf(" tic\n");
 
@@ -243,44 +230,6 @@ extern "C" void vApplicationTickHook( void )
 
 static void prvSetupHardware( void )
 {
-	// Disable the PLL.
-	PLLCON = 0;
-	PLLFEED = 0xAA; PLLFEED = 0x55;
-
-	// Turn on the oscillator clock source and wait for it to start.
-	SCS |= mainOSC_ENABLE;
-	while( !( SCS & mainOSC_STAT ) );
-	CLKSRCSEL = mainOSC_SELECT;
-
-	// Setup the PLL to multiply the XTAL input (12 MHz) by 6.
-	PLLCFG = ( (mainPLL_MUL - 1) | ((mainPLL_DIV - 1) << 16) );
-	PLLFEED = 0xAA; PLLFEED = 0x55;
-
-	// Turn on and wait for the PLL to lock.
-	PLLCON = mainPLL_ENABLE;
-	PLLFEED = 0xAA; PLLFEED = 0x55;
-	while( !( PLLSTAT & mainPLL_LOCK ) );
-
-	// Set clock dividors for CPU and USB blocks.
-	CCLKCFG = (mainCPU_CLK_DIV - 1);
-	USBCLKCFG = (mainUSB_CLK_DIV - 1);
-
-	// Connect the PLL and wait for it to connect.
-	PLLCON = mainPLL_CONNECT;
-	PLLFEED = 0xAA;
-	PLLFEED = 0x55;
-	while( !( PLLSTAT & mainPLL_CONNECTED ) );
-
-	// Setup and turn on the MAM.  Four cycle access is used due to the fast
-	// PLL used.  It is possible faster overall performance could be obtained by
-	// tuning the MAM and PLL settings.
-	MAMCR = 0;
-	MAMTIM = mainMAM_TIM_4;
-	MAMCR = mainMAM_MODE_FULL;
-
-	// Enable fast mode on GPIO ports 0 and 1.
-	SCS = 0x1;
-
 #if 0
 	// Setup the watchdog timer (3 second timeout).
 	// FIXME check/clear reset-reason for WDT reset

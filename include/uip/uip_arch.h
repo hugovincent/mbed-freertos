@@ -63,6 +63,10 @@
 
 #include "uip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Carry out a 32-bit addition.
  *
@@ -85,5 +89,9 @@ void uip_add32(u8_t *op32, u16_t op16);
 
 /** @} */
 /** @} */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP_ARCH_H__ */

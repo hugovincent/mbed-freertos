@@ -54,8 +54,16 @@
 #ifndef BLOCK_Q_H
 #define BLOCK_Q_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vStartBlockingQueueTasks( unsigned portBASE_TYPE uxPriority );
 portBASE_TYPE xAreBlockingQueuesStillRunning( void );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

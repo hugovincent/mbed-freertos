@@ -56,12 +56,20 @@
 
 #include <FreeRTOS.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // FIXME register pins, set direction, read pins, register interrupt
 
 void vGpioInitialise(void);
 void vGpioSet(unsigned portBASE_TYPE uxPin, signed portBASE_TYPE xValue);
 void vGpioToggle(unsigned portBASE_TYPE uxPin);
 unsigned portBASE_TYPE uxGpioGet(unsigned portBASE_TYPE uxPin);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 

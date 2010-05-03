@@ -54,6 +54,10 @@
 
 #include "clock-arch.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Initialize the clock library.
  *
@@ -81,6 +85,10 @@ clock_time_t clock_time(void);
 #define CLOCK_SECOND CLOCK_CONF_SECOND
 #else
 #define CLOCK_SECOND (clock_time_t)32
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif /* __CLOCK_H__ */

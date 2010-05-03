@@ -54,8 +54,16 @@
 #ifndef Q_PEEK_TEST_H
 #define Q_PEEK_TEST_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void vStartQueuePeekTasks( void );
 portBASE_TYPE xAreQueuePeekTasksStillRunning( void );
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* Q_PEEK_TEST_H */
 
