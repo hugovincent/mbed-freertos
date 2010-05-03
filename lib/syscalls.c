@@ -141,19 +141,19 @@ static int newslot (void)
 
 void initialise_stdio (void)
 {
-	int i;
-
-	/* Open the standard file descriptors by opening the special
-	 * teletype device, ":tt", read-only to obtain a descritpor for
-	 * standard input and write-only to obtain a descriptor for standard
-	 * output. Finally, open ":tt" in append mode to obtain a descriptor
-	 * for standard error. Since this is a write mode, most kernels will
-	 * probably return the same value as for standard output, but the
-	 * kernel can differentiate the two using the mode flag and return a
-	 * different descriptor for standard error.
+	/* Open the standard file descriptors by opening the debug UART and 
+	 * attaching it write-only to stdout and stderr, and read-only to stdin.
 	 */
-	int volatile block[3];
 
+	int i;
+	static int initialized = 0;
+	if (initialized)
+		return;
+
+	initialized = 1;
+
+
+	int volatile block[3];
 	block[0] = (int) ":tt";
 	block[2] = 3;     /* length of filename */
 	block[1] = 0;     /* mode "r" */
@@ -169,10 +169,12 @@ void initialise_stdio (void)
 	block[1] = 8;     /* mode "a" */
 	monitor_stderr = do_AngelSWI (AngelSWI_Reason_Open, (void *) block);
 
+
 	/* If we failed to open stderr, redirect to stdout. */
 	if (monitor_stderr == -1)
 		monitor_stderr = monitor_stdout;
 
+	__builtin_memset (openfiles, 0, sizeof (openfiles));
 	for (i = 0; i < MAX_OPEN_FILES; i ++)
 		openfiles[i].handle = -1;
 

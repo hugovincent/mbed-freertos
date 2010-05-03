@@ -1,4 +1,4 @@
-# For mbed beta hardware (LPC2368)
+# For mbed <http://www.mbed.org>
 # Hugo Vincent, April 25 2010
 #
 # Note: after installing an arm-eabi-none* toolchain using the instructions at
@@ -13,32 +13,57 @@
 #	disasm	- Produce a disassembly listing of the whole program.
 #
 
-TOOLPRE=util/arm-none-eabi
-LDSCRIPT=hardware/cpu-lpc2368/lpc2368.ld
+# Set target here according to which type of mbed you have:
+# (can be lpc2368 for older mbeds, or lpc1768 for newer ones)
+TARGET=lpc2368
+LDSCRIPT=hardware/cpu-$(TARGET)/$(TARGET).ld
+BINNAME=RTOSDemo
 
 ODIR=.buildtmp
-BINNAME=RTOSDemo
 INSTALL_PATH=/Volumes/MBED/
+TOOLPRE=util/arm-none-eabi
+
+#------------------------------------------------------------------------------
+# Stuff specific to LPC2368 target:
+ifeq ($(TARGET), lpc2368)
+CPUFLAGS= \
+		-mcpu=arm7tdmi -march=armv4t \
+		-DTHUMB_INTERWORK -mthumb-interwork
+COMMON_FLAGS= \
+		-DMBED_LPC23xx -DPLAT_NAME="\"mbed (LPC2368)\""
+PORT_DIR= \
+		ARM7_LPC23xx
+ARM_SOURCE= \
+		freertos/portable/GCC/$(PORT_DIR)/portISR.c 
+endif
+
+#------------------------------------------------------------------------------
+# Stuff specific to LPC1768 target:
+ifeq ($(TARGET), lpc1768)
+CPUFLAGS= \
+		-mcpu=cortex-m3 -march=armv7-m \
+		-mthumb
+COMMON_FLAGS= \
+		-DMBED_LPC17xx -DPLAT_NAME="\"mbed (LPC1768)\""
+PORT_DIR= \
+		ARM_CM3
+endif
 
 #------------------------------------------------------------------------------
 # Compiler, Assembler and Linker Options:
 
-DEBUG=
+DEBUG=-DNDEBUG
 OPTIM=-O2
 
-COMMON_FLAGS = \
+COMMON_FLAGS += \
+		$(CPUFLAGS) \
 		$(DEBUG) \
 		$(OPTIM) \
 		-I . \
 		-I include \
 		-I freertos/include \
-		-I freertos/portable/GCC/ARM7_LPC23xx \
-		-DMBED_LPC23xx -DPLAT_NAME="\"mbed (LPC2368)\"" \
-		-DTHUMB_INTERWORK \
-		-DNDEBUG\
-		-mcpu=arm7tdmi \
+		-I freertos/portable/GCC/$(PORT_DIR) \
 		-fomit-frame-pointer \
-		-mthumb-interwork \
 		-Wall -Wcast-align -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
 		-fno-strict-aliasing \
@@ -65,8 +90,7 @@ LINKER_FLAGS= \
 		-lm -lstdc++
 
 ASM_FLAGS= \
-		-mcpu=arm7tdmi \
-		-mthumb-interwork \
+		$(CPUFLAGS) \
 		-x assembler-with-cpp 
 
 #------------------------------------------------------------------------------
@@ -96,7 +120,7 @@ THUMB_SOURCE= \
 		freertos/list.c \
 		freertos/queue.c \
 		freertos/tasks.c \
-		freertos/portable/GCC/ARM7_LPC23xx/port.c \
+		freertos/portable/GCC/$(PORT_DIR)/port.c \
 		freertos/portable/MemMang/heap_3.c \
 		lib/syscalls.c
 
@@ -104,18 +128,17 @@ THUMB_CXX_SOURCE= \
 		main.cpp \
 		CxxTest.cpp
 
-ARM_SOURCE= \
-		freertos/portable/GCC/ARM7_LPC23xx/portISR.c \
+ARM_SOURCE+= \
 		hardware/peripherals/emac/emacISR.c \
 		hardware/peripherals/uart/uartISRs.c \
-		hardware/cpu-lpc2368/device_init.c \
+		hardware/cpu-$(TARGET)/device_init.c \
 		hardware/board-mbed/board_init.c 
 
 ARM_CXX_SOURCE= \
 		lib/min_c++.cpp
 
 ARM_ASM_SOURCE= \
-		hardware/cpu-lpc2368/crt0.s
+		hardware/cpu-$(TARGET)/crt0.s
 
 #------------------------------------------------------------------------------
 # Build Rules:
@@ -170,10 +193,9 @@ $(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
 $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/peripherals/uart $(ODIR)/hardware/peripherals/gpio 
 	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/board-mbed
-	@mkdir -p $(ODIR)/hardware/cpu-lpc2368 $(ODIR)/hardware/cpu-lpc1768
+	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET)
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip
-	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM7_LPC23xx
-	@mkdir -p $(ODIR)/freertos/portable/GCC/ARM_CM3
+	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR)
 	@mkdir -p $(ODIR)/freertos/portable/MemMang
 	@touch $(ODIR)/exists
 

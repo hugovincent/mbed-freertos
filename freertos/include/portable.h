@@ -179,7 +179,7 @@
 #endif
 
 #ifdef GCC_ARMCM3
-	#include "../../Source/portable/GCC/ARM_CM3/portmacro.h"
+	#include "portmacro.h"
 #endif
 
 #ifdef IAR_ARM_CM3

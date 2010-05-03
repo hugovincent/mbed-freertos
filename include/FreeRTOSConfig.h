@@ -81,6 +81,10 @@
 #define configIDLE_SHOULD_YIELD					1
 #define configUSE_MUTEXES						1
 
+#ifdef MBED_LPC17xx
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY	1 // FIXME!
+#endif
+
 /* Debugging/testing options */
 #define configCHECK_FOR_STACK_OVERFLOW			2
 #define configGENERATE_RUN_TIME_STATS			0
