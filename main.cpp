@@ -106,13 +106,13 @@ extern "C" {
 #define mainCREATOR_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
 #define mainGEN_QUEUE_TASK_PRIORITY			( tskIDLE_PRIORITY )
 
-// Constants to setup the PLL for 60 MHz cpu clock and USB support.
-// External crystal = 12 MHz, Fcco = 480 MHz
+// Constants to setup the PLL for 72 MHz cpu clock and USB support.
+// External crystal = 12 MHz, Fcco = 288 MHz
 
-#define mainPLL_MUL			( ( unsigned portLONG ) 20 )
+#define mainPLL_MUL			( ( unsigned portLONG ) 12 )
 #define mainPLL_DIV			( ( unsigned portLONG ) 1 )
-#define mainCPU_CLK_DIV		( ( unsigned portLONG ) 8 )
-#define mainUSB_CLK_DIV		( ( unsigned portLONG ) 10 )
+#define mainCPU_CLK_DIV		( ( unsigned portLONG ) 4 )
+#define mainUSB_CLK_DIV		( ( unsigned portLONG ) 6 )
 #define mainPLL_ENABLE		( ( unsigned portLONG ) 0x0001 )
 #define mainPLL_CONNECT		( ( ( unsigned portLONG ) 0x0002 ) | mainPLL_ENABLE )
 #define mainPLL_LOCK		( ( unsigned portLONG ) 0x4000000 )
@@ -122,7 +122,7 @@ extern "C" {
 #define mainOSC_SELECT		( ( unsigned portLONG ) 0x01 )
 
 // Constants to setup the MAM.
-#define mainMAM_TIM_3		( ( unsigned portCHAR ) 0x03 )
+#define mainMAM_TIM_4		( ( unsigned portCHAR ) 0x04 )
 #define mainMAM_MODE_FULL	( ( unsigned portCHAR ) 0x02 )
 
 // Constants to setup the WDT (4MHz RC clock with fixed divide-by-4 -- 3s timeout)
@@ -147,6 +147,8 @@ static void prvWDT_FeedWatchdog( void )
 	taskEXIT_CRITICAL();
 }
 
+#include <Tests.cpp>
+
 int main( void )
 {
 	prvSetupHardware();
@@ -160,8 +162,8 @@ int main( void )
 	vStartDynamicPriorityTasks();
 
 	// Create the uIP task. This uses the lwIP RTOS abstraction layer.
-	xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", 
-			mainBASIC_WEB_STACK_SIZE, NULL, mainQUEUE_POLL_PRIORITY, NULL );
+//	xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP", 
+//			mainBASIC_WEB_STACK_SIZE, NULL, mainQUEUE_POLL_PRIORITY, NULL );
 
 	// Start the scheduler.
 	printf("FreeRTOS Kernel, v" tskKERNEL_VERSION_NUMBER " for " PLAT_NAME \
@@ -269,11 +271,11 @@ static void prvSetupHardware( void )
 	PLLFEED = 0x55;
 	while( !( PLLSTAT & mainPLL_CONNECTED ) );
 
-	// Setup and turn on the MAM.  Three cycle access is used due to the fast
+	// Setup and turn on the MAM.  Four cycle access is used due to the fast
 	// PLL used.  It is possible faster overall performance could be obtained by
 	// tuning the MAM and PLL settings.
 	MAMCR = 0;
-	MAMTIM = mainMAM_TIM_3;
+	MAMTIM = mainMAM_TIM_4;
 	MAMCR = mainMAM_MODE_FULL;
 
 	// Enable fast mode on GPIO ports 0 and 1.

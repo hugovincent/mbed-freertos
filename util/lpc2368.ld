@@ -71,11 +71,13 @@ SECTIONS
 	/* .data section -- used for initialized data */
 	.data : AT ( __text_end__ ) 
 	{
+		. = ALIGN(8);
 		__data_start__ = . ;
 		SORT(CONSTRUCTORS)
 		*( .data )
 		*( .data.* )
 		*( .gnu.linkonce.d* )
+		. = ALIGN(8);
 		__data_end__ = . ;
 	} > Ram
 
@@ -84,6 +86,7 @@ SECTIONS
 	/* .bss section -- used for uninitialized data */
 	.bss (NOLOAD) :
 	{
+		. = ALIGN(8);
 		__bss_start__ = . ;
 		*( .bss )
 		*( .bss.* )
@@ -93,11 +96,15 @@ SECTIONS
 		__bss_end__ = . ;
 	} > Ram
 
-	/* Stack and Heap setup */
-	__top_of_stack__ = ALIGN(ORIGIN(Ram) + LENGTH(Ram), 8);
-	__stack_min__ = ALIGN(__top_of_stack__ - Stack_Size_Total, 8);
+	/* Heap starts here and grows up in memory */
 	. = ALIGN(8);
 	__start_of_heap__ = . ;
+
+	/* Stack starts at top of memory and grows downward. __stack_min__ is used by the
+	 * malloc implementation to ensure heap never collides with stack (assuming stack
+	 * never grows beyond Stack_Size_Total in length) */
+	__top_of_stack__ = ALIGN(ORIGIN(Ram) + LENGTH(Ram), 8);
+	__stack_min__ = ALIGN(__top_of_stack__ - Stack_Size_Total, 8);
 
 	/* C data can be defined as being in special purpose rams using
 	 * __attribute__ ((section ("ethram"))) for example. */

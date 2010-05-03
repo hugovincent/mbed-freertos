@@ -69,7 +69,7 @@ Vectors:        LDR     pc, Reset_Addr
                 LDR     pc, PAbt_Addr
                 LDR     pc, DAbt_Addr
                 NOP                            @ Reserved Vector 
-                LDR     pc, IRQ_Addr
+                LDR     pc, [pc, #-0x0120]     @ Vector from VICVectAddr
                 LDR     pc, FIQ_Addr
 
 Reset_Addr:     .word     Reset_Handler
@@ -77,7 +77,6 @@ Undef_Addr:     .word     Undef_Handler
 SWI_Addr:       .word     SWI_Handler
 PAbt_Addr:      .word     PAbt_Handler
 DAbt_Addr:      .word     DAbt_Handler
-IRQ_Addr:       .word     0xFFFFFF00           @ Vector from VicVectAddr
 FIQ_Addr:       .word     FIQ_Handler
 
 @  ----------------------------------------------------------------------------

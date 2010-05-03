@@ -642,12 +642,14 @@ int _kill_r (struct _reent *ptr, int pid, int sig)
 //                    FreeRTOS Specific stuff below                          //
 ///////////////////////////////////////////////////////////////////////////////
 
-/*void vPortInitialiseBlocks( void )
+/*
+__attribute__ ((weak)) void vPortInitialiseBlocks( void )
 {
 	// FIXME
-}*/
+}
+*/
 
-size_t xPortGetFreeHeapSize( void )
+__attribute__ ((weak)) size_t xPortGetFreeHeapSize( void )
 {
 	/* FIXME this isn't really correct, it reports only the RAM which is available to the
 	 * system, but which hasn't yet been assigned to Newlibs Malloc implementation. */

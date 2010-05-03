@@ -77,7 +77,7 @@
 
 #define ledSTACK_SIZE		( configMINIMAL_STACK_SIZE )
 #define ledNUMBER_OF_LEDS	( 4 )
-#define ledFLASH_RATE_BASE	( ( portTickType ) 500 )
+#define ledFLASH_RATE_BASE	( ( portTickType ) 500 ) // milliseconds
 
 /* Variable used by the created tasks to calculate the LED number to use, and
 the rate at which they should flash the LED. */

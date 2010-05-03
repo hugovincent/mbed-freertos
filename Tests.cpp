@@ -112,3 +112,48 @@ void TestMalloc2()
 		vGpioToggle(20);
 	}
 }
+
+
+/* This checks preinitialized RAM is correctly init'd/copied from flash by the
+ * boot code */
+
+static unsigned int numbers[] = {0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20};
+static char text[] = {'0', '1', '2', '3', '4'};
+static unsigned int numbers2[21];
+static char text2[6]; 
+
+void TestInitializedData()
+{
+	while (1)
+	{
+		/* Test pre-initialized data */
+		int good = 1;
+		for (unsigned int k = 0; k < 21; k++)
+			if (numbers[k] != k)
+				good = 0;
+		vGpioSet(18, good);
+
+		for (unsigned int k = 0; k < 5; k++)
+			if (text[k] != k + '0')
+				good = 0;
+		vGpioSet(21, good);
+
+		/* Check uninitialized data */
+		memcpy(numbers2, numbers, 21 * sizeof(unsigned int));
+		memcpy(text2, text, 6);
+		good = 1;
+		for (unsigned int k = 0; k < 21; k++)
+			if (numbers[k] != k)
+				good = 0;
+		vGpioSet(18, good);
+
+		for (unsigned int k = 0; k < 5; k++)
+			if (text[k] != k + '0')
+				good = 0;
+		vGpioSet(21, good);
+
+		for (volatile int i = 0; i < 500000; i++);
+		vGpioToggle(20);
+	}
+}
+

@@ -4,7 +4,6 @@ Numbers in [ ] are priorities, 'f' is "distant future".
 
 BUGS:
 [1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
-[1] Fix/debug power saving (Idle Mode) occasional crashing problem.
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
 [2] Test/fix/finish the syscalls interface. Fix reentrancy.
@@ -25,7 +24,6 @@ GENERALIZATIONS:
 [f] All application-level APIs should work the same on either mbed processor type.
 
 ADDITIONS:
-[2] Investigate clock vs MAM settings wrt overall performance.
 [2] Add more standard library and syscall niceities. 
 [3] Add mbed local file system support. Some details here: 
 		http://mbed.org/users/jsnyder/notebook/elua-preliminary-port/
