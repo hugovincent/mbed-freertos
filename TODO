@@ -3,8 +3,6 @@ Last Update: 27 April 2010.
 Numbers in [ ] are priorities, 'f' is "distant future".
 
 BUGS:
-[1] Fix header dependecies in Makefile
-[1] Rewrite FreeRTOS stack mangling code which seems to be eating my stack.
 [1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
 [1] Fix/debug power saving (Idle Mode) occasional crashing problem.
 [2] Refactor UART code to support all 4 UARTs.

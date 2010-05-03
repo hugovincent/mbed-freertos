@@ -212,7 +212,11 @@ generate_rtos_stats(void *arg)
 {
 	lRefreshCount++;
 	sprintf( cCountBuf, "<p><br>Refresh count = %ld", lRefreshCount );
+#if configUSE_TRACE_FACILITY == 1
     vTaskList( uip_appdata );
+#else
+	sprintf( uip_appdata, "(Not available. Compile with configUSE_TRACE_FACILITY defined.)\n");
+#endif
 	strcat( uip_appdata, cCountBuf );
   
 	return strlen( uip_appdata );

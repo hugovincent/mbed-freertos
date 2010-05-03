@@ -99,7 +99,7 @@ __attribute__ ((naked)) void vUart0ISR_Wrapper(void)
 
 	/* Call the handler to do the work.  This must be a separate
 	function to ensure the stack frame is set up correctly. */
-	vUart0ISR_Handler();
+	__asm volatile ("bl			vUart0ISR_Handler");
 
 	/* Restore the context of whichever task will execute next. */
 	portRESTORE_CONTEXT();

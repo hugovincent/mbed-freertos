@@ -642,16 +642,6 @@ int _kill_r (struct _reent *ptr, int pid, int sig)
 //                    FreeRTOS Specific stuff below                          //
 ///////////////////////////////////////////////////////////////////////////////
 
-void *pvPortMalloc( size_t xSize )
-{
-	return malloc(xSize);
-}
-
-void vPortFree( void *pv )
-{
-	free(pv);
-}
-
 /*void vPortInitialiseBlocks( void )
 {
 	// FIXME

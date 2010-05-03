@@ -4,7 +4,7 @@ extern "C" {
 #include "CxxTest.h"
 }
 
-//#include <string>
+#include <string>
 
 int CxxTest::someMethod() {
 
@@ -12,9 +12,6 @@ int CxxTest::someMethod() {
 	std::string *t = new std::string();
 	*t = "Hello world";
 	delete t;
-	char *v = new char[100];
-	v = "Hello world";
-	delete[] v;
 #endif
 
 	vGpioToggle( 18 );

@@ -50,11 +50,15 @@ for line in sh('grep "_Stack_Size," util/crt0.s | grep "\.equ"').strip().split('
 	total_stack += int(line.split()[2], 16)
 
 # Parse ELF program headers (for definitive total flash and RAM usage)
-program_headers = sh('arm-none-eabi-readelf -l %s' % sys.argv[1])
-total_text = int(program_headers.split('\n')[7].split()[5:-3][0], 16)
-total_ram = int(program_headers.split('\n')[8].split()[5:-2][0], 16)
-total_init_ram = int(program_headers.split('\n')[8].split()[4:-3][0], 16)
-
+for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[1]).strip().split('\n'):
+	parse = line.strip().split()
+	if len(parse) > 0 and parse[0] == 'LOAD':
+		if parse[6] == 'RW':
+			total_ram = int(parse[5], 16)
+			total_init_ram = int(parse[4], 16)
+		elif parse[6] == 'R' and parse[7] == 'E':
+			total_text = int(parse[5], 16)
+			
 #------------------------------------------------------------------------------
 # Summarize usage (note: sizes are approximate due to padding for alignment)
 print

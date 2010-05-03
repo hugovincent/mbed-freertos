@@ -29,7 +29,7 @@ __attribute__ ((naked)) void vEmacISR_Wrapper ( void )
 
 	/* Call the handler to do the work.  This must be a separate
 	function to ensure the stack frame is set up correctly. */
-	vEmacISR_Handler();
+	__asm volatile ("bl			vEmacISR_Handler");
 
 	/* Restore the context of whichever task will execute next. */
 	portRESTORE_CONTEXT();

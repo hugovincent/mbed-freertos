@@ -51,60 +51,67 @@
     licensing and training services.
 */
 
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
 
-#include <stdio.h>
-#include <lpc23xx.h>
-
-/*-----------------------------------------------------------
- * Application specific definitions.
+/*
+ * Implementation of pvPortMalloc() and vPortFree() that relies on the
+ * compilers own malloc() and free() implementations.
  *
- * These definitions should be adjusted for your particular hardware and
- * application requirements.
+ * This file can only be used if the linker is configured to to generate
+ * a heap memory area.
  *
- * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
- * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE. 
- *
- * See http://www.freertos.org/a00110.html.
- *----------------------------------------------------------*/
+ * See heap_2.c and heap_1.c for alternative implementations, and the memory
+ * management pages of http://www.FreeRTOS.org for more information.
+ */
 
-#define configUSE_PREEMPTION					1
-#define configUSE_IDLE_HOOK						1
-#define configUSE_TICK_HOOK						1
-#define configCPU_CLOCK_HZ						( ( unsigned portLONG ) 60000000 )
-#define configTICK_RATE_HZ						( ( portTickType ) 100 )
-#define configMAX_PRIORITIES					( ( unsigned portBASE_TYPE ) 4 )
-#define configMINIMAL_STACK_SIZE				( 104 )
-#define configUSE_TRACE_FACILITY				0
-#define configUSE_16_BIT_TICKS					0
-#define configIDLE_SHOULD_YIELD					1
-#define configUSE_MUTEXES						1
+#include <stdlib.h>
 
-/* Debugging/testing options */
-#define configCHECK_FOR_STACK_OVERFLOW			2
-#define configGENERATE_RUN_TIME_STATS			0
-#define configUSE_MALLOC_FAILED_HOOK			1
+/* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
+all the API functions to use the MPU wrappers.  That should only be done when
+task.h is included from an application file. */
+#define MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
-/* Co-routine definitions. */
-#define configUSE_CO_ROUTINES					0
-#define configMAX_CO_ROUTINE_PRIORITIES			2
+#include "FreeRTOS.h"
+#include "task.h"
 
-/* Set the following definitions to 1 to include the API function, or zero
-to exclude the API function. */
+#undef MPU_WRAPPERS_INCLUDED_FROM_API_FILE
 
-#define INCLUDE_vTaskPrioritySet				1
-#define INCLUDE_uxTaskPriorityGet				1
-#define INCLUDE_vTaskDelete						1
-#define INCLUDE_vTaskCleanUpResources			1
-#define INCLUDE_vTaskSuspend         			1
-#define INCLUDE_vTaskDelayUntil					1
-#define INCLUDE_vTaskDelay						1
-#define INCLUDE_xTaskGetCurrentTaskHandle		1
-#define INCLUDE_uxTaskGetStackHighWaterMark		1
+/*-----------------------------------------------------------*/
 
-#define PACK_STRUCT_END							__attribute((packed))
-#define ALIGN_STRUCT_END						__attribute((aligned(4)))
+void *pvPortMalloc( size_t xWantedSize )
+{
+void *pvReturn;
 
-#endif /* FREERTOS_CONFIG_H */
+	vTaskSuspendAll();
+	{
+		pvReturn = malloc( xWantedSize );
+	}
+	xTaskResumeAll();
+
+	#if( configUSE_MALLOC_FAILED_HOOK == 1 )
+	{
+		if( pvReturn == NULL )
+		{
+			extern void vApplicationMallocFailedHook( void );
+			vApplicationMallocFailedHook();
+		}
+	}
+	#endif
+	
+	return pvReturn;
+}
+/*-----------------------------------------------------------*/
+
+void vPortFree( void *pv )
+{
+	if( pv )
+	{
+		vTaskSuspendAll();
+		{
+			free( pv );
+		}
+		xTaskResumeAll();
+	}
+}
+
+
 
