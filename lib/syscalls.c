@@ -52,6 +52,8 @@
 // END FIXME-------------------------------------------------------------------
 #endif
 
+#include "hardware/uart.h"
+
 struct _reent *__get_reent	_PARAMS ((void));
 
 static int	checkerror	_PARAMS ((int));
@@ -302,6 +304,17 @@ _off_t _lseek_r (struct _reent *ptr, int fd, _off_t offs, int dir)
 /* fd, is a user file descriptor. */
 int _write_r (struct _reent *ptr, int fd, const void * buf, size_t len)
 {
+	// FIXME temporary...
+	char *tmp = (char *)buf;
+	while (tmp < ((char *)buf + len))
+	{
+		if (*tmp == '\n')
+			uart0PutChar('\r', 0);
+		uart0PutChar(*tmp++, 0);
+	}
+	return len;
+	// End FIXME
+
 	int res;
 	struct fdent *pfd;
 	int block[3];

@@ -27,6 +27,7 @@
 #define OSC_ENABLE		((unsigned int)0x20)
 #define OSC_STAT		((unsigned int)0x40)
 #define OSC_SELECT		((unsigned int)0x01)
+#define FAST_GPIO		((unsigned int)0x01)
 
 /* Constants to setup the MAM. */
 #define MAM_TIM_4		((unsigned char)0x04)
@@ -34,17 +35,26 @@
 
 void LowLevelInit(void)
 {
+	/* Disconnect the PLL if it's already connected. */
+	if (PLLCON & (PLL_CONNECT | PLL_ENABLE))
+	{
+		PLLCON = PLL_ENABLE;
+		PLLFEED = 0xAA; PLLFEED = 0x55;
+	}
+
 	/* Disable the PLL. */
 	PLLCON = 0;
 	PLLFEED = 0xAA; PLLFEED = 0x55;
 
-	/* Turn on the oscillator clock source and wait for it to start. */
-	SCS |= OSC_ENABLE;
+	/* Turn on the oscillator clock source and wait for it to start.
+	 * Also, enable fast mode on GPIO ports 0 and 1.
+	 */
+	SCS |= OSC_ENABLE | FAST_GPIO;
 	while( !( SCS & OSC_STAT ) );
 	CLKSRCSEL = OSC_SELECT;
 
-	/* Setup the PLL to multiply the XTAL input (12 MHz) by 6. */
-	PLLCFG = ( (PLL_MUL - 1) | ((PLL_DIV - 1) << 16) );
+	/* Setup the PLL to multiply the XTAL input up to Fcco = 288 MHz. */
+	PLLCFG =  (PLL_MUL - 1) | (((PLL_DIV - 1) << 16));
 	PLLFEED = 0xAA; PLLFEED = 0x55;
 
 	/* Turn on and wait for the PLL to lock. */
@@ -68,8 +78,5 @@ void LowLevelInit(void)
 	MAMCR = 0;
 	MAMTIM = MAM_TIM_4;
 	MAMCR = MAM_MODE_FULL;
-
-	/* Enable fast mode on GPIO ports 0 and 1. */
-	SCS = 0x1;
 }
 

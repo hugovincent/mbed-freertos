@@ -42,8 +42,8 @@
 #define configUSE_TICK_HOOK						1
 #define configCPU_CLOCK_HZ						( ( unsigned portLONG ) 72000000 )
 #define configTICK_RATE_HZ						( ( portTickType ) 100 )
-#define configMAX_PRIORITIES					( ( unsigned portBASE_TYPE ) 4 )
-#define configMINIMAL_STACK_SIZE				( 104 )
+#define configMAX_PRIORITIES					( ( unsigned portBASE_TYPE ) 5 )
+#define configMINIMAL_STACK_SIZE				( 120 )
 #define configUSE_TRACE_FACILITY				0
 #define configUSE_16_BIT_TICKS					0
 #define configIDLE_SHOULD_YIELD					1
@@ -74,6 +74,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelay						1
 #define INCLUDE_xTaskGetCurrentTaskHandle		1
 #define INCLUDE_uxTaskGetStackHighWaterMark		1
+#define INCLUDE_xTaskGetSchedulerState			1
 
 #define PACK_STRUCT_END							__attribute((packed))
 #define ALIGN_STRUCT_END						__attribute((aligned(4)))

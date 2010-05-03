@@ -53,24 +53,15 @@
 #include "example_tasks/GenQTest.h"
 #include "example_tasks/QPeek.h"
 #include "example_tasks/dynamic.h"
-
-#include "CxxTest.h"
+#include "webserver.h"
 
 // Demo application definitions.
-#define mainCHECK_DELAY						( ( portTickType ) 1000 / portTICK_RATE_MS )
-#define mainBASIC_WEB_STACK_SIZE            ( configMINIMAL_STACK_SIZE * 6 )
+#define mainCHECK_DELAY					((portTickType)5000 / portTICK_RATE_MS)
+#define mainBLOCK_Q_PRIORITY			(tskIDLE_PRIORITY + 2)
+#define mainFLASH_PRIORITY              (tskIDLE_PRIORITY + 2)
+#define mainGEN_QUEUE_TASK_PRIORITY		(tskIDLE_PRIORITY)
 
-// Task priorities.
-#define mainQUEUE_POLL_PRIORITY				( tskIDLE_PRIORITY + 2 )
-#define mainCHECK_TASK_PRIORITY				( tskIDLE_PRIORITY + 3 )
-#define mainBLOCK_Q_PRIORITY				( tskIDLE_PRIORITY + 2 )
-#define mainFLASH_PRIORITY                  ( tskIDLE_PRIORITY + 2 )
-#define mainCREATOR_TASK_PRIORITY           ( tskIDLE_PRIORITY + 3 )
-#define mainGEN_QUEUE_TASK_PRIORITY			( tskIDLE_PRIORITY )
-
-CxxTest cxxTest;
-
-int main( void )
+int main()
 {
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks( mainFLASH_PRIORITY );
@@ -80,14 +71,10 @@ int main( void )
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
 
-	// Create the uIP task. This uses the lwIP RTOS abstraction layer.
-	//	xTaskCreate( vuIP_Task, ( signed portCHAR * ) "uIP",
-	//			mainBASIC_WEB_STACK_SIZE, NULL, mainQUEUE_POLL_PRIORITY, NULL );
-
-	cxxTest.someMethod();
+	//vStartWebserverTask();
 
 	// Start the scheduler.
-	printf("FreeRTOS Kernel, v" tskKERNEL_VERSION_NUMBER " for " PLAT_NAME \
+	printf("FreeRTOS Kernel " tskKERNEL_VERSION_NUMBER " for " PLAT_NAME
 			" booted, starting scheduler.");
 	vTaskStartScheduler();
 	// Will only get here if there was insufficient memory to create the idle task.
@@ -99,7 +86,7 @@ int main( void )
 // FreeRTOS Callback Hooks:
 extern "C"
 {
-	void vApplicationIdleHook( void )
+	void vApplicationIdleHook()
 	{
 		// Put processor core into Idle Mode to conserve power.
 		PCON |= 0x1;
@@ -111,7 +98,7 @@ extern "C"
 		portNOP();
 	}
 
-	void vApplicationMallocFailedHook( void )
+	void vApplicationMallocFailedHook()
 	{
 		printf("[FreeRTOS] Error: memory allocation failed!\n");
 		while (1); // Wait for WDT to reset.
@@ -123,7 +110,7 @@ extern "C"
 		while(1); // Wait for WDT to reset.
 	}
 
-	void vApplicationTickHook( void )
+	void vApplicationTickHook()
 	{
 		static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
@@ -135,32 +122,41 @@ extern "C"
 			//WDT_FeedWatchdog();
 			ulTicksSinceLastDisplay = 0;
 
-			printf(" tic\n");
-
 			// Has an error been found in any task?
+			int allGood = 1;
 			if( xAreBlockingQueuesStillRunning() != pdTRUE )
 			{
-				//xMessage.pcMessage = "ERROR - BLOCKQ";
+				printf("ERROR - BLOCKQ\n");
+				allGood = 0;
 			}
 
 			if( xAreBlockTimeTestTasksStillRunning() != pdTRUE )
 			{
-				//xMessage.pcMessage = "ERROR - BLOCKTIM";
+				printf("ERROR - BLOCKTIM\n");
+				allGood = 0;
 			}
 
 			if( xAreGenericQueueTasksStillRunning() != pdTRUE )
 			{
-				//xMessage.pcMessage = "ERROR - GENQ";
+				printf("ERROR - GENQ\n");
+				allGood = 0;
 			}
 
 			if( xAreQueuePeekTasksStillRunning() != pdTRUE )
 			{
-				//xMessage.pcMessage = "ERROR - PEEKQ";
+				printf("ERROR - PEEKQ\n");
+				allGood = 0;
 			}
 
 			if( xAreDynamicPriorityTasksStillRunning() != pdTRUE )
 			{
-				//xMessage.pcMessage = "ERROR - DYNAMIC";
+				printf("ERROR - DYNAMIC\n");
+				allGood = 0;
+			}
+
+			if (allGood == 1)
+			{
+				printf("All Good.\n");
 			}
 		}
 	}

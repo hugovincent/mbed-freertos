@@ -37,6 +37,8 @@
 #include "hardware/emac.h"
 #include "hardware/gpio.h"
 
+#include "webserver.h"
+
 /*-----------------------------------------------------------*/
 
 /* MAC address configuration. */
@@ -296,5 +298,12 @@ void vApplicationProcessFormInput( portCHAR *pcInputString, portBASE_TYPE xInput
 		//xLCDMessage.pcMessage = cMessageForDisplay;
 		//xQueueSend( xLCDQueue, &xLCDMessage, portMAX_DELAY );
 	}
+}
+
+void vStartWebserverTask()
+{
+	// Create the uIP task. This uses the lwIP RTOS abstraction layer.
+	xTaskCreate( vuIP_Task, ( signed portCHAR * ) "httpd",
+			configMINIMAL_STACK_SIZE * 6, NULL, tskIDLE_PRIORITY + 2, NULL );
 }
 

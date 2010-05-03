@@ -10,8 +10,7 @@
 
 struct FracBaudLine {
 	float FRest;
-	int divAddVal;
-	int mulVal;
+	unsigned char divAddVal, mulVal;
 };
 
 static struct FracBaudLine FractionalBaudTable[72] = 
@@ -104,13 +103,15 @@ void FindBaudWithFractional(unsigned portLONG ulWantedBaud,
 	// Check for integer divisor, otherwise compute fractional divisors
 	if (configCPU_CLOCK_HZ % (ulWantedBaud * 64) != 0)
 	{
-		*ulDivisor = (unsigned portLONG)floorf(configCPU_CLOCK_HZ / (ulWantedBaud * 64 * FRest));
+		*ulDivisor = (unsigned portLONG)floorf(configCPU_CLOCK_HZ 
+				/ (ulWantedBaud * 64 * FRest));
 		FRest = configCPU_CLOCK_HZ / (64 * ulWantedBaud * (float)(*ulDivisor));
 		if (FRest > 1.1 && FRest < 1.9)
 		{
 			for (unsigned char j = 0; j < 71; j++)
 			{
-				if (FractionalBaudTable[j].FRest > FRest && FRest < FractionalBaudTable[j+1].FRest)
+				if (FractionalBaudTable[j].FRest > FRest 
+						&& FRest < FractionalBaudTable[j+1].FRest)
 				{
 					ulMulVal = FractionalBaudTable[j].mulVal;
 					ulDivAddVal = FractionalBaudTable[j].divAddVal;
