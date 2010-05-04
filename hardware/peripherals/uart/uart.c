@@ -135,15 +135,19 @@ signed portBASE_TYPE uart0PutChar_debug(signed portCHAR c, portTickType dummy)
 	/* Avoid compiler warning. */
 	(void)dummy;
 
-	/* Send the character. */
-	LPC_UART0->THR = c;
+	taskENTER_CRITICAL();
+	{
+		/* Send the character. */
+		LPC_UART0->THR = c;
 
-	/* Wait for it to send (and FIFO to drain). */
-	while (!(LPC_UART0->LSR & UART_LSR_TEMT));
+		/* Wait for it to send (and FIFO to drain). */
+		while (!(LPC_UART0->LSR & UART_LSR_TEMT));
 
-	/* Avoid possibility of an ISR queueing up for execution when interrupts are
-	 * re-enabled. */
-	LPC_VIC->Address = 0;
+		/* Avoid possibility of an ISR queueing up for execution when interrupts are
+		 * re-enabled. */
+		LPC_VIC->Address = 0;
+	}
+	taskEXIT_CRITICAL();
 
 	return 0;
 }

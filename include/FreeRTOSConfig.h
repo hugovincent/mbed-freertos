@@ -55,7 +55,7 @@
 
 /* Debugging/testing options */
 #define configCHECK_FOR_STACK_OVERFLOW			2
-#define configGENERATE_RUN_TIME_STATS			0
+#define configGENERATE_RUN_TIME_STATS			1
 #define configUSE_MALLOC_FAILED_HOOK			1
 
 /* Co-routine definitions. */
@@ -78,6 +78,13 @@ to exclude the API function. */
 
 #define PACK_STRUCT_END							__attribute((packed))
 #define ALIGN_STRUCT_END						__attribute((aligned(4)))
+
+/* Optional run-time statistics output (like `top`). Uses Timer 1. */
+#if configGENERATE_RUN_TIME_STATS == 1
+extern void ConfigureTimerForRunTimeStats( void );
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()	ConfigureTimerForRunTimeStats()
+#define portGET_RUN_TIME_COUNTER_VALUE()			(LPC_TIM1->TC)
+#endif
 
 #endif /* FREERTOS_CONFIG_H */
 

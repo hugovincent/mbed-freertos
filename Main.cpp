@@ -66,9 +66,9 @@ int main()
 {
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks( mainFLASH_PRIORITY );
-	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
-	vCreateBlockTimeTasks();
-	vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
+	//vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
+	//vCreateBlockTimeTasks();
+	//vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
 
@@ -114,6 +114,7 @@ extern "C"
 
 	void vApplicationTickHook()
 	{
+		static signed portCHAR taskListBuffer[1100];
 		static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
 		// Called from every tick interrupt. Have enough ticks passed to make it
@@ -121,8 +122,15 @@ extern "C"
 		ulTicksSinceLastDisplay++;
 		if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
 		{
-			//WDT_FeedWatchdog();
 			ulTicksSinceLastDisplay = 0;
+
+			//WDT_FeedWatchdog();
+
+#if configGENERATE_RUN_TIME_STATS == 1
+			bzero(taskListBuffer, 1100);
+			vTaskGetRunTimeStats(taskListBuffer);
+			printf((const char*)taskListBuffer);
+#endif
 
 			// Has an error been found in any task?
 			int allGood = 1;

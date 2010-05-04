@@ -1,4 +1,4 @@
-Last Update: 27 April 2010.
+Last Update: 4 May 2010.
 
 Numbers in [ ] are priorities, 'f' is "distant future".
 
@@ -15,7 +15,7 @@ BUGS:
 GENERALIZATIONS:
 [1] Refactor PLL and WDT code out of main.cpp...
 [2] Finish GPIO driver.
-[2] Integrate CMSIS-style SystemInit() and clock idioms.
+[2] Integrate CMSIS-style SystemInit(), NVIC_SetVector() and clock idioms.
 [2] FreeRTOS only provides a kernel. We need to supply the rest of the OS.
 		Filesystem.
 		File-like objects for peripherals as in UNIX.

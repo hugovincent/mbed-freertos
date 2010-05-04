@@ -311,7 +311,7 @@ int _write_r (struct _reent *ptr, int fd, const void * buf, size_t len)
 
 	/* Which output method to use? */
 	signed portBASE_TYPE (*putcharHandler)(signed portCHAR, portTickType blocking);
-	if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
+	if (0 /* xTaskGetSchedulerState() == taskSCHEDULER_RUNNING */)
 	{
 		putcharHandler = uart0PutChar;
 	}
