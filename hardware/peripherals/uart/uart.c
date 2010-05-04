@@ -126,3 +126,24 @@ signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockT
 	return xReturn;
 }
 
+/* This is a minimal, blocking putchar function for use when interrupts are
+ * disabled, where FreeRTOS API calls can't be made (before scheduler is running
+ * for example), or during early boot code.
+ */
+signed portBASE_TYPE uart0PutChar_debug(signed portCHAR c, portTickType dummy)
+{
+	/* Avoid compiler warning. */
+	(void)dummy;
+
+	/* Send the character. */
+	LPC_UART0->THR = c;
+
+	/* Wait for it to send (and FIFO to drain). */
+	while (!(LPC_UART0->LSR & UART_LSR_TEMT));
+
+	/* Avoid possibility of an ISR queueing up for execution when interrupts are
+	 * re-enabled. */
+	LPC_VIC->Address = 0;
+
+	return 0;
+}

@@ -38,6 +38,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 // Scheduler includes.
 #include "FreeRTOS.h"
@@ -73,9 +74,10 @@ int main()
 
 	//vStartWebserverTask();
 
-	// Start the scheduler.
 	printf("FreeRTOS Kernel " tskKERNEL_VERSION_NUMBER " for " PLAT_NAME
-			" booted, starting scheduler.");
+			" booted, starting scheduler.\n");
+
+	// Start the scheduler.
 	vTaskStartScheduler();
 	// Will only get here if there was insufficient memory to create the idle task.
 

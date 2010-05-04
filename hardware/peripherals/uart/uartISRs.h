@@ -18,6 +18,7 @@
 #define UART_IER_EI			(0x07)
 #define UART_FCR_EN			(0x01)
 #define UART_FCR_CLR		(0x06)
+#define UART_LSR_TEMT		(0x40)
 
 // Constants to setup and access the VIC
 #define serINVALID_QUEUE  ((xQueueHandle) 0)

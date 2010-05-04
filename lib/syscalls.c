@@ -52,6 +52,8 @@
 // END FIXME-------------------------------------------------------------------
 #endif
 
+#include <FreeRTOS.h>
+#include <task.h>
 #include "hardware/uart.h"
 
 struct _reent *__get_reent	_PARAMS ((void));
@@ -304,16 +306,34 @@ _off_t _lseek_r (struct _reent *ptr, int fd, _off_t offs, int dir)
 /* fd, is a user file descriptor. */
 int _write_r (struct _reent *ptr, int fd, const void * buf, size_t len)
 {
+	//-------------------------------------------------------------------------
 	// FIXME temporary...
+
+	/* Which output method to use? */
+	signed portBASE_TYPE (*putcharHandler)(signed portCHAR, portTickType blocking);
+	if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
+	{
+		putcharHandler = uart0PutChar;
+	}
+	else
+	{
+		putcharHandler = uart0PutChar_debug;
+	}
+	
 	char *tmp = (char *)buf;
 	while (tmp < ((char *)buf + len))
 	{
+		/* Make line endings behave like normal serial terminals. */
 		if (*tmp == '\n')
-			uart0PutChar('\r', 0);
-		uart0PutChar(*tmp++, 0);
+		{
+			putcharHandler('\r', 0);
+		}
+		putcharHandler(*tmp++, 0);
 	}
 	return len;
+
 	// End FIXME
+	//-------------------------------------------------------------------------
 
 	int res;
 	struct fdent *pfd;

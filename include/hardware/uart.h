@@ -18,6 +18,8 @@ signed portBASE_TYPE uart0Init (unsigned portLONG ulWantedBaud, unsigned portBAS
 signed portBASE_TYPE uart0GetChar (signed portCHAR *pcRxedChar, portTickType xBlockTime);
 signed portBASE_TYPE uart0PutChar (signed portCHAR cOutChar, portTickType xBlockTime);
 
+signed portBASE_TYPE uart0PutChar_debug(signed portCHAR c, portTickType dummy);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
