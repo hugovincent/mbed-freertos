@@ -12,8 +12,8 @@ void vEmacISR_Handler ( void )
     xSemaphoreGiveFromISR( xEMACSemaphore, &xHigherPriorityTaskWoken );
 
     /* Clear the interrupt. */
-    MAC_INTCLEAR = 0xffff;
-    VICVectAddr = 0;
+    LPC_EMAC->IntClear = 0xffff;
+    LPC_VIC->Address = 0;
 
 	if( xHigherPriorityTaskWoken )
     {

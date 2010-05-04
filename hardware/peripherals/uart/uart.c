@@ -51,35 +51,35 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 	taskENTER_CRITICAL();
 	{
 		// Setup the pin selection & apply clocks to the UART. Reset PCLK to default CCLK/4.
-		PINSEL0 |= 0x00000050;
-		PCONP |= 0x1<<3;
-		PCLKSEL0 &= ~(0x3<<6);
+		LPC_PINCON->PINSEL0 |= 0x00000050;
+		LPC_SC->PCONP |= 0x1<<3;
+		LPC_SC->PCLKSEL0 &= ~(0x3<<6);
 
 		// Setup a fractional baud rate
 		FindBaudWithFractional(sulWantedBaud, &ulDivisor, &ulFracDiv);
-		U0FDR = ulFracDiv;
+		LPC_UART0->FDR = ulFracDiv;
 
 		// Set the DLAB bit so we can access the divisor
-		U0LCR = UART_LCR_DLAB;
+		LPC_UART0->LCR = UART_LCR_DLAB;
 
 		// Setup the divisor
-		U0DLL = (unsigned portCHAR)(ulDivisor & (unsigned portLONG)0xff);
+		LPC_UART0->DLL = (unsigned portCHAR)(ulDivisor & (unsigned portLONG)0xff);
 		ulDivisor >>= 8;
-		U0DLM = (unsigned portCHAR)(ulDivisor & (unsigned portLONG)0xff);
+		LPC_UART0->DLM = (unsigned portCHAR)(ulDivisor & (unsigned portLONG)0xff);
 
 		// Setup transmission format and clear the DLAB bit to enable transmission
-		U0LCR = UART_LCR_NOPAR | UART_LCR_1STOP | UART_LCR_8BITS;
+		LPC_UART0->LCR = UART_LCR_NOPAR | UART_LCR_1STOP | UART_LCR_8BITS;
 
 		// Turn on the FIFO's and clear the buffers
-		U0FCR = UART_FCR_EN | UART_FCR_CLR;
+		LPC_UART0->FCR = UART_FCR_EN | UART_FCR_CLR;
 
 		// Setup the VIC for the UART
-		VICIntSelect &= ~VIC_UART0; // normal IRQ (not FIQ)
-		VICVectAddr6 = (portLONG)vUart0ISR_Wrapper;
-		VICIntEnable = VIC_UART0;
+		LPC_VIC->IntSelect &= ~(0x1 << UART0_IRQn); // normal IRQ (not FIQ)
+		LPC_VIC->VectAddr[UART0_IRQn] = (portLONG)vUart0ISR_Wrapper;
+		LPC_VIC->IntEnable = 0x1 << UART0_IRQn;
 
 		// Enable UART0 interrupts
-		U0IER |= UART_IER_EI;
+		LPC_UART0->IER |= UART_IER_EI;
 	}
 	taskEXIT_CRITICAL();
 
@@ -101,7 +101,7 @@ signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockT
 		if (*pcTHREEmpty0 == (portCHAR) pdTRUE)
 		{
 			*pcTHREEmpty0 = pdFALSE;
-			U0THR = cOutChar;
+			LPC_UART0->THR = cOutChar;
 			xReturn = pdPASS;
 		}
 		else 
@@ -117,7 +117,7 @@ signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockT
 			{
 				xQueueReceive(xTX0Queue, &cOutChar, serNO_BLOCK);
 				*pcTHREEmpty0 = pdFALSE;
-				U0THR = cOutChar;
+				LPC_UART0->THR = cOutChar;
 			}
 		}
 	}

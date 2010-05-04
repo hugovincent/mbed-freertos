@@ -30,7 +30,8 @@ CPUFLAGS= \
 		-mcpu=arm7tdmi -march=armv4t \
 		-DTHUMB_INTERWORK -mthumb-interwork
 COMMON_FLAGS= \
-		-DMBED_LPC23xx -DPLAT_NAME="\"mbed (LPC2368)\""
+		-DMBED_LPC23xx -DTARGET_LPC2368 -DPLAT_NAME="\"mbed (LPC2368)\"" \
+		-Iinclude/LPC2368
 PORT_DIR= \
 		ARM7_LPC23xx
 ARM_SOURCE= \
@@ -44,7 +45,8 @@ CPUFLAGS= \
 		-mcpu=cortex-m3 -march=armv7-m \
 		-mthumb
 COMMON_FLAGS= \
-		-DMBED_LPC17xx -DPLAT_NAME="\"mbed (LPC1768)\""
+		-DMBED_LPC17xx -DTARGET_LPC1768 -DPLAT_NAME="\"mbed (LPC1768)\"" \
+		-Iinclude/LPC1768
 PORT_DIR= \
 		ARM_CM3
 endif
@@ -125,8 +127,9 @@ THUMB_SOURCE= \
 		lib/syscalls.c
 
 THUMB_CXX_SOURCE= \
-		main.cpp \
-		CxxTest.cpp
+		Main.cpp \
+		tests/CxxTest.cpp \
+		tests/Tests.cpp
 
 ARM_SOURCE+= \
 		hardware/peripherals/emac/emacISR.c \
@@ -193,7 +196,7 @@ $(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
 $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/peripherals/uart $(ODIR)/hardware/peripherals/gpio 
 	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/board-mbed
-	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET)
+	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip
 	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR)
 	@mkdir -p $(ODIR)/freertos/portable/MemMang

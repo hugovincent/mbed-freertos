@@ -10,6 +10,7 @@ MEMORY
 	Ram (rw)    : ORIGIN = 0x40000000, LENGTH = 32k
 	UsbRam (rw) : ORIGIN = 0x7FD00000, LENGTH = 8k
 	EthRam (rw) : ORIGIN = 0x7FE00000, LENGTH = 16k
+	CanRam (rw) : ORIGIN = 0xE0038000, LENGTH = 2k
 	BatRam (rw) : ORIGIN = 0xE0084000, LENGTH = 2k
 }
 
@@ -29,6 +30,11 @@ SECTIONS
 		*( .ethram )
 		*( .ethram.* )
 	} > EthRam
+	.canram (NOLOAD):
+	{
+		*( .canram )
+		*( .canram.* )
+	} > CanRam
 	.batram (NOLOAD):
 	{
 		*( .batram )

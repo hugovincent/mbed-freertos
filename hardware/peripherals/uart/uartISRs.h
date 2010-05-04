@@ -19,12 +19,6 @@
 #define UART_FCR_EN			(0x01)
 #define UART_FCR_CLR		(0x06)
 
-// Interrupt controller contants
-#define VIC_UART0			(0x00000040)
-#define VIC_UART1			(0x00000080)
-#define VIC_Channel_UART0	(6)
-#define VIC_Channel_UART1	(7)
-
 // Constants to setup and access the VIC
 #define serINVALID_QUEUE  ((xQueueHandle) 0)
 #define serNO_BLOCK       ((portTickType) 0)

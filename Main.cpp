@@ -89,7 +89,7 @@ extern "C"
 	void vApplicationIdleHook()
 	{
 		// Put processor core into Idle Mode to conserve power.
-		PCON |= 0x1;
+		LPC_SC->PCON |= 0x1;
 
 		// And we're back... let's just NOP for a bit just in case.
 		portNOP();

@@ -23,7 +23,7 @@
 #define FREERTOS_CONFIG_H
 
 #include <stdio.h>
-#include <lpc23xx.h>
+#include <cmsis.h>
 
 /*-----------------------------------------------------------
  * Application specific definitions.

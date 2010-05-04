@@ -45,13 +45,6 @@
 /* Constants required to setup the tick ISR. */
 #define portENABLE_TIMER                ( ( unsigned portCHAR ) 0x01 )
 #define portPRESCALE_VALUE              0x00
-#define portINTERRUPT_ON_MATCH          ( ( unsigned portLONG ) 0x01 )
-#define portRESET_COUNT_ON_MATCH        ( ( unsigned portLONG ) 0x02 )
-
-/* Constants required to setup the VIC for the tick ISR. */
-#define portTIMER_VIC_CHANNEL           ( ( unsigned portLONG ) 0x0004 )
-#define portTIMER_VIC_CHANNEL_BIT       ( ( unsigned portLONG ) 0x0010 )
-#define portTIMER_VIC_ENABLE            ( ( unsigned portLONG ) 0x0020 )
 
 /*-----------------------------------------------------------*/
 
@@ -171,13 +164,13 @@ static void prvSetupTimerInterrupt( void )
 {
 unsigned portLONG ulCompareMatch;
 
-	PCLKSEL0 = (PCLKSEL0 & (~(0x3<<2))) | (0x01 << 2);
-	T0TCR  = 2;         /* Stop and reset the timer */
-	T0CTCR = 0;         /* Timer mode               */
+	LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(0x3<<2))) | (0x01 << 2);
+	LPC_TIM0->TCR  = 2;         /* Stop and reset the timer */
+	LPC_TIM0->CTCR = 0;         /* Timer mode               */
 	
 	/* A 1ms tick does not require the use of the timer prescale.  This is
 	defaulted to zero but can be used if necessary. */
-	T0PR = portPRESCALE_VALUE;
+	LPC_TIM0->PR = portPRESCALE_VALUE;
 
 	/* Calculate the match value required for our wanted tick rate. */
 	ulCompareMatch = configCPU_CLOCK_HZ / configTICK_RATE_HZ;
@@ -189,33 +182,33 @@ unsigned portLONG ulCompareMatch;
 		ulCompareMatch /= ( portPRESCALE_VALUE + 1 );
 	}
 	#endif
-	T0MR1 = ulCompareMatch;
+	LPC_TIM0->MR1 = ulCompareMatch;
 
 	/* Generate tick with timer 0 compare match. */
-	T0MCR  = (3 << 3);  /* Reset timer on match and generate interrupt */
+	LPC_TIM0->MCR  = (3 << 3);  /* Reset timer on match and generate interrupt */
 
 	/* Setup the VIC for the timer. */
-	VICIntEnable = 0x00000010;
+	LPC_VIC->IntEnable = 0x1 << TIMER0_IRQn;
 	
 	/* The ISR installed depends on whether the preemptive or cooperative
 	scheduler is being used. */
 	#if configUSE_PREEMPTION == 1
 	{
 		extern void ( vPreemptiveTick )( void );
-		VICVectAddr4 = ( portLONG ) vPreemptiveTick;
+		LPC_VIC->VectAddr[TIMER0_IRQn] = ( portLONG ) vPreemptiveTick;
 	}
 	#else
 	{
 		extern void ( vNonPreemptiveTick )( void );
-		VICVectAddr4 = ( portLONG ) vNonPreemptiveTick;
+		LPC_VIC->VectAddr[TIMER0_IRQn] = ( portLONG ) vNonPreemptiveTick;
 	}
 	#endif
 
-	VICVectCntl4 = 1;
+	LPC_VIC->VectPriority[TIMER0_IRQn] = 1;
 
 	/* Start the timer - interrupts are disabled when this function is called
 	so it is okay to do this here. */
-	T0TCR = portENABLE_TIMER;
+	LPC_TIM0->TCR = portENABLE_TIMER;
 }
 /*-----------------------------------------------------------*/
 

@@ -28,8 +28,8 @@
 void vGpioInitialise()
 {
 	// We have four LEDs on P1.18, P1.20, P1,21, and P1,23.
-	PINSEL10 = 0x0;
-	FIO1DIR |= (0x1 << 18) | (0x1 << 20) | (0x1 << 21) | (0x1 << 23);
+	LPC_PINCON->PINSEL10 = 0x0;
+	LPC_GPIO1->FIODIR |= (0x1 << 18) | (0x1 << 20) | (0x1 << 21) | (0x1 << 23);
 }
 
 void vGpioSet(unsigned portBASE_TYPE uxPin, signed portBASE_TYPE xValue)
@@ -37,31 +37,31 @@ void vGpioSet(unsigned portBASE_TYPE uxPin, signed portBASE_TYPE xValue)
 	/* Set of clear the output. */
 	if (!xValue)
 	{
-		FIO1CLR = 0x1 << uxPin;
+		LPC_GPIO1->FIOCLR = 0x1 << uxPin;
 	}
 	else
 	{
-		FIO1SET = 0x1 << uxPin;
+		LPC_GPIO1->FIOSET = 0x1 << uxPin;
 	}
 }
 
 void vGpioToggle(unsigned portBASE_TYPE uxPin)
 {
 	/* If this bit is already set, clear it, and visa versa. */
-	portLONG ulCurrentState = FIO1PIN;
+	portLONG ulCurrentState = LPC_GPIO1->FIOPIN;
 	if (ulCurrentState & (0x1 << uxPin))
 	{
-		FIO1CLR = 0x1 << uxPin;
+		LPC_GPIO1->FIOCLR = 0x1 << uxPin;
 	}
 	else
 	{
-		FIO1SET = 0x1 << uxPin;			
+		LPC_GPIO1->FIOSET = 0x1 << uxPin;
 	}
 }
 
 unsigned portBASE_TYPE uxGpioGet(unsigned portBASE_TYPE uxPin)
 {
-    return !(FIO1PIN & (0x1 << uxPin)) ? 1 : 0;
+    return !(LPC_GPIO1->FIOPIN & (0x1 << uxPin)) ? 1 : 0;
 }
 
 

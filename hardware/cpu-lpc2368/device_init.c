@@ -33,50 +33,52 @@
 #define MAM_TIM_4		((unsigned char)0x04)
 #define MAM_MODE_FULL	((unsigned char)0x02)
 
+#define PLL_FEED()		{ LPC_SC->PLL0FEED = 0xAA; LPC_SC->PLL0FEED = 0x55; }
+
 void LowLevelInit(void)
 {
 	/* Disconnect the PLL if it's already connected. */
-	if (PLLCON & (PLL_CONNECT | PLL_ENABLE))
+	if (LPC_SC->PLL0CON & (PLL_CONNECT | PLL_ENABLE))
 	{
-		PLLCON = PLL_ENABLE;
-		PLLFEED = 0xAA; PLLFEED = 0x55;
+		LPC_SC->PLL0CON = PLL_ENABLE;
+		PLL_FEED();
 	}
 
 	/* Disable the PLL. */
-	PLLCON = 0;
-	PLLFEED = 0xAA; PLLFEED = 0x55;
+	LPC_SC->PLL0CON = 0;
+	PLL_FEED();
 
 	/* Turn on the oscillator clock source and wait for it to start.
 	 * Also, enable fast mode on GPIO ports 0 and 1.
 	 */
-	SCS |= OSC_ENABLE | FAST_GPIO;
-	while( !( SCS & OSC_STAT ) );
-	CLKSRCSEL = OSC_SELECT;
+	LPC_SC->SCS |= OSC_ENABLE | FAST_GPIO;
+	while( !( LPC_SC->SCS & OSC_STAT ) );
+	LPC_SC->CLKSRCSEL = OSC_SELECT;
 
 	/* Setup the PLL to multiply the XTAL input up to Fcco = 288 MHz. */
-	PLLCFG =  (PLL_MUL - 1) | (((PLL_DIV - 1) << 16));
-	PLLFEED = 0xAA; PLLFEED = 0x55;
+	LPC_SC->PLL0CFG =  (PLL_MUL - 1) | (((PLL_DIV - 1) << 16));
+	PLL_FEED();
 
 	/* Turn on and wait for the PLL to lock. */
-	PLLCON = PLL_ENABLE;
-	PLLFEED = 0xAA; PLLFEED = 0x55;
-	while( !( PLLSTAT & PLL_LOCK ) );
+	LPC_SC->PLL0CON = PLL_ENABLE;
+	PLL_FEED();
+	while( !( LPC_SC->PLL0STAT & PLL_LOCK ) );
 
 	/* Set clock dividors for CPU and USB blocks. */
-	CCLKCFG = (CPU_CLK_DIV - 1);
-	USBCLKCFG = (USB_CLK_DIV - 1);
+	LPC_SC->CCLKCFG = (CPU_CLK_DIV - 1);
+	LPC_SC->USBCLKCFG = (USB_CLK_DIV - 1);
 
 	/* Connect the PLL and wait for it to connect. */
-	PLLCON = PLL_CONNECT | PLL_ENABLE;
-	PLLFEED = 0xAA; PLLFEED = 0x55;
-	while( !( PLLSTAT & PLL_CONNECTED ) );
+	LPC_SC->PLL0CON = PLL_CONNECT | PLL_ENABLE;
+	PLL_FEED();
+	while( !( LPC_SC->PLL0STAT & PLL_CONNECTED ) );
 
 	/* Setup and turn on the MAM.  Four cycle access is used due to the fast
 	 * PLL used.  It is possible faster overall performance could be obtained by
 	 * tuning the MAM and PLL settings.
 	 */
-	MAMCR = 0;
-	MAMTIM = MAM_TIM_4;
-	MAMCR = MAM_MODE_FULL;
+	LPC_SC->MAMCR = 0;
+	LPC_SC->MAMTIM = MAM_TIM_4;
+	LPC_SC->MAMCR = MAM_MODE_FULL;
 }
 

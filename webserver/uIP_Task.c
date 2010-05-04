@@ -121,9 +121,9 @@ void vuIP_Task( void *pvParameters )
 
 	portENTER_CRITICAL();
 	{
-		MAC_INTENABLE = INT_RX_DONE;
-		VICIntEnable |= 0x00200000;
-		VICVectAddr21 = ( portLONG ) vEmacISR_Wrapper;
+		LPC_EMAC->IntEnable = INT_RX_DONE;
+		LPC_VIC->IntEnable |= 0x1 << ENET_IRQn;
+		LPC_VIC->VectAddr[ENET_IRQn] = ( portLONG ) vEmacISR_Wrapper;
 		prvSetMACAddress();
 	}
 	portEXIT_CRITICAL();

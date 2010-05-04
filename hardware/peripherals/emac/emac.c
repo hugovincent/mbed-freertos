@@ -41,13 +41,13 @@ void write_PHY (int PhyReg, int Value)
 {
   unsigned int tout;
 
-  MAC_MADR = DP83848C_DEF_ADR | PhyReg;
-  MAC_MWTD = Value;
+  LPC_EMAC->MADR = DP83848C_DEF_ADR | PhyReg;
+  LPC_EMAC->MWTD = Value;
 
   /* Wait utill operation completed */
   tout = 0;
   for (tout = 0; tout < MII_WR_TOUT; tout++) {
-    if ((MAC_MIND & MIND_BUSY) == 0) {
+    if ((LPC_EMAC->MIND & MIND_BUSY) == 0) {
       break;
     }
   }
@@ -59,18 +59,18 @@ unsigned short read_PHY (unsigned char PhyReg)
 {
   unsigned int tout;
 
-  MAC_MADR = DP83848C_DEF_ADR | PhyReg;
-  MAC_MCMD = MCMD_READ;
+  LPC_EMAC->MADR = DP83848C_DEF_ADR | PhyReg;
+  LPC_EMAC->MCMD = MCMD_READ;
 
   /* Wait until operation completed */
   tout = 0;
   for (tout = 0; tout < MII_RD_TOUT; tout++) {
-    if ((MAC_MIND & MIND_BUSY) == 0) {
+    if ((LPC_EMAC->MIND & MIND_BUSY) == 0) {
       break;
     }
   }
-  MAC_MCMD = 0;
-  return (MAC_MRDD);
+  LPC_EMAC->MCMD = 0;
+  return (LPC_EMAC->MRDD);
 }
 
 
@@ -87,12 +87,12 @@ void rx_descr_init (void)
   }
 
   /* Set EMAC Receive Descriptor Registers. */
-  MAC_RXDESCRIPTOR    = RX_DESC_BASE;
-  MAC_RXSTATUS        = RX_STAT_BASE;
-  MAC_RXDESCRIPTORNUM = NUM_RX_FRAG-1;
+  LPC_EMAC->RxDescriptor    = RX_DESC_BASE;
+  LPC_EMAC->RxStatus        = RX_STAT_BASE;
+  LPC_EMAC->RxDescriptorNumber = NUM_RX_FRAG-1;
 
   /* Rx Descriptors Point to 0 */
-  MAC_RXCONSUMEINDEX  = 0;
+  LPC_EMAC->RxConsumeIndex  = 0;
 }
 
 
@@ -107,12 +107,12 @@ void tx_descr_init (void) {
   }
 
   /* Set EMAC Transmit Descriptor Registers. */
-  MAC_TXDESCRIPTOR    = TX_DESC_BASE;
-  MAC_TXSTATUS        = TX_STAT_BASE;
-  MAC_TXDESCRIPTORNUM = NUM_TX_FRAG-1;
+  LPC_EMAC->TxDescriptor    = TX_DESC_BASE;
+  LPC_EMAC->TxStatus        = TX_STAT_BASE;
+  LPC_EMAC->TxDescriptorNumber = NUM_TX_FRAG-1;
 
   /* Tx Descriptors Point to 0 */
-  MAC_TXPRODUCEINDEX  = 0;
+  LPC_EMAC->TxProduceIndex  = 0;
 }
 
 
@@ -128,37 +128,37 @@ portBASE_TYPE xReturn = pdPASS;
   volatile unsigned int regv,tout,id1,id2;
 
   /* Enable P1 Ethernet Pins. */
-  PINSEL2 = 0x50150105;
-  PINSEL3 = (PINSEL3 & ~0x0000000F) | 0x00000005; // P1.16, P1.17
+  LPC_PINCON->PINSEL2 = 0x50150105;
+  LPC_PINCON->PINSEL3 = (LPC_PINCON->PINSEL3 & ~0x0000000F) | 0x00000005; // P1.16, P1.17
 
   /* Power on PHY clock generator */
-  FIO1DIR |= 0x1<<27;
-  FIO1SET = 0x1<<27;
+  LPC_GPIO1->FIODIR |= 0x1<<27;
+  LPC_GPIO1->FIOSET = 0x1<<27;
 
   /* Power Up the EMAC controller. */
-  PCONP |= 0x40000000;
+  LPC_SC->PCONP |= 0x40000000;
   vTaskDelay( 1 );
 
   /* Reset all EMAC internal modules. */
-  MAC_MAC1 = MAC1_RES_TX | MAC1_RES_MCS_TX | MAC1_RES_RX | MAC1_RES_MCS_RX | MAC1_SIM_RES | MAC1_SOFT_RES;
-  MAC_COMMAND = CR_REG_RES | CR_TX_RES | CR_RX_RES;
+  LPC_EMAC->MAC1 = MAC1_RES_TX | MAC1_RES_MCS_TX | MAC1_RES_RX | MAC1_RES_MCS_RX | MAC1_SIM_RES | MAC1_SOFT_RES;
+  LPC_EMAC->Command = CR_REG_RES | CR_TX_RES | CR_RX_RES;
 
   /* A short delay after reset. */
   vTaskDelay( 1 );
 
   /* Initialize MAC control registers. */
-  MAC_MAC1 = MAC1_PASS_ALL;
-  MAC_MAC2 = MAC2_CRC_EN | MAC2_PAD_EN;
-  MAC_MAXF = ETH_MAX_FLEN;
-  MAC_CLRT = CLRT_DEF;
-  MAC_IPGR = IPGR_DEF;
+  LPC_EMAC->MAC1 = MAC1_PASS_ALL;
+  LPC_EMAC->MAC2 = MAC2_CRC_EN | MAC2_PAD_EN;
+  LPC_EMAC->MAXF = ETH_MAX_FLEN;
+  LPC_EMAC->CLRT = CLRT_DEF;
+  LPC_EMAC->IPGR = IPGR_DEF;
 
   /* Enable Reduced MII interface. */
-  MAC_COMMAND = CR_RMII | CR_PASS_RUNT_FRM;
+  LPC_EMAC->Command = CR_RMII | CR_PASS_RUNT_FRM;
 
   /* Reset Reduced MII Logic. */
-  MAC_SUPP = SUPP_RES_RMII;
-  MAC_SUPP = 0;
+  LPC_EMAC->SUPP = SUPP_RES_RMII;
+  LPC_EMAC->SUPP = 0;
 
   /* Put the DP83848C in reset mode */
   write_PHY (PHY_REG_BMCR, 0x8000);
@@ -217,46 +217,46 @@ portBASE_TYPE xReturn = pdPASS;
     /* Configure Full/Half Duplex mode. */
     if (regv & 0x0004) {
       /* Full duplex is enabled. */
-      MAC_MAC2    |= MAC2_FULL_DUP;
-      MAC_COMMAND |= CR_FULL_DUP;
-      MAC_IPGT     = IPGT_FULL_DUP;
+      LPC_EMAC->MAC2    |= MAC2_FULL_DUP;
+      LPC_EMAC->Command |= CR_FULL_DUP;
+      LPC_EMAC->IPGT     = IPGT_FULL_DUP;
     }
     else {
       /* Half duplex mode. */
-      MAC_IPGT = IPGT_HALF_DUP;
+      LPC_EMAC->IPGT = IPGT_HALF_DUP;
     }
 
     /* Configure 100MBit/10MBit mode. */
     if (regv & 0x0002) {
       /* 10MBit mode. */
-      MAC_SUPP = 0;
+      LPC_EMAC->SUPP = 0;
     }
     else {
       /* 100MBit mode. */
-      MAC_SUPP = SUPP_SPEED;
+      LPC_EMAC->SUPP = SUPP_SPEED;
     }
 
     /* Set the Ethernet MAC Address registers */
-    MAC_SA0 = (emacETHADDR0 << 8) | emacETHADDR1;
-    MAC_SA1 = (emacETHADDR2 << 8) | emacETHADDR3;
-    MAC_SA2 = (emacETHADDR4 << 8) | emacETHADDR5;
+    LPC_EMAC->SA0 = (emacETHADDR0 << 8) | emacETHADDR1;
+    LPC_EMAC->SA1 = (emacETHADDR2 << 8) | emacETHADDR3;
+    LPC_EMAC->SA2 = (emacETHADDR4 << 8) | emacETHADDR5;
 
     /* Initialize Tx and Rx DMA Descriptors */
     rx_descr_init ();
     tx_descr_init ();
 
     /* Receive Broadcast and Perfect Match Packets */
-    MAC_RXFILTERCTRL = RFC_UCAST_EN | RFC_BCAST_EN | RFC_PERFECT_EN;
+    LPC_EMAC->RxFilterCtrl = RFC_UCAST_EN | RFC_BCAST_EN | RFC_PERFECT_EN;
 
     /* Create the semaphore used ot wake the uIP task. */
     vSemaphoreCreateBinary( xEMACSemaphore );
 
     /* Reset all interrupts */
-    MAC_INTCLEAR  = 0xFFFF;
+    LPC_EMAC->IntClear  = 0xFFFF;
 
     /* Enable receive and transmit mode of MAC Ethernet core */
-    MAC_COMMAND  |= (CR_RX_EN | CR_TX_EN);
-    MAC_MAC1     |= MAC1_REC_EN;
+    LPC_EMAC->Command  |= (CR_RX_EN | CR_TX_EN);
+    LPC_EMAC->MAC1     |= MAC1_REC_EN;
   }
 
   return xReturn;
@@ -321,7 +321,7 @@ unsigned short StartReadFrame(void) {
   unsigned short RxLen;
   unsigned int idx;
 
-  idx = MAC_RXCONSUMEINDEX;
+  idx = LPC_EMAC->RxConsumeIndex;
   RxLen = (RX_STAT_INFO(idx) & RINFO_SIZE) - 3;
   rptr = (unsigned short *)RX_DESC_PACKET(idx);
   return(RxLen);
@@ -331,17 +331,17 @@ void EndReadFrame(void) {
   unsigned int idx;
 
   /* DMA free packet. */
-  idx = MAC_RXCONSUMEINDEX;
+  idx = LPC_EMAC->RxConsumeIndex;
 
   if (++idx == NUM_RX_FRAG)
     idx = 0;
 
-  MAC_RXCONSUMEINDEX = idx;
+  LPC_EMAC->RxConsumeIndex = idx;
 }
 
 unsigned int CheckFrameReceived(void) {             // Packet received ?
 
-  if (MAC_RXPRODUCEINDEX != MAC_RXCONSUMEINDEX)     // more packets received ?
+  if (LPC_EMAC->RxProduceIndex != LPC_EMAC->RxConsumeIndex)     // more packets received ?
     return(1);
   else 
     return(0);
@@ -351,7 +351,7 @@ unsigned int uiGetEMACRxData( unsigned char *ucBuffer )
 {
 unsigned int uiLen = 0;
 
-    if( MAC_RXPRODUCEINDEX != MAC_RXCONSUMEINDEX )
+    if( LPC_EMAC->RxProduceIndex != LPC_EMAC->RxConsumeIndex )
     {
         uiLen = StartReadFrame();
         CopyFromFrame_EMAC( ucBuffer, uiLen );
@@ -367,7 +367,7 @@ void RequestSend(void)
 {
   unsigned int idx;
 
-  idx  = MAC_TXPRODUCEINDEX;
+  idx  = LPC_EMAC->TxProduceIndex;
   tptr = (unsigned short *)TX_DESC_PACKET(idx);
 }
 
@@ -407,9 +407,9 @@ void DoSend_EMAC(unsigned short FrameSize)
 {
   unsigned int idx;
 
-  idx = MAC_TXPRODUCEINDEX;
+  idx = LPC_EMAC->TxProduceIndex;
   TX_DESC_CTRL(idx) = FrameSize | TCTRL_LAST;
   if (++idx == NUM_TX_FRAG) idx = 0;
-  MAC_TXPRODUCEINDEX = idx;
+  LPC_EMAC->TxProduceIndex = idx;
 }
 

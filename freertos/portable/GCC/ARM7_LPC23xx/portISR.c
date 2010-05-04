@@ -102,8 +102,8 @@ void vPortYieldProcessor( void )
 		vTaskIncrementTick();
 
 		/* Ready for the next interrupt. */
-		T0IR = 2;
-		VICVectAddr = portCLEAR_VIC_INTERRUPT;
+		LPC_TIM0->IR = 2;
+		LPC_VIC->Address = portCLEAR_VIC_INTERRUPT;
 	}
 
 #else
@@ -122,8 +122,8 @@ void vPortYieldProcessor( void )
 		__asm volatile( "bl			vTaskSwitchContext" );
 
 		/* Ready for the next interrupt. */
-		T0IR = 2;
-		VICVectAddr = portCLEAR_VIC_INTERRUPT;
+		LPC_TIM0->IR = 2;
+		LPC_VIC->Address = portCLEAR_VIC_INTERRUPT;
 		
 		/* Restore the context of the new task. */
 		portRESTORE_CONTEXT();

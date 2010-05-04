@@ -42,13 +42,13 @@ void vUart0ISR_Handler(void)
 	signed portCHAR cChar;
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
-	switch (U0IIR & serINTERRUPT_SOURCE_MASK)
+	switch (LPC_UART0->IIR & serINTERRUPT_SOURCE_MASK)
 	{
 		// Not handling this, but clear the interrupt
 		case serSOURCE_ERROR:	
 			{
-				cChar = U0RBR; // dummy read to clear interrupt
-				cChar = U0LSR;
+				cChar = LPC_UART0->RBR; // dummy read to clear interrupt
+				cChar = LPC_UART0->LSR;
 
 				// FIXME check lines 121-147 in LPC23xx_24xxSampleSoftware/r6/UART/uart.c
 			}
@@ -60,7 +60,7 @@ void vUart0ISR_Handler(void)
 			{
 				if (xQueueReceiveFromISR(xTX0Queue, &cChar, &xHigherPriorityTaskWoken) == pdPASS)
 				{
-					U0THR = cChar;
+					LPC_UART0->THR = cChar;
 				}
 				else
 				{
@@ -73,7 +73,7 @@ void vUart0ISR_Handler(void)
 		case serSOURCE_RX_TIMEOUT:
 		case serSOURCE_RX:	
 			{
-				cChar = U0RBR;
+				cChar = LPC_UART0->RBR;
 				xQueueSendFromISR(xRX0Queue, &cChar, &xHigherPriorityTaskWoken);
 			}
 			break;
@@ -83,7 +83,7 @@ void vUart0ISR_Handler(void)
 	}
 
 	/* Clear the interrupt. */
-	VICVectAddr = 0;
+	LPC_VIC->Address = 0;
 
 	if (xHigherPriorityTaskWoken)
 	{
