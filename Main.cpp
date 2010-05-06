@@ -56,6 +56,8 @@
 #include "example_tasks/dynamic.h"
 #include "webserver.h"
 
+#include "hardware/wdt.h"
+
 // Demo application definitions.
 #define mainCHECK_DELAY					((portTickType)5000 / portTICK_RATE_MS)
 #define mainBLOCK_Q_PRIORITY			(tskIDLE_PRIORITY + 2)
@@ -64,6 +66,8 @@
 
 int main()
 {
+	WDT::init(3);
+
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks( mainFLASH_PRIORITY );
 	//vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
@@ -124,7 +128,7 @@ extern "C"
 		{
 			ulTicksSinceLastDisplay = 0;
 
-			//WDT_FeedWatchdog();
+			WDT::feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
 			bzero(taskListBuffer, 1100);

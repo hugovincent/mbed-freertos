@@ -73,19 +73,11 @@ Vectors:        LDR     pc, Reset_Addr
                 LDR     pc, FIQ_Addr
 
 Reset_Addr:     .word     Reset_Handler
-Undef_Addr:     .word     Undef_Handler
+Undef_Addr:     .word     Exception_UndefinedInstruction
 SWI_Addr:       .word     SWI_Handler
-PAbt_Addr:      .word     PAbt_Handler
-DAbt_Addr:      .word     DAbt_Handler
-FIQ_Addr:       .word     FIQ_Handler
-
-@  ----------------------------------------------------------------------------
-@  Handlers for conditions we don't use (infinite loops)
-
-Undef_Handler:  B       Undef_Handler
-PAbt_Handler:   B       PAbt_Handler
-DAbt_Handler:   B       DAbt_Handler
-FIQ_Handler:    B       FIQ_Handler
+PAbt_Addr:      .word     Exception_PrefetchAbort
+DAbt_Addr:      .word     Exception_DataAbort
+FIQ_Addr:       .word     Exception_UnhandledFIQ
 
 @ The SWI is used for YieldProcessor in FreeRTOS.
 SWI_Handler:    B       vPortYieldProcessor

@@ -8,6 +8,7 @@
  */
 
 #include <lpc23xx.h>
+#include <exception_handlers.h>
 
 /* Constants to setup the PLL and clock dividers:
  *
@@ -37,6 +38,8 @@
 
 void LowLevelInit(void)
 {
+	/* FIXME get/store reset-reason. */
+
 	/* Disconnect the PLL if it's already connected. */
 	if (LPC_SC->PLL0CON & (PLL_CONNECT | PLL_ENABLE))
 	{
@@ -80,5 +83,12 @@ void LowLevelInit(void)
 	LPC_SC->MAMCR = 0;
 	LPC_SC->MAMTIM = MAM_TIM_4;
 	LPC_SC->MAMCR = MAM_MODE_FULL;
+
+	/* Set vectors for unhandled and/or spurious interrupts in the VIC. */
+	for (int irq = 0; irq < 32; irq++)
+	{
+		LPC_VIC->VectAddr[irq] = (unsigned int)Exception_UnhandledIRQ;
+		LPC_VIC->VectPriority[irq] = 15; // lowest
+	}
 }
 

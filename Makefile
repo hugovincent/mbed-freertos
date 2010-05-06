@@ -129,13 +129,15 @@ THUMB_SOURCE= \
 THUMB_CXX_SOURCE= \
 		Main.cpp \
 		tests/CxxTest.cpp \
-		tests/Tests.cpp
+		tests/Tests.cpp \
+		hardware/peripherals/wdt/wdt.cpp
 
 ARM_SOURCE+= \
 		hardware/peripherals/emac/emacISR.c \
 		hardware/peripherals/uart/uartISRs.c \
 		hardware/cpu-$(TARGET)/device_init.c \
-		hardware/board-mbed/board_init.c 
+		hardware/board-mbed/board_init.c \
+		lib/exception_handlers.c
 
 ARM_CXX_SOURCE= \
 		lib/min_c++.cpp
@@ -188,18 +190,18 @@ $(ARM_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
 # ARM Assembler Code:
-$(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
+$(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s hardware/cpu-common/crt0.s $(ODIR)/exists
 	@echo "  [Assembling  (ARM/asm)] $<"
 	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
 
 # This target ensures the temporary build product directories exist
 $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/peripherals/uart $(ODIR)/hardware/peripherals/gpio 
-	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/board-mbed
+	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/peripherals/wdt
+	@mkdir -p $(ODIR)/hardware/board-mbed $(ODIR)/freertos/portable/MemMang
 	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip
 	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR)
-	@mkdir -p $(ODIR)/freertos/portable/MemMang
 	@touch $(ODIR)/exists
 
 #------------------------------------------------------------------------------
