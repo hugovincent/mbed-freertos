@@ -7,8 +7,8 @@
 #ifndef _UART0ISR_H_
 #define _UART0ISR_H_
 
-#include "FreeRTOS.h"
-#include "queue.h"
+#include <FreeRTOS.h>
+#include <queue.h>
 
 // UART register bits
 #define UART_LCR_DLAB		(0x80)
@@ -20,11 +20,10 @@
 #define UART_FCR_CLR		(0x06)
 #define UART_LSR_TEMT		(0x40)
 
-// Constants to setup and access the VIC
 #define serINVALID_QUEUE  ((xQueueHandle) 0)
 #define serNO_BLOCK       ((portTickType) 0)
 
 void vUart0ISRCreateQueues (unsigned portBASE_TYPE uxQueueLength, xQueueHandle *pxRX0Queue, xQueueHandle *pxTX0Queue, portCHAR volatile **ppcTHREEmptyFlag);
-void vUart0ISR_Wrapper(void);
+void vUart0ISR(void);
 
 #endif

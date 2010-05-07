@@ -100,7 +100,7 @@ void vuIP_Task( void *pvParameters )
 	portBASE_TYPE i;
 	uip_ipaddr_t xIPAddr;
 	struct timer periodic_timer, arp_timer;
-	extern void vEmacISR_Wrapper(void);
+	extern void vEmacISR(void);
 
 	/* Create the semaphore used by the ISR to wake this task. */
 	vSemaphoreCreateBinary( xEMACSemaphore );
@@ -123,7 +123,7 @@ void vuIP_Task( void *pvParameters )
 	{
 		LPC_EMAC->IntEnable = INT_RX_DONE;
 		LPC_VIC->IntEnable |= 0x1 << ENET_IRQn;
-		LPC_VIC->VectAddr[ENET_IRQn] = ( portLONG ) vEmacISR_Wrapper;
+		LPC_VIC->VectAddr[ENET_IRQn] = ( portLONG ) vEmacISR;
 		prvSetMACAddress();
 	}
 	portEXIT_CRITICAL();

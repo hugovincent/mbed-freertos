@@ -66,13 +66,13 @@
 
 int main()
 {
-	WDT::init(3);
+	WDT::init(6);
 
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks( mainFLASH_PRIORITY );
-	//vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
-	//vCreateBlockTimeTasks();
-	//vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
+	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
+	vCreateBlockTimeTasks();
+	vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
 
@@ -92,6 +92,7 @@ int main()
 // FreeRTOS Callback Hooks:
 extern "C"
 {
+#if configUSE_IDLE_HOOK == 1
 	void vApplicationIdleHook()
 	{
 		// Put processor core into Idle Mode to conserve power.
@@ -103,22 +104,27 @@ extern "C"
 		portNOP();
 		portNOP();
 	}
+#endif
 
+#if configUSE_MALLOC_FAILED_HOOK == 1
 	void vApplicationMallocFailedHook()
 	{
 		printf("[FreeRTOS] Error: memory allocation failed!\n");
 		while (1); // Wait for WDT to reset.
 	}
+#endif
 
+#if configCHECK_FOR_STACK_OVERFLOW > 0
 	void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
 	{
 		printf("[FreeRTOS] Error: task \"%s\" had a stack overflow!\n", pcTaskName);
 		while(1); // Wait for WDT to reset.
 	}
+#endif
 
+#if configUSE_TICK_HOOK == 1
 	void vApplicationTickHook()
 	{
-		static signed portCHAR taskListBuffer[1100];
 		static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
 		// Called from every tick interrupt. Have enough ticks passed to make it
@@ -131,9 +137,9 @@ extern "C"
 			WDT::feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
-			bzero(taskListBuffer, 1100);
-			vTaskGetRunTimeStats(taskListBuffer);
-			printf((const char*)taskListBuffer);
+			static char taskListBuffer[1400]; // FIXME really?!...
+			vTaskGetRunTimeStats((signed portCHAR *)taskListBuffer);
+			printf(taskListBuffer);
 #endif
 
 			// Has an error been found in any task?
@@ -167,12 +173,12 @@ extern "C"
 				printf("ERROR - DYNAMIC\n");
 				allGood = 0;
 			}
-
 			if (allGood == 1)
 			{
 				printf("All Good.\n");
 			}
 		}
 	}
+#endif
 }
 

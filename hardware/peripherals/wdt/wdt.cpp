@@ -20,7 +20,15 @@ void WDT::feed()
 {
 	taskENTER_CRITICAL();
 	{
+		/* Have to be super-paranoid and disable interrupts at VIC level too
+		 * otherwise we are susceptible to spurious interrupts.
+		 */
+		unsigned int irqsEnabled = LPC_VIC->IntEnable;
+		LPC_VIC->IntEnClr = 0xFFFFFFFF;
+
 		LPC_WDT->WDFEED = 0xAA; LPC_WDT->WDFEED = 0x55;
+
+		LPC_VIC->IntEnable = irqsEnabled;
 	}
 	taskEXIT_CRITICAL();
 }

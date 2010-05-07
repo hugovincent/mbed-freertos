@@ -38,7 +38,7 @@
  *----------------------------------------------------------*/
 
 #define configUSE_PREEMPTION					1
-#define configUSE_IDLE_HOOK						1
+#define configUSE_IDLE_HOOK						0
 #define configUSE_TICK_HOOK						1
 #define configCPU_CLOCK_HZ						( ( unsigned portLONG ) 72000000 )
 #define configTICK_RATE_HZ						( ( portTickType ) 1000 )
@@ -48,6 +48,9 @@
 #define configUSE_16_BIT_TICKS					0
 #define configIDLE_SHOULD_YIELD					1
 #define configUSE_MUTEXES						1
+
+// Additions specific to this distribution of FreeRTOS
+#define configIRQ_CAN_CONTEXT_SWITCH			0
 
 #ifdef MBED_LPC17xx
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY	1 // FIXME!

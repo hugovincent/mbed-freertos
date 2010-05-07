@@ -75,7 +75,7 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 
 		// Setup the VIC for the UART
 		LPC_VIC->IntSelect &= ~(0x1 << UART0_IRQn); // normal IRQ (not FIQ)
-		LPC_VIC->VectAddr[UART0_IRQn] = (portLONG)vUart0ISR_Wrapper;
+		LPC_VIC->VectAddr[UART0_IRQn] = (portLONG)vUart0ISR;
 		LPC_VIC->IntEnable = 0x1 << UART0_IRQn;
 
 		// Enable UART0 interrupts

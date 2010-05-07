@@ -4,7 +4,11 @@
 
 extern xSemaphoreHandle xEMACSemaphore;
 
-void vEmacISR_Handler ( void )
+#if configIRQ_CAN_CONTEXT_SWITCH == 1
+void vEmacISR_Handler(void)
+#else
+__attribute__ ((interrupt ("IRQ"))) void vEmacISR(void)
+#endif
 {
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
 
@@ -22,7 +26,8 @@ void vEmacISR_Handler ( void )
     }
 }
 
-__attribute__ ((naked)) void vEmacISR_Wrapper ( void )
+#if configIRQ_CAN_CONTEXT_SWITCH == 1
+__attribute__ ((naked)) void vEmacISR(void)
 {
 	/* Save the context of the interrupted task. */
 	portSAVE_CONTEXT();
@@ -34,3 +39,5 @@ __attribute__ ((naked)) void vEmacISR_Wrapper ( void )
 	/* Restore the context of whichever task will execute next. */
 	portRESTORE_CONTEXT();
 }
+#endif
+

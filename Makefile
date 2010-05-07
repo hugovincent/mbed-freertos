@@ -89,6 +89,7 @@ LINKER_FLAGS= \
 		-nostartfiles \
 		-T$(LDSCRIPT) \
 		-Wl,--gc-sections \
+		-Wl,-Map=$(BINNAME).map \
 		-lm -lstdc++
 
 ASM_FLAGS= \

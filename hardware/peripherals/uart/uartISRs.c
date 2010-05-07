@@ -37,7 +37,11 @@ void vUart0ISRCreateQueues(unsigned portBASE_TYPE uxQueueLength, xQueueHandle *p
 	*ppcTHREEmptyFlag = &lTHREEmpty0;
 }
 
+#if configIRQ_CAN_CONTEXT_SWITCH == 1
 void vUart0ISR_Handler(void)
+#else
+__attribute__ ((interrupt ("IRQ"))) void vUart0ISR(void)
+#endif
 {
 	signed portCHAR cChar;
 	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
@@ -92,7 +96,8 @@ void vUart0ISR_Handler(void)
 	}
 }
 
-__attribute__ ((naked)) void vUart0ISR_Wrapper(void)
+#if configIRQ_CAN_CONTEXT_SWITCH == 1
+__attribute__ ((naked)) void vUart0ISR(void)
 {
 	/* Save the context of the interrupted task. */
 	portSAVE_CONTEXT();
@@ -104,3 +109,5 @@ __attribute__ ((naked)) void vUart0ISR_Wrapper(void)
 	/* Restore the context of whichever task will execute next. */
 	portRESTORE_CONTEXT();
 }
+#endif
+

@@ -310,15 +310,12 @@ int _write_r (struct _reent *ptr, int fd, const void * buf, size_t len)
 	// FIXME temporary...
 
 	/* Which output method to use? */
-	signed portBASE_TYPE (*putcharHandler)(signed portCHAR, portTickType blocking);
-	if (0 /* xTaskGetSchedulerState() == taskSCHEDULER_RUNNING */)
+	signed portBASE_TYPE (*putcharHandler)(signed portCHAR, portTickType blocking)
+		= &uart0PutChar_debug;
+	/*if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
 	{
-		putcharHandler = uart0PutChar;
-	}
-	else
-	{
-		putcharHandler = uart0PutChar_debug;
-	}
+		putcharHandler = &uart0PutChar;
+	}*/
 	
 	char *tmp = (char *)buf;
 	while (tmp < ((char *)buf + len))
@@ -326,9 +323,9 @@ int _write_r (struct _reent *ptr, int fd, const void * buf, size_t len)
 		/* Make line endings behave like normal serial terminals. */
 		if (*tmp == '\n')
 		{
-			putcharHandler('\r', 0);
+			(*putcharHandler)('\r', 0);
 		}
-		putcharHandler(*tmp++, 0);
+		(*putcharHandler)(*tmp++, 0);
 	}
 	return len;
 

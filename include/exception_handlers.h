@@ -12,9 +12,9 @@
 extern "C" {
 #endif
 
-void Exception_PrefetchAbort(void);
-void Exception_DataAbort(void);
-void Exception_UndefinedInstruction(void);
+void Exception_PrefetchAbort(unsigned int addr);
+void Exception_DataAbort(unsigned int addr);
+void Exception_UndefinedInstruction(unsigned int addr);
 void Exception_UnhandledIRQ(void);
 void Exception_UnhandledFIQ(void);
 
