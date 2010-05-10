@@ -54,7 +54,7 @@ endif
 #------------------------------------------------------------------------------
 # Compiler, Assembler and Linker Options:
 
-DEBUG=-DNDEBUG
+DEBUG=-DNDEBUG=1
 OPTIM=-O2
 
 COMMON_FLAGS += \
@@ -65,6 +65,7 @@ COMMON_FLAGS += \
 		-I include \
 		-I freertos/include \
 		-I freertos/portable/GCC/$(PORT_DIR) \
+		-I lib/ustl \
 		-fomit-frame-pointer \
 		-Wall -Wcast-align -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
@@ -78,7 +79,6 @@ CFLAGS = $(COMMON_FLAGS) \
 
 CXXFLAGS= $(COMMON_FLAGS) \
 		-fno-rtti \
-		-fno-exceptions \
 		-fno-unwind-tables \
 		-fno-enforce-eh-specs \
 		-fno-use-cxa-get-exception-ptr \
@@ -86,11 +86,12 @@ CXXFLAGS= $(COMMON_FLAGS) \
 		-Weffc++
 
 LINKER_FLAGS= \
-		-nostartfiles \
+		-nostartfiles -nostdinc++ \
 		-T$(LDSCRIPT) \
 		-Wl,--gc-sections \
 		-Wl,-Map=$(BINNAME).map \
-		-lm -lstdc++
+		-mabi=aapcs \
+		-lm -lsupc++
 
 ASM_FLAGS= \
 		$(CPUFLAGS) \
@@ -120,31 +121,32 @@ THUMB_SOURCE= \
 		hardware/peripherals/uart/uart_fractional_baud.c \
 		hardware/peripherals/gpio/gpio.c \
 		hardware/peripherals/emac/emac.c \
+		hardware/cpu-$(TARGET)/device_init.c \
+		hardware/board-mbed/board_init.c \
 		freertos/list.c \
 		freertos/queue.c \
 		freertos/tasks.c \
 		freertos/portable/GCC/$(PORT_DIR)/port.c \
 		freertos/portable/MemMang/heap_3.c \
+		lib/exception_handlers.c \
 		lib/syscalls.c
 
 THUMB_CXX_SOURCE= \
 		Main.cpp \
 		tests/CxxTest.cpp \
 		tests/Tests.cpp \
-		hardware/peripherals/wdt/wdt.cpp
+		hardware/peripherals/wdt/wdt.cpp \
+		lib/min_c++.cpp
 
 ARM_SOURCE+= \
 		hardware/peripherals/emac/emacISR.c \
-		hardware/peripherals/uart/uartISRs.c \
-		hardware/cpu-$(TARGET)/device_init.c \
-		hardware/board-mbed/board_init.c \
-		lib/exception_handlers.c
-
-ARM_CXX_SOURCE= \
-		lib/min_c++.cpp
+		hardware/peripherals/uart/uartISRs.c
 
 ARM_ASM_SOURCE= \
 		hardware/cpu-$(TARGET)/crt0.s
+
+# Include uSTL files:
+#include lib/ustl/ustl.mk
 
 #------------------------------------------------------------------------------
 # Build Rules:
@@ -201,7 +203,7 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/peripherals/wdt
 	@mkdir -p $(ODIR)/hardware/board-mbed $(ODIR)/freertos/portable/MemMang
 	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests
-	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip
+	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip $(ODIR)/lib/ustl
 	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR)
 	@touch $(ODIR)/exists
 
