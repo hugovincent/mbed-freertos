@@ -67,23 +67,24 @@ COMMON_FLAGS += \
 		-I freertos/portable/GCC/$(PORT_DIR) \
 		-I lib/ustl \
 		-fomit-frame-pointer \
-		-Wall -Wcast-align -Wimplicit -Wpointer-arith \
+		-Wall -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
 		-fno-strict-aliasing \
 		-ffunction-sections -fdata-sections \
 		-mfloat-abi=soft -mtp=soft -mabi=aapcs
+		# Temporarily removed: -Wcast-align
 
 CFLAGS = $(COMMON_FLAGS) \
 		-Wstrict-prototypes \
 		-std=gnu99
+		# Temporarily removed: -Wc++-compat 
 
 CXXFLAGS= $(COMMON_FLAGS) \
-		-fno-rtti \
 		-fno-unwind-tables \
 		-fno-enforce-eh-specs \
 		-fno-use-cxa-get-exception-ptr \
-		-fno-stack-protector \
-		-Weffc++
+		-fno-stack-protector
+		# Temporarily removed: -Weffc++ -fno-rtti
 
 LINKER_FLAGS= \
 		-nostartfiles -nostdinc++ \
@@ -146,7 +147,7 @@ ARM_ASM_SOURCE= \
 		hardware/cpu-$(TARGET)/crt0.s
 
 # Include uSTL files:
-#include lib/ustl/ustl.mk
+include lib/ustl/ustl.mk
 
 #------------------------------------------------------------------------------
 # Build Rules:
@@ -217,7 +218,7 @@ disasm :
 
 clean:
 	@echo "  [Cleaning...          ]"
-	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s
+	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map
 
 install: $(BINNAME).bin
 	@echo "  [Installing to mbed...]"

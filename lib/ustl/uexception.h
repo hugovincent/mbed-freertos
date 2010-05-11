@@ -10,6 +10,12 @@
 #ifndef WITHOUT_LIBSTDCPP
     #include <exception>
     #include <new>
+#else
+	namespace ustl {
+		class ostringstream;
+		class istream;
+		class ostream;
+	};
 #endif
 #include "bktrace.h"
 

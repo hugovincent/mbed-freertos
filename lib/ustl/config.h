@@ -37,6 +37,9 @@
 /// Define to 1 if you want to build without libstdc++
 #define WITHOUT_LIBSTDCPP 1
 
+/// Maximum length of a path name
+#define PATH_MAX 64
+
 /// Define GNU extensions if unavailable.
 #ifndef __GNUC__
     /// GCC (and some other compilers) define '__attribute__'; ustl is using this
@@ -178,7 +181,7 @@
 #undef HAVE_LONG_LONG
 
 // Define to 1 if you want unrolled specializations for fill and copy
-#define WANT_UNROLLED_COPY 1
+#define WANT_UNROLLED_COPY 0
 
 // Define to 1 if you want to use MMX/SSE/3dNow! processor instructions
 #undef WANT_MMX

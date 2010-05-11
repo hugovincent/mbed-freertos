@@ -10,8 +10,6 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
-#include <sys/ioctl.h>
 
 namespace ustl {
 
@@ -206,6 +204,7 @@ void fstream::stat (struct stat& rs) const
 	throw file_exception ("stat", name());
 }
 
+#if 0
 /// Calls the given ioctl. Use IOCTLID macro to pass in both \p name and \p request.
 int fstream::ioctl (const char* rname, int request, long argument)
 {
@@ -214,6 +213,7 @@ int fstream::ioctl (const char* rname, int request, long argument)
 	set_and_throw (failbit, rname);
     return (rv);
 }
+#endif
 
 /// Calls the given fcntl. Use FCNTLID macro to pass in both \p name and \p request.
 int fstream::fcntl (const char* rname, int request, long argument)
@@ -224,6 +224,7 @@ int fstream::fcntl (const char* rname, int request, long argument)
     return (rv);
 }
 
+#if 0
 /// Memory-maps the file and returns a link to it.
 memlink fstream::mmap (off_t n, off_t offset)
 {
@@ -247,6 +248,7 @@ void fstream::msync (memlink& l)
     if (::msync (l.data(), l.size(), MS_ASYNC | MS_INVALIDATE))
 	set_and_throw (failbit, "msync");
 }
+#endif
 
 void fstream::set_nonblock (bool v)
 {

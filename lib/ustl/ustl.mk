@@ -4,7 +4,6 @@
 # Hugo Vincent, 10 May 2010.
 
 THUMB_CXX_SOURCE+= \
-		lib/ustl/bktrace.cpp \
 		lib/ustl/cmemlink.cpp \
 		lib/ustl/fstream.cpp \
 		lib/ustl/memblock.cpp \
@@ -19,4 +18,7 @@ THUMB_CXX_SOURCE+= \
 		lib/ustl/unew.cpp \
 		lib/ustl/ustdxept.cpp \
 		lib/ustl/ustring.cpp
+
+CXXFLAGS+=\
+		-fvisibility-inlines-hidden -fno-threadsafe-statics -finline-limit=1024
 

@@ -5,9 +5,7 @@ Numbers in [ ] are priorities, 'f' is "distant future".
 BUGS:
 [1] Finish factoring crt0 code into core-specific and common parts.
 [1] Fix KEEP() in linker script wrt ctors/dtors. Fix (any) remaining alignment issues in linker script.
-[1] Fix interrupt dis/enable during watchdog feed wrt spurious interrupt appnote.
 [1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
-[1] Write a spurious interrupt handler (http://water.cse.unsw.edu.au/esdk/lpc2/spurious-irq.html).
 [2] Ensure debug output printed by abort traps is actually correct (hmmm?).
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
