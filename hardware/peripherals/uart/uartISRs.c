@@ -86,13 +86,15 @@ __attribute__ ((interrupt ("IRQ"))) void vUart0ISR(void)
 			break;
 	}
 
+#if defined(MBED_LPC23xx)
 	/* Clear the interrupt. */
 	LPC_VIC->Address = 0;
+#endif
 
 	if (xHigherPriorityTaskWoken)
 	{
 		/* Giving the semaphore woke a task. */
-		portYIELD_FROM_ISR();
+		vPortYieldFromISR();
 	}
 }
 

@@ -36,6 +36,7 @@
 /* Demo includes. */
 #include "hardware/emac.h"
 #include "hardware/gpio.h"
+#include "cmsis_nvic.h"
 
 #include "webserver.h"
 
@@ -122,8 +123,10 @@ void vuIP_Task( void *pvParameters )
 	portENTER_CRITICAL();
 	{
 		LPC_EMAC->IntEnable = INT_RX_DONE;
-		LPC_VIC->IntEnable |= 0x1 << ENET_IRQn;
-		LPC_VIC->VectAddr[ENET_IRQn] = ( portLONG ) vEmacISR;
+
+		NVIC_EnableIRQ(ENET_IRQn);
+		NVIC_SetVector(ENET_IRQn, (portLONG)vEmacISR);
+
 		prvSetMACAddress();
 	}
 	portEXIT_CRITICAL();

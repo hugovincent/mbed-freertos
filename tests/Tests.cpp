@@ -8,7 +8,7 @@
 
 void TestMalloc()
 {
-	vPortDisableInterruptsFromThumb();
+	//vPortDisableInterruptsFromThumb();
 	unsigned char j = 0;
 	while (1)
 	{

@@ -1,4 +1,4 @@
-Last Update: 4 May 2010.
+Last Update: 25 May 2010.
 
 Numbers in [ ] are priorities, 'f' is "distant future".
 
@@ -13,7 +13,6 @@ BUGS:
 [f] Test/fix ethernet code.
 
 GENERALIZATIONS:
-[1] Investigate running everything in USR mode instead of SVC.
 [2] Finish GPIO driver.
 [2] Integrate CMSIS-style SystemInit(), NVIC_SetVector() and clock idioms.
 [2] FreeRTOS only provides a kernel. We need to supply the rest of the OS.
@@ -23,6 +22,7 @@ GENERALIZATIONS:
 [2] All the peripheral drivers should be C++-ified and made as API-compatible
     with mbed standard library as is possible and desirable within the context
     of an RTOS.
+[f] Investigate running everything in USR mode instead of SVC.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 [f] Provide bootcode support for LPC1768-based mbed devices.
 [f] All application-level APIs should work the same on either mbed processor type.

@@ -17,12 +17,14 @@ __attribute__ ((interrupt ("IRQ"))) void vEmacISR(void)
 
     /* Clear the interrupt. */
     LPC_EMAC->IntClear = 0xffff;
+#if defined(MBED_LPC23xx)
     LPC_VIC->Address = 0;
+#endif
 
 	if( xHigherPriorityTaskWoken )
     {
     	/* Giving the semaphore woke a task. */
-        portYIELD_FROM_ISR();
+        vPortYieldFromISR();
     }
 }
 

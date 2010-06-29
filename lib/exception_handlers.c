@@ -66,31 +66,36 @@ __attribute__ ((noreturn)) void PrintAbortInfo(unsigned int addr)
 void LockDownProcessor(void)
 {
 	portDISABLE_INTERRUPTS();
+#if defined(MBED_LPC23xx)
 	LPC_VIC->IntEnClr = 0xffffffff;
+#elif defined(MBED_LPC17xx)
+	NVIC->ICER[0] = 0xffffffff;		// FIXME?
+	NVIC->ICER[1] = 0x07;			// FIXME?
+#endif
 }
 
-__attribute__ ((interrupt, noreturn)) void Exception_PrefetchAbort(unsigned int addr)
+__attribute__ ((noreturn)) void Exception_PrefetchAbort(unsigned int addr)
 {
 	LockDownProcessor();
 	DebugPrint("\n[Fatal Error] Prefetch Abort");
 	PrintAbortInfo(addr);
 }
 
-__attribute__ ((interrupt, noreturn)) void Exception_DataAbort(unsigned int addr)
+__attribute__ ((noreturn)) void Exception_DataAbort(unsigned int addr)
 {
 	LockDownProcessor();
 	DebugPrint("\n[Fatal Error] Data Abort");
 	PrintAbortInfo(addr);
 }
 
-__attribute__ ((interrupt, noreturn)) void Exception_UndefinedInstruction(unsigned int addr)
+__attribute__ ((noreturn)) void Exception_UndefinedInstruction(unsigned int addr)
 {
 	LockDownProcessor();
 	DebugPrint("\n[Fatal Error] Undefined Instruction");
 	PrintAbortInfo(addr);
 }
 
-__attribute__ ((interrupt, noreturn)) void Exception_UnhandledIRQ()
+__attribute__ ((noreturn)) void Exception_UnhandledIRQ()
 {
 	LockDownProcessor();
 	DebugPrint("\n[Fatal Error] Unhandled/Spurious IRQ.\n");
@@ -98,7 +103,7 @@ __attribute__ ((interrupt, noreturn)) void Exception_UnhandledIRQ()
 	while (1);
 }
 
-__attribute__ ((interrupt, noreturn)) void Exception_UnhandledFIQ()
+__attribute__ ((noreturn)) void Exception_UnhandledFIQ()
 {
 	LockDownProcessor();
 	DebugPrint("\n[Fatal Error] Unhandled/Spurious FIQ.\n");
@@ -106,3 +111,18 @@ __attribute__ ((interrupt, noreturn)) void Exception_UnhandledFIQ()
 	while (1);
 }
 
+/******************************************************************************/
+/*                        NVIC macros                                         */
+/******************************************************************************/
+
+#if defined(MBED_LPC23xx)
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
+	LPC_VIC->VectAddr[IRQn] = vector;
+}
+
+void NVIC_ClearPendingIRQ()
+{
+	LPC_VIC->Address = 0;
+}
+#endif

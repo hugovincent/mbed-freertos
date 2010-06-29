@@ -15,7 +15,7 @@
 
 # Set target here according to which type of mbed you have:
 # (can be lpc2368 for older mbeds, or lpc1768 for newer ones)
-TARGET=lpc2368
+TARGET=lpc1768
 LDSCRIPT=hardware/cpu-$(TARGET)/$(TARGET).ld
 BINNAME=RTOSDemo
 
@@ -75,7 +75,6 @@ COMMON_FLAGS += \
 		# Temporarily removed: -Wcast-align
 
 CFLAGS = $(COMMON_FLAGS) \
-		-Wstrict-prototypes \
 		-std=gnu99
 		# Temporarily removed: -Wc++-compat 
 

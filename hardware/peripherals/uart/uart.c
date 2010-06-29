@@ -74,9 +74,8 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 		LPC_UART0->FCR = UART_FCR_EN | UART_FCR_CLR;
 
 		// Setup the VIC for the UART
-		LPC_VIC->IntSelect &= ~(0x1 << UART0_IRQn); // normal IRQ (not FIQ)
-		LPC_VIC->VectAddr[UART0_IRQn] = (portLONG)vUart0ISR;
-		LPC_VIC->IntEnable = 0x1 << UART0_IRQn;
+		NVIC_SetVector(UART0_IRQn, (portLONG)vUart0ISR);
+		NVIC_EnableIRQ(UART0_IRQn);
 
 		// Enable UART0 interrupts
 		LPC_UART0->IER |= UART_IER_EI;
@@ -145,7 +144,7 @@ signed portBASE_TYPE uart0PutChar_debug(signed portCHAR c, portTickType dummy)
 
 		/* Avoid possibility of an ISR queueing up for execution when interrupts are
 		 * re-enabled. */
-		LPC_VIC->Address = 0;
+		NVIC_ClearPendingIRQ(UART0_IRQn);
 	}
 	taskEXIT_CRITICAL();
 
