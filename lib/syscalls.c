@@ -564,7 +564,7 @@ int _unlink_r (struct _reent *ptr, const char *path)
 
 int _gettimeofday_r (struct _reent *ptr, struct timeval * tp, void * tzvp)
 {
-	struct timezone *tzp = tzvp;
+	struct timezone *tzp = (struct timezone *)tzvp;
 	if (tp)
 	{
 		/* Ask the host for the seconds since the Unix epoch.  */

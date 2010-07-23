@@ -1,6 +1,6 @@
 Last Update: 25 May 2010.
 
-Numbers in [ ] are priorities, 'f' is "distant future".
+Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
 BUGS:
 [1] Finish factoring crt0 code into core-specific and common parts.
@@ -13,6 +13,8 @@ BUGS:
 [f] Test/fix ethernet code.
 
 GENERALIZATIONS:
+[1] Provide bootcode support for LPC1768-based mbed devices.
+[1] All application-level APIs should work identically on either mbed processor type.
 [2] Finish GPIO driver.
 [2] Integrate CMSIS-style SystemInit(), NVIC_SetVector() and clock idioms.
 [2] FreeRTOS only provides a kernel. We need to supply the rest of the OS.
@@ -24,8 +26,6 @@ GENERALIZATIONS:
     of an RTOS.
 [f] Investigate running everything in USR mode instead of SVC.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
-[f] Provide bootcode support for LPC1768-based mbed devices.
-[f] All application-level APIs should work the same on either mbed processor type.
 
 ADDITIONS:
 [2] Add more standard library and syscall niceities.
@@ -33,12 +33,14 @@ ADDITIONS:
 		http://mbed.org/users/jsnyder/notebook/elua-preliminary-port/
 		http://svn.berlios.de/wsvn/elua/trunk/src/?op=log&rev=0&sc=0&isdir=1
 [3] Integrate local FS with syscalls/std. library.
+[3] Integrate PicoC for scripting. 
+[f] Integrate some nice DSP libraries.
 [f] Switch to lwIP instead of uIP (maybe?). uIP is kindof ugly...
 
 ON-CHIP PERIPHERAL DRIVERS:
-[1] I2C master (all 3 buses).
-[1] SPI master.
-[1] ADC.
+[d] I2C master (all 3 buses).
+[d] SPI master.
+[d] ADC.
 [1] PWM.
 [2] RTC.
 [3] USB device with CDC virtual serial port.
@@ -52,7 +54,8 @@ ON-CHIP PERIPHERAL DRIVERS:
 [f] I2S/audio
 
 EXTERNAL DEVICE DRIVERS:
-[1] Intersil ISL9208 multicell lithium battery analog front end (via I2C).
+[d] Intersil ISL9208 multicell lithium battery analog front end (via I2C).
+[d] DS2745 battery monitor (via I2C). 
 [1] Linear LTC1960 lithium battery charger and powerpath controller (via SPI).
 [1] Temperature sensors (TBD) (via I2C or maybe 1-wire, TBD).
 

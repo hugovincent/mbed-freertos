@@ -15,7 +15,7 @@
 
 # Set target here according to which type of mbed you have:
 # (can be lpc2368 for older mbeds, or lpc1768 for newer ones)
-TARGET=lpc1768
+TARGET=lpc2368
 LDSCRIPT=hardware/cpu-$(TARGET)/$(TARGET).ld
 BINNAME=RTOSDemo
 
@@ -27,28 +27,27 @@ TOOLPRE=util/arm-none-eabi
 # Stuff specific to LPC2368 target:
 ifeq ($(TARGET), lpc2368)
 CPUFLAGS= \
-		-mcpu=arm7tdmi -march=armv4t \
-		-DTHUMB_INTERWORK -mthumb-interwork
+		-mcpu=arm7tdmi-s
 COMMON_FLAGS= \
 		-DMBED_LPC23xx -DTARGET_LPC2368 -DPLAT_NAME="\"mbed (LPC2368)\"" \
 		-Iinclude/LPC2368
 PORT_DIR= \
 		ARM7_LPC23xx
-ARM_SOURCE= \
-		freertos/portable/GCC/$(PORT_DIR)/portISR.c 
 endif
 
 #------------------------------------------------------------------------------
 # Stuff specific to LPC1768 target:
 ifeq ($(TARGET), lpc1768)
 CPUFLAGS= \
-		-mcpu=cortex-m3 -march=armv7-m \
+		-mcpu=cortex-m3 \
 		-mthumb
 COMMON_FLAGS= \
 		-DMBED_LPC17xx -DTARGET_LPC1768 -DPLAT_NAME="\"mbed (LPC1768)\"" \
 		-Iinclude/LPC1768
 PORT_DIR= \
 		ARM_CM3
+EXTRA_LDFLAGS= 
+		-mthumb
 endif
 
 #------------------------------------------------------------------------------
@@ -66,28 +65,25 @@ COMMON_FLAGS += \
 		-I freertos/include \
 		-I freertos/portable/GCC/$(PORT_DIR) \
 		-I lib/ustl \
-		-fomit-frame-pointer \
 		-Wall -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
-		-fno-strict-aliasing \
+		-Wcast-align -fomit-frame-pointer \
 		-ffunction-sections -fdata-sections \
-		-mfloat-abi=soft -mtp=soft -mabi=aapcs
-		# Temporarily removed: -Wcast-align
+		-mfloat-abi=soft -mtp=soft -mabi=aapcs 
 
 CFLAGS = $(COMMON_FLAGS) \
-		-std=gnu99
-		# Temporarily removed: -Wc++-compat 
+		-std=gnu99 
+#-Wc++-compat 
 
 CXXFLAGS= $(COMMON_FLAGS) \
 		-fno-unwind-tables \
 		-fno-enforce-eh-specs \
 		-fno-use-cxa-get-exception-ptr \
 		-fno-stack-protector
-		# Temporarily removed: -Weffc++ -fno-rtti
 
 LINKER_FLAGS= \
 		-nostartfiles -nostdinc++ \
-		-T$(LDSCRIPT) \
+		-T$(LDSCRIPT) $(EXTRA_LDFLAGS) \
 		-Wl,--gc-sections \
 		-Wl,-Map=$(BINNAME).map \
 		-mabi=aapcs \
@@ -100,7 +96,7 @@ ASM_FLAGS= \
 #------------------------------------------------------------------------------
 # Source Code:
 
-THUMB_SOURCE= \
+C_SOURCE+= \
 		example_tasks/BlockQ.c \
 		example_tasks/blocktim.c \
 		example_tasks/flash.c \
@@ -119,8 +115,10 @@ THUMB_SOURCE= \
 		lib/uip/http-strings.c \
 		hardware/peripherals/uart/uart.c \
 		hardware/peripherals/uart/uart_fractional_baud.c \
+		hardware/peripherals/uart/uartISRs.c \
 		hardware/peripherals/gpio/gpio.c \
 		hardware/peripherals/emac/emac.c \
+		hardware/peripherals/emac/emacISR.c \
 		hardware/cpu-$(TARGET)/device_init.c \
 		hardware/board-mbed/board_init.c \
 		freertos/list.c \
@@ -131,18 +129,14 @@ THUMB_SOURCE= \
 		lib/exception_handlers.c \
 		lib/syscalls.c
 
-THUMB_CXX_SOURCE= \
+CXX_SOURCE+= \
 		Main.cpp \
 		tests/CxxTest.cpp \
 		tests/Tests.cpp \
 		hardware/peripherals/wdt/wdt.cpp \
 		lib/min_c++.cpp
 
-ARM_SOURCE+= \
-		hardware/peripherals/emac/emacISR.c \
-		hardware/peripherals/uart/uartISRs.c
-
-ARM_ASM_SOURCE= \
+ASM_SOURCE+= \
 		hardware/cpu-$(TARGET)/crt0.s
 
 # Include uSTL files:
@@ -151,14 +145,11 @@ include lib/ustl/ustl.mk
 #------------------------------------------------------------------------------
 # Build Rules:
 
-THUMB_C_OBJS   = $(patsubst %.c,$(ODIR)/%.o, $(THUMB_SOURCE))
-THUMB_CXX_OBJS = $(patsubst %.cpp,$(ODIR)/%.o, $(THUMB_CXX_SOURCE))
-ARM_C_OBJS     = $(patsubst %.c,$(ODIR)/%.o, $(ARM_SOURCE))
-ARM_CXX_OBJS   = $(patsubst %.cpp,$(ODIR)/%.o, $(ARM_CXX_SOURCE))
-ARM_ASM_OBJS   = $(patsubst %.s,$(ODIR)/%.o, $(ARM_ASM_SOURCE))
+C_OBJS     = $(patsubst %.c,$(ODIR)/%.o, $(C_SOURCE))
+CXX_OBJS   = $(patsubst %.cpp,$(ODIR)/%.o, $(CXX_SOURCE))
+ASM_OBJS   = $(patsubst %.s,$(ODIR)/%.o, $(ASM_SOURCE))
 
-ARM_OBJS       = $(ARM_C_OBJS) $(ARM_CXX_OBJS)
-THUMB_OBJS     = $(THUMB_C_OBJS) $(THUMB_CXX_OBJS)
+OBJS       = $(C_OBJS) $(CXX_OBJS) $(ASM_OBJS)
 
 all: $(BINNAME).bin
 
@@ -170,30 +161,21 @@ $(BINNAME).bin : $(BINNAME).elf
 	@echo
 
 # ELF file (intermediate linking product, also used for various checks)
-$(BINNAME).elf : $(THUMB_OBJS) $(ARM_OBJS) $(ARM_ASM_OBJS) 
+$(BINNAME).elf : $(OBJS)
 	@echo "  [Linking...           ] $@"
-	@$(TOOLPRE)-gcc $(ARM_OBJS) $(THUMB_OBJS) $(ARM_ASM_OBJS) -o $@ $(LINKER_FLAGS)
+	@$(TOOLPRE)-gcc $(OBJS) -o $@ $(LINKER_FLAGS)
 
-# Thumb-mode C/C++ Code:
-$(THUMB_C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
-	@echo "  [Compiling   (Thumb/C)] $<"
-	@$(TOOLPRE)-gcc -c $(CFLAGS) -mthumb $< -o $@
-
-$(THUMB_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
-	@echo "  [Compiling (Thumb/C++)] $<"
-	@$(TOOLPRE)-g++ -c $(CXXFLAGS) -mthumb $< -o $@
-
-# ARM-mode C/C++ Code:
-$(ARM_C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
+# C/C++ Code:
+$(C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
 	@echo "  [Compiling     (ARM/C)] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
 
-$(ARM_CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
+$(CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
 	@echo "  [Compiling   (ARM/C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
 # ARM Assembler Code:
-$(ARM_ASM_OBJS) : $(ODIR)/%.o : %.s hardware/cpu-common/crt0.s $(ODIR)/exists
+$(ASM_OBJS) : $(ODIR)/%.o : %.s hardware/cpu-common/crt0.s $(ODIR)/exists
 	@echo "  [Assembling  (ARM/asm)] $<"
 	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
 
@@ -227,8 +209,8 @@ install: $(BINNAME).bin
 #------------------------------------------------------------------------------
 # Dependency Management (run make dep to generate, otherwise ignored)
 
-DEPS_C         = $(patsubst %.c,$(ODIR)/%.d, $(ARM_SOURCE) $(THUMB_SOURCE))
-DEPS_CXX       = $(patsubst %.cpp,$(ODIR)/%.d, $(ARM_CXX_SOURCE) $(THUMB_CXX_SOURCE))
+DEPS_C         = $(patsubst %.c,$(ODIR)/%.d, $(C_SOURCE))
+DEPS_CXX       = $(patsubst %.cpp,$(ODIR)/%.d, $(CXX_SOURCE))
 
 .PHONY: dep
 dep : $(DEPS_C) $(DEPS_CXX)

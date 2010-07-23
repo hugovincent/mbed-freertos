@@ -3,7 +3,7 @@
 #
 # Hugo Vincent, 10 May 2010.
 
-THUMB_CXX_SOURCE+= \
+CXX_SOURCE+= \
 		lib/ustl/cmemlink.cpp \
 		lib/ustl/fstream.cpp \
 		lib/ustl/memblock.cpp \

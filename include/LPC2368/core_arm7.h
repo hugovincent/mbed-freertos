@@ -236,6 +236,16 @@ static __INLINE void NVIC_DisableIRQ(IRQn_Type IRQn)
  NVIC->IntEnClr = 1 << (uint32_t)IRQn;
 }
 
+static __INLINE void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
+{
+	NVIC->VectAddr[IRQn] = vector;
+}
+
+static __INLINE void NVIC_ClearPendingIRQ()
+{
+	NVIC->Address = 0;
+}
+
 
 #ifdef __cplusplus
 }

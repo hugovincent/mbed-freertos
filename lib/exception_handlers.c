@@ -13,7 +13,7 @@
 /* This array is written to with register contents by the assembler part of these
  * exception handlers.
  */
-unsigned int AbortRegisterState[13];
+unsigned int AbortRegisterState[15];
 
 char msgBuffer[32]; /* Temporary space for sprintf'ing into. */
 
@@ -55,6 +55,11 @@ __attribute__ ((noreturn)) void PrintAbortInfo(unsigned int addr)
 		if (((i + 1) % 3) == 0)
 			DebugPrint("\n");
 	}
+	sprintf(msgBuffer, "\tSP  = 0x%08x", AbortRegisterState[13]);
+	DebugPrint(msgBuffer);
+	sprintf(msgBuffer, "\tLR  = 0x%08x", AbortRegisterState[14]);
+	DebugPrint(msgBuffer);
+
 	DebugPrint("\nHalting.\n\n");
 
 	// Put processor core into sleep mode to conserve power.
@@ -111,18 +116,3 @@ __attribute__ ((noreturn)) void Exception_UnhandledFIQ()
 	while (1);
 }
 
-/******************************************************************************/
-/*                        NVIC macros                                         */
-/******************************************************************************/
-
-#if defined(MBED_LPC23xx)
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vector)
-{
-	LPC_VIC->VectAddr[IRQn] = vector;
-}
-
-void NVIC_ClearPendingIRQ()
-{
-	LPC_VIC->Address = 0;
-}
-#endif

@@ -181,21 +181,21 @@ BSSIsEmpty:
 
 Undef_Handler:
                 LDR     SP, =AbortRegisterState
-                STMIA   SP, {R0-R12}
+                STMIA   SP, {R0-R14}
                 SUB     R0, LR, #4
                 LDR     R1, =Exception_UndefinedInstruction
                 BX      R1
 
 PAbt_Handler:
                 LDR     SP, =AbortRegisterState
-                STMIA   SP, {R0-R12}
+                STMIA   SP, {R0-R14}
                 SUB     R0, LR, #4
                 LDR     R1, =Exception_PrefetchAbort
                 BX      R1
 
 DAbt_Handler:
                 LDR     SP, =AbortRegisterState
-                STMIA   SP, {R0-R12}
+                STMIA   SP, {R0-R14}
                 SUB     R0, LR, #4
                 LDR     R1, =Exception_DataAbort
                 BX      R1
