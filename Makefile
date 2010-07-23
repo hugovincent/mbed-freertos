@@ -53,7 +53,7 @@ endif
 #------------------------------------------------------------------------------
 # Compiler, Assembler and Linker Options:
 
-DEBUG=-DNDEBUG=1
+DEBUG=-DNDEBUG=1 -g
 OPTIM=-O2
 
 COMMON_FLAGS += \
@@ -67,7 +67,8 @@ COMMON_FLAGS += \
 		-I lib/ustl \
 		-Wall -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
-		-Wcast-align -fomit-frame-pointer \
+		-Wcast-align \
+		-fno-omit-frame-pointer -mapcs-frame \
 		-ffunction-sections -fdata-sections \
 		-mfloat-abi=soft -mtp=soft -mabi=aapcs 
 

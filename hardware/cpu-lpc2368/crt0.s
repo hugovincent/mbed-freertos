@@ -180,28 +180,31 @@ BSSIsEmpty:
 @      the offending address in R0 before branching to the C handler).
 
 Undef_Handler:
-                LDR     SP, =AbortRegisterState
+                LDR     SP, =SavedRegs
                 STMIA   SP, {R0-R14}
+				MRS     R0, SPSR
+				STR		R0, [SP, #60]
                 SUB     R0, LR, #4
                 LDR     R1, =Exception_UndefinedInstruction
                 BX      R1
 
 PAbt_Handler:
-                LDR     SP, =AbortRegisterState
+                LDR     SP, =SavedRegs
                 STMIA   SP, {R0-R14}
+				MRS     R0, SPSR
+				STR		R0, [SP, #60]
                 SUB     R0, LR, #4
                 LDR     R1, =Exception_PrefetchAbort
                 BX      R1
 
 DAbt_Handler:
-                LDR     SP, =AbortRegisterState
+                LDR     SP, =SavedRegs
                 STMIA   SP, {R0-R14}
-                SUB     R0, LR, #4
+				MRS     R0, SPSR
+				STR		R0, [SP, #60]
+                SUB     R0, LR, #8
                 LDR     R1, =Exception_DataAbort
                 BX      R1
-
-@ FIXME for all of these exceptions, get & save SP and LR from where the abort
-@ or undefined instruction was generated. 
 
 .end
 
