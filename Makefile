@@ -128,8 +128,27 @@ C_SOURCE+= \
 		freertos/portable/GCC/$(PORT_DIR)/port.c \
 		freertos/portable/MemMang/heap_3.c \
 		lib/exception_handlers.c \
-		lib/syscalls.c
 		lib/freertos_hooks.c \
+		lib/syscalls/close.c \
+		lib/syscalls/environ.c \
+		lib/syscalls/execve.c \
+		lib/syscalls/exit.c \
+		lib/syscalls/fstat.c \
+		lib/syscalls/getpid.c \
+		lib/syscalls/isatty.c \
+		lib/syscalls/kill.c \
+		lib/syscalls/link.c \
+		lib/syscalls/lseek.c \
+		lib/syscalls/open.c \
+		lib/syscalls/read.c \
+		lib/syscalls/reent.c \
+		lib/syscalls/sbrk.c \
+		lib/syscalls/stat.c \
+		lib/syscalls/syscalls_util.c \
+		lib/syscalls/times.c \
+		lib/syscalls/unlink.c \
+		lib/syscalls/wait.c \
+		lib/syscalls/write.c
 
 CXX_SOURCE+= \
 		Main.cpp \
@@ -187,7 +206,7 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/peripherals/uart $(ODIR)/hardware/peripherals/gpio 
 	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/peripherals/wdt
 	@mkdir -p $(ODIR)/hardware/board-mbed $(ODIR)/freertos/portable/MemMang
-	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests
+	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests $(ODIR)/lib/syscalls
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip $(ODIR)/lib/ustl
 	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR)
 	@touch $(ODIR)/exists
