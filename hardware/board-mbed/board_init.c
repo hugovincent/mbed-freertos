@@ -3,18 +3,16 @@
  */
 
 #include "FreeRTOSConfig.h"
-#include "hardware/uart.h"
 #include "hardware/gpio.h"
-
-// This initialises the stdio layer in Newlib.
-extern void initialise_stdio (void);
+#include "hardware/uart.h"
 
 void BoardInit( void )
 {
+	// This is where things like pinmux configuration should get done.
+
 	// Setup the debug UART (talks to the PC through the mbed's second
-	// microcontroller) and connect it to stdio.
+	// microcontroller).
 	uart0Init(115200, 128);
-	initialise_stdio();
 
 	// Setup the led's on the mbed board.
 	vGpioInitialise();

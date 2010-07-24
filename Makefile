@@ -131,6 +131,7 @@ C_SOURCE+= \
 		lib/debug_support.c \
 		lib/device_manager.c \
 		lib/freertos_hooks.c \
+		lib/os_init.c \
 		lib/syscalls/chmod.c \
 		lib/syscalls/close.c \
 		lib/syscalls/environ.c \

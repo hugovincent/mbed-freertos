@@ -156,6 +156,10 @@ BSSIsEmpty:
                 MOV     LR, PC
                 BX      R0
 
+                LDR     R0, =OperatingSystemInit
+                MOV     LR, PC
+                BX      R0
+
                 LDR     R0, =BoardInit
                 MOV     LR, PC
                 BX      R0

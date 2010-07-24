@@ -23,7 +23,7 @@ typedef int (*FileLikeObj_Fstat)(int fd, struct stat *st);
 typedef int (*FileLikeObj_Lseek)(int fd, _off_t offs, int dir);
 
 /* A file-like object is a node in the root filesystem, and thus behaves like
- * a file. This includes regular files, and notably devices such as serial
+ * a file. This encompasses regular files, and notably devices such as serial
  * ports. A FileLikeObj is located by its path, which can be either a prefix, for
  * example, "/flash/" (in which case it handles all decendent paths as well; 
  * denoted by the trailing forward slash) or a leaf such as "/dev/uart1".
