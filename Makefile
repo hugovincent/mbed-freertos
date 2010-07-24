@@ -211,6 +211,17 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR)
 	@touch $(ODIR)/exists
 
+# UIP script build rules
+lib/uip/http-strings.c: util/uip_makestrings
+	@echo "  [Making uIP http-strings ]"
+	@pushd lib/uip > /dev/null && ../../util/uip_makestrings && popd > /dev/null
+
+lib/uip/httpd-fsdata.c: util/uip_makefsdata webserver/httpd-fs/*.html
+	@echo "  [Making uIP httpd-fs ]"
+	@pushd lib/uip > /dev/null && ../../util/uip_makefsdata && popd > /dev/null
+
+lib/uip/httpd-fs.c: lib/uip/httpd-fsdata.c
+
 #------------------------------------------------------------------------------
 # Psuedo-targets:
 
@@ -221,7 +232,7 @@ disasm :
 
 clean:
 	@echo "  [Cleaning...          ]"
-	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map
+	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map lib/uip/http-strings.* lib/uip/httpd-fsdata.c
 
 install: $(BINNAME).bin
 	@echo "  [Installing to mbed...]"
