@@ -128,6 +128,7 @@ C_SOURCE+= \
 		freertos/portable/GCC/$(PORT_DIR)/port.c \
 		freertos/portable/MemMang/heap_3.c \
 		lib/exception_handlers.c \
+		lib/debug_support.c \
 		lib/freertos_hooks.c \
 		lib/syscalls/chmod.c \
 		lib/syscalls/close.c \

@@ -4,33 +4,33 @@
 #include "lib/syscalls/heap.h"
 
 #if configUSE_IDLE_HOOK == 1
-	void vApplicationIdleHook()
-	{
-		// Put processor core into Idle Mode to conserve power.
-		LPC_SC->PCON |= 0x1;
+void vApplicationIdleHook()
+{
+	// Put processor core into Idle Mode to conserve power.
+	LPC_SC->PCON |= 0x1;
 
-		// And we're back... let's just NOP for a bit just in case.
-		portNOP();
-		portNOP();
-		portNOP();
-		portNOP();
-	}
+	// And we're back... let's just NOP for a bit just in case.
+	portNOP();
+	portNOP();
+	portNOP();
+	portNOP();
+}
 #endif
 
 #if configUSE_MALLOC_FAILED_HOOK == 1
-	void vApplicationMallocFailedHook()
-	{
-		printf("[FreeRTOS] Fatal Error: memory allocation failed!\n");
-		while (1); // Wait for WDT to reset.
-	}
+void vApplicationMallocFailedHook()
+{
+	printf("[FreeRTOS] Fatal Error: memory allocation failed!\n");
+	while (1); // Wait for WDT to reset.
+}
 #endif
 
 #if configCHECK_FOR_STACK_OVERFLOW > 0
-	void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
-	{
-		printf("[FreeRTOS] Fatal Error: task \"%s\" had a stack overflow!\n", pcTaskName);
-		while(1); // Wait for WDT to reset.
-	}
+void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
+{
+	printf("[FreeRTOS] Fatal Error: task \"%s\" had a stack overflow!\n", pcTaskName);
+	while(1); // Wait for WDT to reset.
+}
 #endif
 
 __attribute__ ((weak)) size_t xPortGetFreeHeapSize(void)
