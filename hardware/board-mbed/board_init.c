@@ -5,10 +5,14 @@
 #include "FreeRTOSConfig.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
+#include "hardware/wdt.h"
 
 void BoardInit( void )
 {
 	// This is where things like pinmux configuration should get done.
+
+	// Start the watchdog timer.
+	WDT_Init(6);
 
 	// Setup the debug UART (talks to the PC through the mbed's second
 	// microcontroller).

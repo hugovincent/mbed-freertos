@@ -2,7 +2,7 @@
 #include <task.h>
 #include "hardware/wdt.h"
 
-void WDT::init(const unsigned int timeout_seconds)
+void WDT_Init(const unsigned int timeout_seconds)
 {
 	/* Enable and reset watchdog. */
 	LPC_WDT->WDMOD = 0x03;
@@ -16,7 +16,7 @@ void WDT::init(const unsigned int timeout_seconds)
 	LPC_WDT->WDFEED = 0xAA; LPC_WDT->WDFEED = 0x55;
 }
 
-void WDT::feed()
+void WDT_Feed()
 {
 	taskENTER_CRITICAL();
 	{

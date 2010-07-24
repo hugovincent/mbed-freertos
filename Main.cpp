@@ -6,17 +6,6 @@
     FreeRTOS is free software; you can redistribute it and/or modify it under
     the terms of the GNU General Public License (version 2) as published by the
     Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
-    ***NOTE*** The exception to the GPL is included to allow you to distribute
-    a combined work that includes FreeRTOS without being obliged to provide the
-    source code for proprietary components outside of the FreeRTOS kernel.
-    FreeRTOS is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-    more details. You should have received a copy of the GNU General Public
-    License and the FreeRTOS license exception along with FreeRTOS; if not it
-    can be viewed here: http://www.freertos.org/a00114.html and also obtained
-    by writing to Richard Barry, contact details for whom are available on the
-    FreeRTOS WEB site.
 */
 
 /*
@@ -66,8 +55,6 @@
 
 int main()
 {
-	WDT::init(6);
-
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks( mainFLASH_PRIORITY );
 	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
@@ -77,9 +64,8 @@ int main()
 	vStartDynamicPriorityTasks();
 
 	//vStartWebserverTask();
-
-	printf("FreeRTOS Kernel " tskKERNEL_VERSION_NUMBER " for " PLAT_NAME
-			" booted, starting scheduler.\n");
+	
+	printf("Starting scheduler.\n");
 
 	// Start the scheduler.
 	vTaskStartScheduler();
@@ -100,7 +86,7 @@ extern "C" void vApplicationTickHook()
 	{
 		ulTicksSinceLastDisplay = 0;
 
-		WDT::feed();
+		WDT_Feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
 		static char taskListBuffer[1400]; // FIXME really?!...

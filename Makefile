@@ -120,6 +120,7 @@ C_SOURCE+= \
 		hardware/peripherals/gpio/gpio.c \
 		hardware/peripherals/emac/emac.c \
 		hardware/peripherals/emac/emacISR.c \
+		hardware/peripherals/wdt/wdt.c \
 		hardware/cpu-$(TARGET)/device_init.c \
 		hardware/board-mbed/board_init.c \
 		freertos/list.c \
@@ -166,7 +167,6 @@ CXX_SOURCE+= \
 		tests/CxxTest.cpp \
 		tests/Tests.cpp \
 		tests/AbortDebugTests.cpp \
-		hardware/peripherals/wdt/wdt.cpp \
 		lib/min_c++.cpp
 
 ASM_SOURCE+= \
