@@ -3,6 +3,7 @@ Last Update: 25 May 2010.
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
 BUGS:
+[1] Check/fix __attribute__ ((packed)) usage for structs where alignment matters.
 [1] Finish factoring crt0 code into core-specific and common parts.
 [1] Fix KEEP() in linker script wrt ctors/dtors. Fix (any) remaining alignment issues in linker script.
 [1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.

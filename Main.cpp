@@ -105,7 +105,7 @@ extern "C" void vApplicationTickHook()
 #if configGENERATE_RUN_TIME_STATS == 1
 		static char taskListBuffer[1400]; // FIXME really?!...
 		vTaskGetRunTimeStats((signed portCHAR *)taskListBuffer);
-		puts(taskListBuffer);
+		printf(taskListBuffer);
 #endif
 
 		// Has an error been found in any task?
