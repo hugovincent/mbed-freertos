@@ -129,6 +129,7 @@ C_SOURCE+= \
 		freertos/portable/MemMang/heap_3.c \
 		lib/exception_handlers.c \
 		lib/syscalls.c
+		lib/freertos_hooks.c \
 
 CXX_SOURCE+= \
 		Main.cpp \

@@ -159,28 +159,28 @@ void LockDownProcessor(void)
 __attribute__ ((noreturn)) void Exception_PrefetchAbort(unsigned int addr)
 {
 	LockDownProcessor();
-	DebugPrint("\n[Fatal Error] Prefetch Abort");
+	DebugPrint("\n[FreeRTOS] Fatal Error: Prefetch Abort");
 	PrintAbortInfo(addr);
 }
 
 __attribute__ ((noreturn)) void Exception_DataAbort(unsigned int addr)
 {
 	LockDownProcessor();
-	DebugPrint("\n[Fatal Error] Data Abort");
+	DebugPrint("\n[FreeRTOS] Fatal Error: Data Abort");
 	PrintAbortInfo(addr);
 }
 
 __attribute__ ((noreturn)) void Exception_UndefinedInstruction(unsigned int addr)
 {
 	LockDownProcessor();
-	DebugPrint("\n[Fatal Error] Undefined Instruction");
+	DebugPrint("\n[FreeRTOS] Fatal Error: Undefined Instruction");
 	PrintAbortInfo(addr);
 }
 
 __attribute__ ((noreturn)) void Exception_UnhandledIRQ()
 {
 	LockDownProcessor();
-	DebugPrint("\n[Fatal Error] Unhandled/Spurious IRQ.\n");
+	DebugPrint("\n[FreeRTOS] Fatal Error: Unhandled/Spurious IRQ.\n");
 	// FIXME try to print *which* interrupt it was...
 	while (1);
 }
@@ -188,7 +188,7 @@ __attribute__ ((noreturn)) void Exception_UnhandledIRQ()
 __attribute__ ((noreturn)) void Exception_UnhandledFIQ()
 {
 	LockDownProcessor();
-	DebugPrint("\n[Fatal Error] Unhandled/Spurious FIQ.\n");
+	DebugPrint("\n[FreeRTOS] Fatal Error: Unhandled/Spurious FIQ.\n");
 	// FIXME try to print *which* interrupt it was...
 	while (1);
 }

@@ -88,97 +88,62 @@ int main()
 	while (1);	// Wait for WDT to reset.
 }
 
-//-----------------------------------------------------------------------------
-// FreeRTOS Callback Hooks:
-extern "C"
-{
-#if configUSE_IDLE_HOOK == 1
-	void vApplicationIdleHook()
-	{
-		// Put processor core into Idle Mode to conserve power.
-		LPC_SC->PCON |= 0x1;
-
-		// And we're back... let's just NOP for a bit just in case.
-		portNOP();
-		portNOP();
-		portNOP();
-		portNOP();
-	}
-#endif
-
-#if configUSE_MALLOC_FAILED_HOOK == 1
-	void vApplicationMallocFailedHook()
-	{
-		printf("[FreeRTOS] Error: memory allocation failed!\n");
-		while (1); // Wait for WDT to reset.
-	}
-#endif
-
-#if configCHECK_FOR_STACK_OVERFLOW > 0
-	void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
-	{
-		printf("[FreeRTOS] Error: task \"%s\" had a stack overflow!\n", pcTaskName);
-		while(1); // Wait for WDT to reset.
-	}
-#endif
-
 #if configUSE_TICK_HOOK == 1
-	void vApplicationTickHook()
+extern "C" void vApplicationTickHook()
+{
+	static unsigned portLONG ulTicksSinceLastDisplay = 0;
+
+	// Called from every tick interrupt. Have enough ticks passed to make it
+	// time to perform our health status check again?
+	ulTicksSinceLastDisplay++;
+	if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
 	{
-		static unsigned portLONG ulTicksSinceLastDisplay = 0;
+		ulTicksSinceLastDisplay = 0;
 
-		// Called from every tick interrupt. Have enough ticks passed to make it
-		// time to perform our health status check again?
-		ulTicksSinceLastDisplay++;
-		if( ulTicksSinceLastDisplay >= mainCHECK_DELAY )
-		{
-			ulTicksSinceLastDisplay = 0;
-
-			WDT::feed();
+		WDT::feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
-			static char taskListBuffer[1400]; // FIXME really?!...
-			vTaskGetRunTimeStats((signed portCHAR *)taskListBuffer);
-			printf(taskListBuffer);
+		static char taskListBuffer[1400]; // FIXME really?!...
+		vTaskGetRunTimeStats((signed portCHAR *)taskListBuffer);
+		puts(taskListBuffer);
 #endif
 
-			// Has an error been found in any task?
-			int allGood = 1;
-			if( xAreBlockingQueuesStillRunning() != pdTRUE )
-			{
-				printf("ERROR - BLOCKQ\n");
-				allGood = 0;
-			}
+		// Has an error been found in any task?
+		int allGood = 1;
+		if( xAreBlockingQueuesStillRunning() != pdTRUE )
+		{
+			printf("ERROR - BLOCKQ\n");
+			allGood = 0;
+		}
 
-			if( xAreBlockTimeTestTasksStillRunning() != pdTRUE )
-			{
-				printf("ERROR - BLOCKTIM\n");
-				allGood = 0;
-			}
+		if( xAreBlockTimeTestTasksStillRunning() != pdTRUE )
+		{
+			printf("ERROR - BLOCKTIM\n");
+			allGood = 0;
+		}
 
-			if( xAreGenericQueueTasksStillRunning() != pdTRUE )
-			{
-				printf("ERROR - GENQ\n");
-				allGood = 0;
-			}
+		if( xAreGenericQueueTasksStillRunning() != pdTRUE )
+		{
+			printf("ERROR - GENQ\n");
+			allGood = 0;
+		}
 
-			if( xAreQueuePeekTasksStillRunning() != pdTRUE )
-			{
-				printf("ERROR - PEEKQ\n");
-				allGood = 0;
-			}
+		if( xAreQueuePeekTasksStillRunning() != pdTRUE )
+		{
+			printf("ERROR - PEEKQ\n");
+			allGood = 0;
+		}
 
-			if( xAreDynamicPriorityTasksStillRunning() != pdTRUE )
-			{
-				printf("ERROR - DYNAMIC\n");
-				allGood = 0;
-			}
-			if (allGood == 1)
-			{
-				printf("All Good.\n");
-			}
+		if( xAreDynamicPriorityTasksStillRunning() != pdTRUE )
+		{
+			printf("ERROR - DYNAMIC\n");
+			allGood = 0;
+		}
+		if (allGood == 1)
+		{
+			printf("All Good.\n");
 		}
 	}
-#endif
 }
+#endif
 
