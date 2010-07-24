@@ -87,30 +87,14 @@ void PrintCPSR(unsigned int spsr)
 	char *mode;
 	switch (spsr & 0x1f)
 	{
-		case 0x10:
-			mode = "user";
-			break;
-		case 0x11:
-			mode = "fiq";
-			break;
-		case 0x12:
-			mode = "irq";
-			break;
-		case 0x13:
-			mode = "svc";
-			break;
-		case 0x17:
-			mode = "abort";
-			break;
-		case 0x1b:
-			mode = "und";
-			break;
-		case 0x1f:
-			mode = "sys";
-			break;
-		default:
-			mode = "unknown";
-			break;
+		case 0x10: mode = "user";		break;
+		case 0x11: mode = "fiq";		break;
+		case 0x12: mode = "irq";		break;
+		case 0x13: mode = "svc";		break;
+		case 0x17: mode = "abort";		break;
+		case 0x1b: mode = "und";		break;
+		case 0x1f: mode = "sys";		break;
+		default:   mode = "unknown";	break;
 	}
 	DebugPrintf("\tpsr: %08x (%c%c%c%c...%c%c%c %s-mode)\n", 
 			spsr,

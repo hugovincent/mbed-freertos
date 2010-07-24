@@ -10,6 +10,7 @@ BUGS:
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
 [2] Test/fix/finish the syscalls interface. Fix reentrancy.
+[3] Fix/finish the uSTL integration.
 [f] Test/fix ethernet code.
 
 GENERALIZATIONS:
@@ -28,14 +29,13 @@ GENERALIZATIONS:
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 
 ADDITIONS:
-[2] Add more standard library and syscall niceities.
-[3] Add mbed local file system support. Some details here:
+[1] Add more standard library and syscall niceities.
+[2] Add gdb-stubs for remote debug over serial port.
+[3] Add mbed local file system support and integrate with newlib. Some details here:
 		http://mbed.org/users/jsnyder/notebook/elua-preliminary-port/
 		http://svn.berlios.de/wsvn/elua/trunk/src/?op=log&rev=0&sc=0&isdir=1
-[3] Integrate local FS with syscalls/std. library.
 [3] Integrate PicoC for scripting. 
 [f] Integrate some nice DSP libraries.
-[f] Switch to lwIP instead of uIP (maybe?). uIP is kindof ugly...
 
 ON-CHIP PERIPHERAL DRIVERS:
 [d] I2C master (all 3 buses).

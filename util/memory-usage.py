@@ -12,10 +12,12 @@ def sh(command):
 def format_kb(num_bytes):
 	return '%5.1f kB' % (num_bytes / 1024.0)
 
+target = sys.argv[1]
+
 #------------------------------------------------------------------------------
 # Parse symbol table
 symbols = []
-for line in sh('arm-none-eabi-objdump -t %s' % sys.argv[1]).strip().split('\n'):
+for line in sh('arm-none-eabi-objdump -t %s' % sys.argv[2]).strip().split('\n'):
 	parse = line.strip().split()
 
 	# Handle lines without an attribute
@@ -38,7 +40,7 @@ for line in sh('arm-none-eabi-objdump -t %s' % sys.argv[1]).strip().split('\n'):
 
 # Parse RAM/flash capacities from linker-script
 memories = {}
-for line in sh('cat hardware/cpu-lpc2368/lpc2368.ld | grep " (r.) *:"').strip().split('\n'):
+for line in sh('cat hardware/cpu-' + target + '/' + target + '.ld | grep " (r.) *:"').strip().split('\n'):
 	memory = line.strip().split()
 	# Parse 'k' suffixes
 	memsize = 1024 * int(memory[-1][:-1])
@@ -46,13 +48,13 @@ for line in sh('cat hardware/cpu-lpc2368/lpc2368.ld | grep " (r.) *:"').strip().
 
 # Parse stack allocations from boot code (assembly)
 total_stack = 0
-for line in sh('grep "_Stack_Size," hardware/cpu-common/crt0.s | grep "\.equ"').strip().split('\n'):
+for line in sh('grep "_Stack_Size," hardware/cpu-' + target + '/crt0.s | grep "\.equ"').strip().split('\n'):
 	if line.strip() == "":
 		continue
 	total_stack += int(line.split()[2], 16)
 
 # Parse ELF program headers (for definitive total flash and RAM usage)
-for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[1]).strip().split('\n'):
+for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[2]).strip().split('\n'):
 	parse = line.strip().split()
 	if len(parse) > 0 and parse[0] == 'LOAD':
 		if parse[6] == 'RW':

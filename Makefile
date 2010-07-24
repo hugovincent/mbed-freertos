@@ -46,7 +46,7 @@ COMMON_FLAGS= \
 		-Iinclude/LPC1768
 PORT_DIR= \
 		ARM_CM3
-EXTRA_LDFLAGS= 
+EXTRA_LDFLAGS= \
 		-mthumb
 endif
 
@@ -134,6 +134,7 @@ CXX_SOURCE+= \
 		Main.cpp \
 		tests/CxxTest.cpp \
 		tests/Tests.cpp \
+		tests/AbortDebugTests.cpp \
 		hardware/peripherals/wdt/wdt.cpp \
 		lib/min_c++.cpp
 
@@ -141,7 +142,7 @@ ASM_SOURCE+= \
 		hardware/cpu-$(TARGET)/crt0.s
 
 # Include uSTL files:
-include lib/ustl/ustl.mk
+#include lib/ustl/ustl.mk
 
 #------------------------------------------------------------------------------
 # Build Rules:
@@ -158,7 +159,7 @@ all: $(BINNAME).bin
 $(BINNAME).bin : $(BINNAME).elf
 	@echo "  [Converting to binary ] $(BINNAME).bin"
 	@$(TOOLPRE)-objcopy $(BINNAME).elf -O binary $(BINNAME).bin
-	@python util/memory-usage.py $(BINNAME).elf
+	@python util/memory-usage.py $(TARGET) $(BINNAME).elf
 	@echo
 
 # ELF file (intermediate linking product, also used for various checks)
@@ -168,16 +169,16 @@ $(BINNAME).elf : $(OBJS)
 
 # C/C++ Code:
 $(C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
-	@echo "  [Compiling     (ARM/C)] $<"
+	@echo "  [Compiling  (C)  ] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
 
 $(CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
-	@echo "  [Compiling   (ARM/C++)] $<"
+	@echo "  [Compiling  (C++)] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
 # ARM Assembler Code:
 $(ASM_OBJS) : $(ODIR)/%.o : %.s hardware/cpu-common/crt0.s $(ODIR)/exists
-	@echo "  [Assembling  (ARM/asm)] $<"
+	@echo "  [Assembling (asm)] $<"
 	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
 
 # This target ensures the temporary build product directories exist
