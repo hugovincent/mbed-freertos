@@ -6,7 +6,7 @@
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
 
-int _open_r(struct _reent *ptr, const char * path, int flags, int w)
+int _open_r(struct _reent *ptr, const char * path, int flags, int mode)
 {
 	int aflags = 0, fh;
 	int block[3];

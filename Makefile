@@ -129,6 +129,7 @@ C_SOURCE+= \
 		freertos/portable/MemMang/heap_3.c \
 		lib/exception_handlers.c \
 		lib/debug_support.c \
+		lib/device_manager.c \
 		lib/freertos_hooks.c \
 		lib/syscalls/chmod.c \
 		lib/syscalls/close.c \
@@ -140,6 +141,7 @@ C_SOURCE+= \
 		lib/syscalls/getpid.c \
 		lib/syscalls/gettimeofday.c \
 		lib/syscalls/isatty.c \
+		lib/syscalls/ioctl.c \
 		lib/syscalls/kill.c \
 		lib/syscalls/link.c \
 		lib/syscalls/lseek.c \
