@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2002, Adam Dunkels.
+ * Copyright (c) 2004, Adam Dunkels and the Swedish Institute of
+ * Computer Science.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -7,10 +8,9 @@
  * are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above
- *    copyright notice, this list of conditions and the following
- *    disclaimer in the documentation and/or other materials provided
- *    with the distribution.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
  * 3. The name of the author may not be used to endorse or promote
  *    products derived from this software without specific prior
  *    written permission.
@@ -29,21 +29,46 @@
  *
  * This file is part of the uIP TCP/IP stack
  *
- * $Id: webserver.h,v 1.2 2006/06/11 21:46:38 adam Exp $
+ * $Id: uiplib.c,v 1.2 2006/06/12 08:00:31 adam Exp $
  *
  */
-#ifndef __WEBSERVER_H__
-#define __WEBSERVER_H__
-
-#include "httpd.h"
-
-typedef struct httpd_state uip_tcp_appstate_t;
-/* UIP_APPCALL: the name of the application function. This function
-   must return void and take no arguments (i.e., C type "void
-   appfunc(void)"). */
-#ifndef UIP_APPCALL
-#define UIP_APPCALL     httpd_appcall
-#endif
 
 
-#endif /* __WEBSERVER_H__ */
+#include "uip/uip.h"
+#include "uip/uiplib.h"
+
+
+/*-----------------------------------------------------------------------------------*/
+unsigned char
+uiplib_ipaddrconv(char *addrstr, unsigned char *ipaddr)
+{
+  unsigned char tmp;
+  char c;
+  unsigned char i, j;
+
+  tmp = 0;
+  
+  for(i = 0; i < 4; ++i) {
+    j = 0;
+    do {
+      c = *addrstr;
+      ++j;
+      if(j > 4) {
+	return 0;
+      }
+      if(c == '.' || c == 0) {
+	*ipaddr = tmp;
+	++ipaddr;
+	tmp = 0;
+      } else if(c >= '0' && c <= '9') {
+	tmp = (tmp * 10) + (c - '0');
+      } else {
+	return 0;
+      }
+      ++addrstr;
+    } while(c != '.' && c != 0);
+  }
+  return 1;
+}
+
+/*-----------------------------------------------------------------------------------*/

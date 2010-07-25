@@ -106,14 +106,14 @@ C_SOURCE+= \
 		example_tasks/QPeek.c \
 		example_tasks/dynamic.c \
 		example_tasks/webserver/uIP_Task.c \
+		example_tasks/webserver/httpd.c \
+		example_tasks/webserver/httpd-cgi.c \
+		example_tasks/webserver/httpd-fs.c \
+		example_tasks/webserver/http-strings.c \
 		lib/uip/uip_arp.c \
 		lib/uip/psock.c \
 		lib/uip/timer.c \
 		lib/uip/uip.c \
-		lib/uip/httpd.c \
-		lib/uip/httpd-cgi.c \
-		lib/uip/httpd-fs.c \
-		lib/uip/http-strings.c \
 		hardware/peripherals/uart/uart.c \
 		hardware/peripherals/uart/uart_fractional_baud.c \
 		hardware/peripherals/uart/uartISRs.c \
@@ -233,7 +233,8 @@ example_tasks/webserver/httpd-fsdata.c: util/uip_makefsdata example_tasks/webser
 	@echo "  [Making uIP httpd-fs ]"
 	@pushd example_tasks/webserver > /dev/null && ../../util/uip_makefsdata && popd > /dev/null
 
-lib/uip/httpd-fs.c: lib/uip/httpd-fsdata.c
+example_tasks/webserver/httpd-fs.c: example_tasks/webserver/httpd-fsdata.c
+example_tasks/webserver/httpd.c: example_tasks/webserver/http-strings.c
 
 #------------------------------------------------------------------------------
 # Psuedo-targets:

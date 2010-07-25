@@ -31,7 +31,7 @@
 #include "uip/uip_arp.h"
 #include "uip/timer.h"
 #include "uip/clock-arch.h"
-#include "uip/httpd.h"
+#include "httpd.h"
 
 /* Demo includes. */
 #include "hardware/emac.h"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2001, Swedish Institute of Computer Science.
+ * Copyright (c) 2006, Swedish Institute of Computer Science.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,39 +26,36 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- * This file is part of the lwIP TCP/IP stack.
+ * This file is part of the uIP TCP/IP stack
  *
- * Author: Adam Dunkels <adam@sics.se>
- *
- * $Id: httpd-fsdata.h,v 1.1 2006/06/07 09:13:08 adam Exp $
+ * $Id: uip-neighbor.h,v 1.2 2006/06/12 08:00:30 adam Exp $
  */
-#ifndef __HTTPD_FSDATA_H__
-#define __HTTPD_FSDATA_H__
 
-#include "uip/uip.h"
+/**
+ * \file
+ *         Header file for database of link-local neighbors, used by
+ *         IPv6 code and to be used by future ARP code.
+ * \author
+ *         Adam Dunkels <adam@sics.se>
+ */
 
-struct httpd_fsdata_file {
-  const struct httpd_fsdata_file *next;
-  const char *name;
-  const char *data;
-  const int len;
-#ifdef HTTPD_FS_STATISTICS
-#if HTTPD_FS_STATISTICS == 1
-  u16_t count;
-#endif /* HTTPD_FS_STATISTICS */
-#endif /* HTTPD_FS_STATISTICS */
+#ifndef __UIP_NEIGHBOR_H__
+#define __UIP_NEIGHBOR_H__
+
+#include "uip.h"
+
+struct uip_neighbor_addr {
+#if UIP_NEIGHBOR_CONF_ADDRTYPE
+  UIP_NEIGHBOR_CONF_ADDRTYPE addr;
+#else
+  struct uip_eth_addr addr;
+#endif
 };
 
-struct httpd_fsdata_file_noconst {
-  struct httpd_fsdata_file *next;
-  char *name;
-  char *data;
-  int len;
-#ifdef HTTPD_FS_STATISTICS
-#if HTTPD_FS_STATISTICS == 1
-  u16_t count;
-#endif /* HTTPD_FS_STATISTICS */
-#endif /* HTTPD_FS_STATISTICS */
-};
+void uip_neighbor_init(void);
+void uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr);
+void uip_neighbor_update(uip_ipaddr_t ipaddr);
+struct uip_neighbor_addr *uip_neighbor_lookup(uip_ipaddr_t ipaddr);
+void uip_neighbor_periodic(void);
 
-#endif /* __HTTPD_FSDATA_H__ */
+#endif /* __UIP-NEIGHBOR_H__ */

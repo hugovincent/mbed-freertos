@@ -52,7 +52,7 @@
 #ifndef __CLOCK_H__
 #define __CLOCK_H__
 
-#include "clock-arch.h"
+#include "uip/clock-arch.h"
 
 #ifdef __cplusplus
 extern "C" {
