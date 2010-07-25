@@ -63,10 +63,6 @@
 
 #include "uip.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * Carry out a 32-bit addition.
  *
@@ -87,11 +83,56 @@ extern "C" {
  */
 void uip_add32(u8_t *op32, u16_t op16);
 
-/** @} */
-/** @} */
+/**
+ * Calculate the Internet checksum over a buffer.
+ *
+ * The Internet checksum is the one's complement of the one's
+ * complement sum of all 16-bit words in the buffer.
+ *
+ * See RFC1071.
+ *
+ * \note This function is not called in the current version of uIP,
+ * but future versions might make use of it.
+ *
+ * \param buf A pointer to the buffer over which the checksum is to be
+ * computed.
+ *
+ * \param len The length of the buffer over which the checksum is to
+ * be computed.
+ *
+ * \return The Internet checksum of the buffer.
+ */
+u16_t uip_chksum(u16_t *buf, u16_t len);
 
-#ifdef __cplusplus
-} // extern "C"
-#endif
+/**
+ * Calculate the IP header checksum of the packet header in uip_buf.
+ *
+ * The IP header checksum is the Internet checksum of the 20 bytes of
+ * the IP header.
+ *
+ * \return The IP header checksum of the IP header in the uip_buf
+ * buffer.
+ */
+u16_t uip_ipchksum(void);
+
+/**
+ * Calculate the TCP checksum of the packet in uip_buf and uip_appdata.
+ *
+ * The TCP checksum is the Internet checksum of data contents of the
+ * TCP segment, and a pseudo-header as defined in RFC793.
+ *
+ * \note The uip_appdata pointer that points to the packet data may
+ * point anywhere in memory, so it is not possible to simply calculate
+ * the Internet checksum of the contents of the uip_buf buffer.
+ *
+ * \return The TCP checksum of the TCP segment in uip_buf and pointed
+ * to by uip_appdata.
+ */
+u16_t uip_tcpchksum(void);
+
+u16_t uip_udpchksum(void);
+
+/** @} */
+/** @} */
 
 #endif /* __UIP_ARCH_H__ */

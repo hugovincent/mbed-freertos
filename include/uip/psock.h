@@ -84,10 +84,6 @@
 #include "uipopt.h"
 #include "pt.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
  /*
  * The structure that holds the state of a buffer.
  *
@@ -99,7 +95,7 @@ extern "C" {
 struct psock_buf {
   u8_t *ptr;
   unsigned short left;
-};
+} __attribute__ ((packed));
 
 /**
  * The representation of a protosocket.
@@ -125,7 +121,7 @@ struct psock {
   unsigned int bufsize;  /* The size of the input buffer. */
   
   unsigned char state;   /* The state of the protosocket. */
-};
+} __attribute__ ((packed));
 
 void psock_init(struct psock *psock, char *buffer, unsigned int buffersize);
 /**
@@ -378,10 +374,6 @@ char psock_newdata(struct psock *s);
 
 #define PSOCK_WAIT_THREAD(psock, condition)   \
   PT_WAIT_THREAD(&((psock)->pt), (condition))
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif /* __PSOCK_H__ */
 

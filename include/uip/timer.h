@@ -63,10 +63,6 @@
 
 #include "clock.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * A timer.
  *
@@ -84,10 +80,6 @@ void timer_set(struct timer *t, clock_time_t interval);
 void timer_reset(struct timer *t);
 void timer_restart(struct timer *t);
 int timer_expired(struct timer *t);
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif /* __TIMER_H__ */
 
