@@ -220,7 +220,7 @@ typedef struct
   __I  uint32_t CR1;
        uint32_t RESERVED0[2];
   __IO uint32_t EMR;
-       uint32_t RESERVED1[24];
+       uint32_t RESERVED1[12];
   __IO uint32_t CTCR;
 } LPC_TIM_TypeDef;
 

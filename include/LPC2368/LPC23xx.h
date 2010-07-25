@@ -73,7 +73,7 @@ typedef enum IRQn
 /*                Device Specific Peripheral registers structures             */
 /******************************************************************************/
 
-#ifndef __GNUC__
+#if defined ( __CC_ARM   )
 #pragma anon_unions
 #endif
 
@@ -215,7 +215,7 @@ typedef struct
   __I  uint32_t CR1;
        uint32_t RESERVED0[2];
   __IO uint32_t EMR;
-       uint32_t RESERVED1[24];
+       uint32_t RESERVED1[12];
   __IO uint32_t CTCR;
 } LPC_TIM_TypeDef;
 
@@ -746,7 +746,7 @@ typedef struct
   __IO uint32_t Module_ID;
 } LPC_EMAC_TypeDef;
 
-#ifndef __GNUC__
+#if defined ( __CC_ARM   )
 #pragma no_anon_unions
 #endif
 

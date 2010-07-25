@@ -186,14 +186,10 @@ typedef struct
 
 #elif (defined (__GNUC__)) /*------------------ GNU Compiler ---------------------*/
 
-/*
-//FIXME hugo
 static __INLINE void __enable_irq()               { __ASM volatile ("cpsie i"); }
 static __INLINE void __disable_irq()              { __ASM volatile ("cpsid i"); }
 
 static __INLINE void __NOP()                      { __ASM volatile ("nop"); }
-//FIXME hugo.
-*/
 
 #elif (defined (__TASKING__)) /*------------------ TASKING Compiler ---------------------*/
 /* TASKING carm specific functions */

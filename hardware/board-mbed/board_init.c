@@ -1,4 +1,9 @@
-/* Board-specific Initialisation.
+/* Board-specific hardware initialisation. Must set up the console serial 
+ * port. 
+ *
+ * IMPORTANT NOTE: This runs before the C/C++ main() function and can't use a
+ * number of standard library functions, including standard IO. 
+ *
  * Hugo Vincent, 2 May 2010.
  */
 
