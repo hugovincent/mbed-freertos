@@ -46,6 +46,7 @@
 #include "webserver.h"
 
 #include "hardware/wdt.h"
+#include "power_management.h"
 
 // Demo application definitions.
 #define mainCHECK_DELAY					((portTickType)5000 / portTICK_RATE_MS)
@@ -69,9 +70,10 @@ int main()
 
 	// Start the scheduler.
 	vTaskStartScheduler();
-	// Will only get here if there was insufficient memory to create the idle task.
 
-	while (1);	// Wait for WDT to reset.
+	// Will only get here if there was insufficient memory to create the idle task.
+	// Wait for WDT to reset.
+	PowerManagement_PowerDown();
 }
 
 #if configUSE_TICK_HOOK == 1

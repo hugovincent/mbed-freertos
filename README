@@ -7,10 +7,10 @@ This is a real-time operating system for very small devices built around an ARM
 microcontroller (with typically at least 16 kB of RAM and 128 kB of flash). 
 
 It consists of the realtime kernel from FreeRTOS (www.freertos.org)
-version 6.0.4, and a set of additions for hardware abstration and C/C++ support.
+version 6.0.4, and a set of additions for hardware abstraction and C/C++ support.
 It aims to support an almost full set of POSIX APIs (excluding those that are not
 applicable or not useful on small systems) and support a variety of devices and
-filesystems, as well as networking, with a lightweight, extensable driver model.
+filesystems, as well as networking, with a lightweight, extensible driver model.
 
 A core aim of this project is to provide a canonical distribution of FreeRTOS
 with a clean, maintained build system, a fully functional standard C library,
@@ -25,6 +25,7 @@ FEATURES:
 * Complete C library support (including malloc, standard file IO etc).
 * C++ support, including lightweight STL (with uSTL).
 * Ethernet networking using uIP, including a web server. 
+* Support for power management.
 * Build system lists total flash and RAM, and provides an estimate for 
   available heap space for dynamically allocated (malloc'd) memory.
 * A UNIX-like filesystem hierarchy. Devices can be accessed via their /dev/

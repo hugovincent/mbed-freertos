@@ -121,6 +121,7 @@ C_SOURCE+= \
 		hardware/peripherals/emac/emac.c \
 		hardware/peripherals/emac/emacISR.c \
 		hardware/peripherals/wdt/wdt.c \
+		hardware/cpu-common/power_management.c \
 		hardware/cpu-$(TARGET)/device_init.c \
 		hardware/board-mbed/board_init.c \
 		freertos/list.c \
@@ -219,7 +220,7 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/board-mbed $(ODIR)/freertos/portable/MemMang
 	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests $(ODIR)/lib/syscalls
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip $(ODIR)/lib/ustl
-	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR)
+	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR) $(ODIR)/hardware/cpu-common
 	@touch $(ODIR)/exists
 
 # UIP script build rules
