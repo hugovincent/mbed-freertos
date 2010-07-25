@@ -160,7 +160,7 @@ BSSIsEmpty:
                 MOV     LR, PC
                 BX      R0
 
-                LDR     R0, =OperatingSystemInit
+                LDR     R0, =SystemInit
                 MOV     LR, PC
                 BX      R0
 

@@ -3,11 +3,7 @@ Last Update: 25 May 2010.
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
 BUGS:
-[1] Check/fix __attribute__ ((packed)) usage for structs where alignment matters.
 [1] Finish factoring crt0 code into core-specific and common parts.
-[1] Fix KEEP() in linker script wrt ctors/dtors. Fix (any) remaining alignment issues in linker script.
-[1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
-[2] Ensure debug output printed by abort traps is actually correct (hmmm?).
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
 [2] Test/fix/finish the syscalls interface. Fix reentrancy.
@@ -15,22 +11,13 @@ BUGS:
 [f] Test/fix ethernet code.
 
 GENERALIZATIONS:
-[1] Provide bootcode support for LPC1768-based mbed devices.
-[1] All application-level APIs should work identically on either mbed processor type.
+[1] Provide bootcode support for LPC1768-based devices.
+[1] Refactor to consistently use CMSIS api naming.
 [2] Finish GPIO driver.
-[2] Integrate CMSIS-style SystemInit(), NVIC_SetVector() and clock idioms.
-[2] FreeRTOS only provides a kernel. We need to supply the rest of the OS.
-		Filesystem.
-		File-like objects for peripherals as in UNIX.
-		Debug support (ideally a GDB server/monitor of some kind).
-[2] All the peripheral drivers should be C++-ified and made as API-compatible
-    with mbed standard library as is possible and desirable within the context
-    of an RTOS.
-[f] Investigate running everything in USR mode instead of SVC.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 
 ADDITIONS:
-[1] Add more standard library and syscall niceities.
+[1] POSIX wrappers for threading, sockets, etc.
 [2] Add gdb-stubs for remote debug over serial port.
 [3] Add mbed local file system support and integrate with newlib. Some details here:
 		http://mbed.org/users/jsnyder/notebook/elua-preliminary-port/
@@ -60,3 +47,9 @@ EXTERNAL DEVICE DRIVERS:
 [1] Linear LTC1960 lithium battery charger and powerpath controller (via SPI).
 [1] Temperature sensors (TBD) (via I2C or maybe 1-wire, TBD).
 
+THINGS TO CHECK:
+[1] Check __attribute__ ((packed)) usage for structs where alignment matters.
+[1] Check KEEP() in linker script wrt ctors/dtors. Fix (any) remaining alignment issues in linker script.
+[1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
+[2] Ensure debug output printed by abort traps is actually correct (hmmm?).
+[f] Investigate running everything in USR mode instead of SVC.

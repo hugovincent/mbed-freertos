@@ -7,7 +7,7 @@
  * Hugo Vincent, 2 May 2010.
  */
 
-#include "FreeRTOSConfig.h"
+#include "cmsis.h"
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 #include "hardware/wdt.h"
@@ -42,7 +42,7 @@ void ConfigureTimerForRunTimeStats( void )
 
 	/* Prescale to a frequency that is good enough to get a decent resolution,
 	   but not too fast so as to overflow all the time. */
-	LPC_TIM1->PR =  ( configCPU_CLOCK_HZ / 10000UL ) - 1UL;
+	LPC_TIM1->PR =  ( SystemCoreClock / 10000UL ) - 1UL;
 
 	/* Start the counter, counting up. */
 	LPC_TIM1->CTCR = 0x0;

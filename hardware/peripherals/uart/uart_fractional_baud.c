@@ -3,14 +3,14 @@
  * Hugo Vincent, April 28 2010.
  */
 
-#include "FreeRTOSConfig.h"
+#include "cmsis.h"
 #include <math.h>
 
 #include "uart_fractional_baud.h"
 
 struct FracBaudLine {
 	float FRest;
-	unsigned char divAddVal, mulVal;
+	uint8_t divAddVal, mulVal;
 };
 
 static struct FracBaudLine FractionalBaudTable[72] = 
@@ -90,22 +90,21 @@ static struct FracBaudLine FractionalBaudTable[72] =
 };
 
 // Setup a fractional baud rate (this based on figure 83 in the UM --hugo 24/5/10)
-void FindBaudWithFractional(unsigned portLONG ulWantedBaud, 
-		unsigned portLONG *ulDivisor, unsigned portLONG *ulFracDiv)
+void FindBaudWithFractional(uint32_t wantedBaud, uint32_t *divisor, uint32_t *fracDiv)
 {
 	float FRest = 1.5;
-	portLONG ulDivAddVal = 0, ulMulVal = 1;
+	int divAddVal = 0, mulVal = 1;
 
 	// Setup the baud rate:  Calculate the divisor value.
 	// Note: PCLK is CCLK/4, so the 16 in the equations becomes 64.
-	*ulDivisor = configCPU_CLOCK_HZ / (ulWantedBaud * 64);
+	*divisor = SystemCoreClock / (wantedBaud * 64);
 
 	// Check for integer divisor, otherwise compute fractional divisors
-	if (configCPU_CLOCK_HZ % (ulWantedBaud * 64) != 0)
+	if (SystemCoreClock % (wantedBaud * 64) != 0)
 	{
-		*ulDivisor = (unsigned portLONG)floorf(configCPU_CLOCK_HZ 
-				/ (ulWantedBaud * 64 * FRest));
-		FRest = configCPU_CLOCK_HZ / (64 * ulWantedBaud * (float)(*ulDivisor));
+		*divisor = (unsigned portLONG)floorf(SystemCoreClock 
+				/ (wantedBaud * 64 * FRest));
+		FRest = SystemCoreClock / (64 * wantedBaud * (float)(*divisor));
 		if (FRest > 1.1 && FRest < 1.9)
 		{
 			for (unsigned char j = 0; j < 71; j++)
@@ -113,12 +112,12 @@ void FindBaudWithFractional(unsigned portLONG ulWantedBaud,
 				if (FractionalBaudTable[j].FRest > FRest 
 						&& FRest < FractionalBaudTable[j+1].FRest)
 				{
-					ulMulVal = FractionalBaudTable[j].mulVal;
-					ulDivAddVal = FractionalBaudTable[j].divAddVal;
+					mulVal = FractionalBaudTable[j].mulVal;
+					divAddVal = FractionalBaudTable[j].divAddVal;
 					break;
 				}
 			}
 		}
 	}
-	*ulFracDiv = (ulDivAddVal & 0x0F) | ((ulMulVal & 0x0F) << 4);
+	*fracDiv = (divAddVal & 0x0F) | ((mulVal & 0x0F) << 4);
 }

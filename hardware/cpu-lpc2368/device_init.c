@@ -7,7 +7,7 @@
  * Hugo Vincent, 2 May 2010.
  */
 
-#include <lpc23xx.h>
+#include <cmsis.h>
 #include <exception_handlers.h>
 
 /* Constants to setup the PLL and clock dividers:
@@ -35,6 +35,8 @@
 #define MAM_MODE_FULL	((unsigned char)0x02)
 
 #define PLL_FEED()		{ LPC_SC->PLL0FEED = 0xAA; LPC_SC->PLL0FEED = 0x55; }
+
+uint32_t SystemCoreClock = 72000000;
 
 void LowLevelInit(void)
 {

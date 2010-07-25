@@ -1,12 +1,12 @@
-#include "os_init.h"
 #include "device_manager.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "cmsis.h"
 
 // This initialises the stdio layer in Newlib.
 extern void initialise_stdio (void);
 
-void OperatingSystemInit()
+void SystemInit()
 {
 	DeviceManager_Init();
 	initialise_stdio();

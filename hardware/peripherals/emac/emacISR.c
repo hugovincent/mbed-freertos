@@ -4,16 +4,12 @@
 
 extern xSemaphoreHandle xEMACSemaphore;
 
-#if configIRQ_CAN_CONTEXT_SWITCH == 1
 void vEmacISR_Handler(void)
-#else
-__attribute__ ((interrupt ("IRQ"))) void vEmacISR(void)
-#endif
 {
-	portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;
+	int xHigherPriorityTaskWoken = pdFALSE;
 
     /* Ensure the uIP task is not blocked as data has arrived. */
-    xSemaphoreGiveFromISR( xEMACSemaphore, &xHigherPriorityTaskWoken );
+    xSemaphoreGiveFromISR(xEMACSemaphore, (portBASE_TYPE *)&xHigherPriorityTaskWoken);
 
     /* Clear the interrupt. */
     LPC_EMAC->IntClear = 0xffff;
@@ -21,14 +17,13 @@ __attribute__ ((interrupt ("IRQ"))) void vEmacISR(void)
     LPC_VIC->Address = 0;
 #endif
 
-	if( xHigherPriorityTaskWoken )
+	if (xHigherPriorityTaskWoken)
     {
     	/* Giving the semaphore woke a task. */
         vPortYieldFromISR();
     }
 }
 
-#if configIRQ_CAN_CONTEXT_SWITCH == 1
 __attribute__ ((naked)) void vEmacISR(void)
 {
 	/* Save the context of the interrupted task. */
@@ -41,5 +36,4 @@ __attribute__ ((naked)) void vEmacISR(void)
 	/* Restore the context of whichever task will execute next. */
 	portRESTORE_CONTEXT();
 }
-#endif
 
