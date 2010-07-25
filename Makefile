@@ -105,7 +105,7 @@ C_SOURCE+= \
 		example_tasks/GenQTest.c \
 		example_tasks/QPeek.c \
 		example_tasks/dynamic.c \
-		webserver/uIP_Task.c \
+		example_tasks/webserver/uIP_Task.c \
 		lib/uip/uip_arp.c \
 		lib/uip/psock.c \
 		lib/uip/timer.c \
@@ -219,8 +219,9 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/peripherals/wdt
 	@mkdir -p $(ODIR)/hardware/board-mbed $(ODIR)/freertos/portable/MemMang
 	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests $(ODIR)/lib/syscalls
-	@mkdir -p $(ODIR)/example_tasks $(ODIR)/webserver $(ODIR)/lib/uip $(ODIR)/lib/ustl
+	@mkdir -p $(ODIR)/example_tasks $(ODIR)/example_tasks/webserver $(ODIR)/lib/uip 
 	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR) $(ODIR)/hardware/cpu-common
+	@mkdir -p $(ODIR)/lib/ustl
 	@touch $(ODIR)/exists
 
 # UIP script build rules
@@ -228,7 +229,7 @@ lib/uip/http-strings.c: util/uip_makestrings
 	@echo "  [Making uIP http-strings ]"
 	@pushd lib/uip > /dev/null && ../../util/uip_makestrings && popd > /dev/null
 
-lib/uip/httpd-fsdata.c: util/uip_makefsdata webserver/httpd-fs/*.html
+lib/uip/httpd-fsdata.c: util/uip_makefsdata example_tasks/webserver/httpd-fs/*.html
 	@echo "  [Making uIP httpd-fs ]"
 	@pushd lib/uip > /dev/null && ../../util/uip_makefsdata && popd > /dev/null
 

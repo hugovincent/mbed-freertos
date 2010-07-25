@@ -2,7 +2,7 @@
 
 open(OUTPUT, "> httpd-fsdata.c");
 
-chdir("../../webserver/httpd-fs");
+chdir("../../example_tasks/webserver/httpd-fs");
 
 opendir(DIR, ".");
 @files =  grep { !/^\./ && !/(CVS|~)/ } readdir(DIR);
