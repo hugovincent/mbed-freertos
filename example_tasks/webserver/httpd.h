@@ -35,12 +35,8 @@
 #ifndef __HTTPD_H__
 #define __HTTPD_H__
 
-#include "psock.h"
+#include "uip/psock.h"
 #include "httpd-fs.h"
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 struct httpd_state {
   unsigned char timer;
@@ -62,9 +58,5 @@ void httpd_appcall(void);
 
 void httpd_log(char *msg);
 void httpd_log_file(u16_t *requester, char *file);
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif /* __HTTPD_H__ */

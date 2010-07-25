@@ -64,7 +64,7 @@ int main()
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
 
-	//vStartWebserverTask();
+	vStartWebserverTask();
 	
 	printf("Starting scheduler.\n");
 

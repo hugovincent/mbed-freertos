@@ -18,6 +18,14 @@
 <td>%! file-stats /stats.shtml
 </td><td><img src="/fade.png" height=10 width=%! file-stats /stats.shtml
 > </td></tr>
+<tr><td><a href="/io.shtml">/io.shtml</a></td>
+<td>%! file-stats /io.shtml
+</td><td><img src="/fade.png" height=10 width=%! file-stats /io.shtml
+> </td></tr>
+<tr><td><a href="/io.shtml">/processes.shtml</a></td>
+<td>%! file-stats /processes.shtml
+</td><td><img src="/fade.png" height=10 width=%! file-stats /processes.shtml
+> </td></tr>
 <tr><td><a href="/style.css">/style.css</a></td>
 <td>%! file-stats /style.css
 </td><td><img src="/fade.png" height=10 width=%! file-stats /style.css

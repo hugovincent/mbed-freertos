@@ -33,9 +33,9 @@
  * $Id: httpd-fs.c,v 1.1 2006/06/07 09:13:08 adam Exp $
  */
 
-#include "uip/httpd.h"
-#include "uip/httpd-fs.h"
-#include "uip/httpd-fsdata.h"
+#include "httpd.h"
+#include "httpd-fs.h"
+#include "httpd-fsdata.h"
 
 #ifndef NULL
 #define NULL 0

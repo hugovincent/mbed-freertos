@@ -47,9 +47,9 @@
 
 #include "uip/uip.h"
 #include "uip/psock.h"
-#include "uip/httpd.h"
-#include "uip/httpd-cgi.h"
-#include "uip/httpd-fs.h"
+#include "httpd.h"
+#include "httpd-cgi.h"
+#include "httpd-fs.h"
 
 #include <stdio.h>
 #include <string.h>

@@ -50,7 +50,7 @@
 #ifndef __HTTPD_CGI_H__
 #define __HTTPD_CGI_H__
 
-#include "psock.h"
+#include "uip/psock.h"
 #include "httpd.h"
 
 #ifdef __cplusplus

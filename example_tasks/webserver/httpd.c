@@ -56,10 +56,10 @@
  */
 
 #include "uip/uip.h"
-#include "uip/httpd.h"
-#include "uip/httpd-fs.h"
-#include "uip/httpd-cgi.h"
-#include "uip/http-strings.h"
+#include "httpd.h"
+#include "httpd-fs.h"
+#include "httpd-cgi.h"
+#include "http-strings.h"
 
 #include <string.h>
 
