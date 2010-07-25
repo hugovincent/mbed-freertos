@@ -225,13 +225,13 @@ $(ODIR)/exists:
 	@touch $(ODIR)/exists
 
 # UIP script build rules
-lib/uip/http-strings.c: util/uip_makestrings
+example_tasks/webserver/http-strings.c: util/uip_makestrings
 	@echo "  [Making uIP http-strings ]"
-	@pushd lib/uip > /dev/null && ../../util/uip_makestrings && popd > /dev/null
+	@pushd example_tasks/webserver > /dev/null && ../../util/uip_makestrings && popd > /dev/null
 
-lib/uip/httpd-fsdata.c: util/uip_makefsdata example_tasks/webserver/httpd-fs/*.html
+example_tasks/webserver/httpd-fsdata.c: util/uip_makefsdata example_tasks/webserver/httpd-fs/*.html
 	@echo "  [Making uIP httpd-fs ]"
-	@pushd lib/uip > /dev/null && ../../util/uip_makefsdata && popd > /dev/null
+	@pushd example_tasks/webserver > /dev/null && ../../util/uip_makefsdata && popd > /dev/null
 
 lib/uip/httpd-fs.c: lib/uip/httpd-fsdata.c
 
@@ -245,7 +245,7 @@ disasm :
 
 clean:
 	@echo "  [Cleaning...          ]"
-	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map lib/uip/http-strings.* lib/uip/httpd-fsdata.c
+	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map example_tasks/webserver/http-strings.* example_tasks/webserver/httpd-fsdata.c
 
 install: $(BINNAME).bin
 	@echo "  [Installing to mbed...]"

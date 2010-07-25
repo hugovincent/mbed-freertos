@@ -4,6 +4,6 @@
 *-disassembled.s
 util/arm-none-eabi-*
 .buildtmp/**
-lib/uip/http-strings.c
-lib/uip/http-strings.h
-lib/uip/httpd-fsdata.c
+example_tasks/webserver/http-strings.c
+example_tasks/webserver/http-strings.h
+example_tasks/webserver/httpd-fsdata.c
