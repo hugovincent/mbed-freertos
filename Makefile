@@ -97,33 +97,15 @@ ASM_FLAGS= \
 #------------------------------------------------------------------------------
 # Source Code:
 
+# Assembler bootcode
+ASM_SOURCE+= \
+		hardware/cpu-$(TARGET)/crt0.s
+
+# Core Operating System
 C_SOURCE+= \
-		example_tasks/BlockQ.c \
-		example_tasks/blocktim.c \
-		example_tasks/flash.c \
-		example_tasks/integer.c \
-		example_tasks/GenQTest.c \
-		example_tasks/QPeek.c \
-		example_tasks/dynamic.c \
-		example_tasks/webserver/uIP_Task.c \
-		example_tasks/webserver/httpd.c \
-		example_tasks/webserver/httpd-cgi.c \
-		example_tasks/webserver/httpd-fs.c \
-		example_tasks/webserver/http-strings.c \
-		lib/uip/uip_arp.c \
-		lib/uip/psock.c \
-		lib/uip/timer.c \
-		lib/uip/uip.c \
-		hardware/peripherals/uart/uart.c \
-		hardware/peripherals/uart/uart_fractional_baud.c \
-		hardware/peripherals/uart/uartISRs.c \
-		hardware/peripherals/gpio/gpio.c \
-		hardware/peripherals/emac/emac.c \
-		hardware/peripherals/emac/emacISR.c \
-		hardware/peripherals/wdt/wdt.c \
-		hardware/cpu-common/power_management.c \
 		hardware/cpu-$(TARGET)/device_init.c \
 		hardware/board-mbed/board_init.c \
+		hardware/cpu-common/power_management.c \
 		freertos/list.c \
 		freertos/queue.c \
 		freertos/tasks.c \
@@ -133,7 +115,12 @@ C_SOURCE+= \
 		lib/debug_support.c \
 		lib/device_manager.c \
 		lib/freertos_hooks.c \
-		lib/os_init.c \
+		lib/os_init.c
+CXX_SOURCE+= \
+		Main.cpp \
+
+# C/C++ library and operating system calls
+C_SOURCE+= \
 		lib/syscalls/chmod.c \
 		lib/syscalls/close.c \
 		lib/syscalls/environ.c \
@@ -162,19 +149,50 @@ C_SOURCE+= \
 		lib/syscalls/unlink.c \
 		lib/syscalls/wait.c \
 		lib/syscalls/write.c
-
 CXX_SOURCE+= \
-		Main.cpp \
-		tests/CxxTest.cpp \
-		tests/Tests.cpp \
-		tests/AbortDebugTests.cpp \
 		lib/min_c++.cpp
+include lib/ustl/ustl.mk
 
-ASM_SOURCE+= \
-		hardware/cpu-$(TARGET)/crt0.s
+# Peripheral device drivers
+C_SOURCE+= \
+		hardware/peripherals/uart/uart.c \
+		hardware/peripherals/uart/uart_fractional_baud.c \
+		hardware/peripherals/uart/uartISRs.c \
+		hardware/peripherals/gpio/gpio.c \
+		hardware/peripherals/emac/emac.c \
+		hardware/peripherals/emac/emacISR.c \
+		hardware/peripherals/wdt/wdt.c
 
-# Include uSTL files:
-#include lib/ustl/ustl.mk
+# Example Tasks
+C_SOURCE+= \
+		example_tasks/BlockQ.c \
+		example_tasks/blocktim.c \
+		example_tasks/flash.c \
+		example_tasks/integer.c \
+		example_tasks/GenQTest.c \
+		example_tasks/QPeek.c \
+		example_tasks/dynamic.c
+
+## Webserver Task
+#C_SOURCE+= \
+#		example_tasks/webserver/uIP_Task.c \
+#		example_tasks/webserver/httpd.c \
+#		example_tasks/webserver/httpd-cgi.c \
+#		example_tasks/webserver/httpd-fs.c \
+#		example_tasks/webserver/http-strings.c
+
+## uIP Networking Library
+#C_SOURCE+= \
+#		lib/uip/uip_arp.c \
+#		lib/uip/psock.c \
+#		lib/uip/timer.c \
+#		lib/uip/uip.c
+
+## Tests 
+#CXX_SOURCE+= \
+#		tests/CxxTest.cpp \
+#		tests/Tests.cpp \
+#		tests/AbortDebugTests.cpp
 
 #------------------------------------------------------------------------------
 # Build Rules:

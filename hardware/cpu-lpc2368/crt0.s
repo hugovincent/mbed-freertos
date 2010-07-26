@@ -53,9 +53,9 @@
 @      unrecoverably. This is OK for our purposes as we don't attempt to
 @      recover from exceptions.
 
-.equ UND_Stack_Size,     0x00000000
+.equ UND_Stack_Size,     0x00000010
 .equ SVC_Stack_Size,     0x00000200
-.equ ABT_Stack_Size,     0x00000000
+.equ ABT_Stack_Size,     0x00000010
 .equ FIQ_Stack_Size,     0x00000000
 .equ IRQ_Stack_Size,     0x00000100
 .equ USR_Stack_Size,     0x00000000
@@ -183,33 +183,87 @@ BSSIsEmpty:
 @      (all store the current register contents to a C-accessible array and save
 @      the offending address in R0 before branching to the C handler).
 
-Undef_Handler:
-                LDR     SP, =SavedRegs
-                STMIA   SP, {R0-R14}
-				MRS     R0, SPSR
-				STR		R0, [SP, #60]
-                SUB     R0, LR, #4
-                LDR     R1, =Exception_UndefinedInstruction
-                BX      R1
-
+@ Code from http://www.eetimes.com/design/other/4006695/How-to-use-ARM-s-data-abort-exception
 PAbt_Handler:
-                LDR     SP, =SavedRegs
-                STMIA   SP, {R0-R14}
-				MRS     R0, SPSR
-				STR		R0, [SP, #60]
-                SUB     R0, LR, #4
-                LDR     R1, =Exception_PrefetchAbort
-                BX      R1
+                STMFD   SP!, {R0-R12, LR}       @ save superset of the AAPCS scheme (r4-r11)
+                LDR     SP, =(SavedRegs + 5*4)  @ set sp_abt to data array w/offset (restore later)
+                STMIA   SP, {R0-R12}            @ save 1st dataset in r0-r12 registers to array
+                SUB     R0, LR, #4              @ calculate pc value of abort instr: r0 = lr-4
+                MRS     R5, CPSR                @ save current mode to r5 for mode switching
+                MRS     R6, SPSR                @ spsr_abt = CPSR of abort originating mode:
+                                                @ save to r6 for mode switching
+                MOV     R2, R6                  @ building 2nd dataset: r2 = CPSR (of exception)
+                TST     R6, #0xF                @ test for the mode which raised exception:
+                ORREQ   R6, R6, #0xF            @ if EQ => change mode usr->sys; else do not
+                BIC     R7, R6, #0x20           @ go to forced ARM state via r7
+                MSR     CPSR, R7                @ switch out from Mode_ABT to
+                MOV     R3, LR                  @ dabt generating mode and state
+                MOV     R4, SP                  @ get lr (= r3) and sp (= r4)
+                MSR     CPSR, R5                @ switch back to Mode_ABT 
+                LDR     SP, =SavedRegs          @ reset sp to array's starting addr
+                STMIA   SP, {r0-r4}             @ and save the 2nd dataset from r0 to r4
 
+                @ cleanup & restoration follows:
+                                                @ restored full context, sp first
+                LDR     SP, =(__top_of_stack__ - UND_Stack_Size)
+                                                @ sp uses abort stack (which is top of stack
+                                                @ minus undefined stack length)
+                LDMDB   SP, {r0-r12, lr}        @ r0-r12 and lr using restored stack pointer
+                LDR     R0, =Exception_PrefetchAbort
+                BX      R0                      @ call C-compiled handler
+
+@ See comments for PAbt_Handler above.
 DAbt_Handler:
-                LDR     SP, =SavedRegs
-                STMIA   SP, {R0-R14}
-				MRS     R0, SPSR
-				STR		R0, [SP, #60]
+                STMFD   SP!, {R0-R12, LR}
+                LDR     SP, =(SavedRegs + 5*4)
+                STMIA   SP, {R0-R12}
                 SUB     R0, LR, #8
-                LDR     R1, =Exception_DataAbort
-                BX      R1
+                MRS     R5, CPSR
+                MRS     R6, SPSR
+                MOV     R2, R6
+                TST     R6, #0xF
+                ORREQ   R6, R6, #0xF
+                BIC     R7, R6, #0x20
+                MSR     CPSR, R7
+                MOV     R3, LR
+                MOV     R4, SP
+                MSR     CPSR, R5
+                TST     R6, #0x20               @ Thumb state raised exception?
+                LDRNEH  R1, [R0]                @ yes T-state, load 16-bit instr: r1 = [pc](dabt)
+                LDREQ   R1, [R0]                @ no A-state, load 32-bit instr: r1 = [pc](dabt)
+                LDR     SP, =SavedRegs
+                STMIA   SP, {r0-r4}
+                LDR     SP, =(__top_of_stack__ - UND_Stack_Size)
+                LDMDB   SP, {r0-r12, lr}
+                LDR     R0, =Exception_DataAbort
+                BX      R0
 
+@ See comments for PAbt_Handler above.
+@ FIXME this probably needs some other changes?
+Undef_Handler:
+                STMFD   SP!, {R0-R12, LR}
+                LDR     SP, =(SavedRegs + 5*4)
+                STMIA   SP, {R0-R12}
+                SUB     R0, LR, #4
+                MRS     R5, CPSR
+                MRS     R6, SPSR
+                MOV     R2, R6
+                TST     R6, #0xF
+                ORREQ   R6, R6, #0xF
+                BIC     R7, R6, #0x20
+                MSR     CPSR, R7
+                MOV     R3, LR
+                MOV     R4, SP
+                MSR     CPSR, R5
+                TST     R6, #0x20
+                LDRNEH  R1, [R0]
+                LDREQ   R1, [R0]
+                LDR     SP, =SavedRegs
+                STMIA   SP, {r0-r4}
+                LDR     SP, =__top_of_stack__
+                LDMDB   SP, {r0-r12, lr}
+                LDR     R0, =Exception_UndefinedInstruction
+                BX      R0
 .end
 
 

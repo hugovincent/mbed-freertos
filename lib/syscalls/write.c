@@ -4,6 +4,8 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "FreeRTOS.h"
+#include "task.h"
 
 #include "hardware/uart.h"
 

@@ -12,11 +12,11 @@
 extern "C" {
 #endif
 
-void Exception_PrefetchAbort(unsigned int addr);
-void Exception_DataAbort(unsigned int addr);
-void Exception_UndefinedInstruction(unsigned int addr);
-void Exception_UnhandledIRQ(void);
-void Exception_UnhandledFIQ(void);
+void Exception_PrefetchAbort();
+void Exception_DataAbort();
+void Exception_UndefinedInstruction();
+void Exception_UnhandledIRQ();
+void Exception_UnhandledFIQ();
 
 #ifdef __cplusplus
 } // extern "C"

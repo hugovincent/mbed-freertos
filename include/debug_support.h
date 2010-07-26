@@ -16,9 +16,21 @@ void Debug_Puts(const char *str);
 	sprintf(Debug_MsgBuffer, fmt, args); \
 	Debug_Puts(Debug_MsgBuffer); \
 }
-void Debug_PrintSavedRegisterState(const unsigned int *regs);
-void Debug_PrintCPSR(const unsigned int spsr);
-void Debug_PrintBacktrace(const unsigned int *fp);
+
+struct Debug_RegisterDump {
+	unsigned int pc;
+	unsigned int pc_ptr;
+	unsigned int cpsr;
+	unsigned int lr;
+	unsigned int sp;
+	unsigned int r[13];
+};
+
+void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs);
+void Debug_PrintCPSR(unsigned int cpsr);
+void Debug_PrintBacktrace(unsigned int fp);
+
+#define MAX_BACKTRACE_FRAMES	(12)
 
 // FIXME these should be pulled in magically though linker-foo
 #define RAM_BASE (0x40000000)

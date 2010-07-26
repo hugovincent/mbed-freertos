@@ -4,6 +4,7 @@
 /* Preallocated buffer for Debug_Printf() */
 char Debug_MsgBuffer[64];
 
+
 /* In combination with uart0PutChar_debug, this is guaranteed to be safe when
  * IRQs are disabled, and can also be used at other times when the OS/scheduler,
  * stack or memory integrity can not be relied on.
@@ -21,43 +22,46 @@ void Debug_Puts(const char *str)
 	}
 }
 
+
 /* Assumes a full APCS stack frame, so compile with -mapcs-frame and don't
    use -fomit-frame-pointer (enabled by default for -O2).
    
-   The structure of a stack trace is as follows,
-		low: previous fp (frame pointer)  -12 (3 word)
-			 previous sp (stack pointer)   -8 (2 word)
-			 previous lr (link register)   -4 (1 word)
-		fp-> previous pc (the function)     0
-
    See http://csg.lbl.gov/pipermail/vxwexplo/2004-February/004397.html
- */   
-void Debug_PrintBacktrace(const unsigned int *fp)
+ */
+struct StackFrame {
+	struct StackFrame *fp;
+	unsigned int sp;
+	unsigned int lr; // LR is offset by 8 due to pipelining
+	unsigned int pc; // frame pointer points here (high address end of struct)
+};
+void Debug_PrintBacktrace(unsigned int fp)
 {
 	int depth = 0;
-	unsigned int function;
+	struct StackFrame *frame = (struct StackFrame *)fp - 8;
 
-	while (Debug_ValidMemory((unsigned int)fp))
+	// Walk the linked list as long as we remain in seemingly-valid frames
+	while (Debug_ValidMemory((unsigned int)frame) && depth < MAX_BACKTRACE_FRAMES)
 	{
 		depth++;
 
-		function = (*fp) - 16;
 		Debug_Printf("\t#%d: [<%08x>] called from [<%08x>]\n", depth,
-				function, *(fp - 1) - 8);
+				frame->pc, frame->lr - 8);
 
 		// FIXME would ideally print stack local variables here too?
 
-		fp = (unsigned int *)*(fp - 3);
+		frame = (struct StackFrame *)(frame->fp - 12);
 	}
 	if (depth == 0)
 		Debug_Puts("\t(Stack frame corrupt?)\n");
+	if (depth == MAX_BACKTRACE_FRAMES)
+		Debug_Puts("\t... truncated ...\n");
 }
 
 
-void Debug_PrintCPSR(const unsigned int spsr)
+void Debug_PrintCPSR(unsigned int psr)
 {
 	char *mode;
-	switch (spsr & 0x1f)
+	switch (psr & 0x1f)
 	{
 		case 0x10: mode = "user";		break;
 		case 0x11: mode = "fiq";		break;
@@ -69,29 +73,31 @@ void Debug_PrintCPSR(const unsigned int spsr)
 		default:   mode = "unknown";	break;
 	}
 	Debug_Printf("\tpsr: %08x (%c%c%c%c...%c%c%c %s-mode)\n", 
-			spsr,
-			(spsr & 1<<31) ? 'N' : 'n',
-			(spsr & 1<<30) ? 'Z' : 'z',
-			(spsr & 1<<29) ? 'C' : 'c',
-			(spsr & 1<<28) ? 'V' : 'v',
-			(spsr &  1<<7) ? 'F' : 'f',
-			(spsr &  1<<6) ? 'I' : 'i',
-			(spsr &  1<<5) ? 'T' : 't',
+			psr,
+			(psr & 1<<31) ? 'N' : 'n',
+			(psr & 1<<30) ? 'Z' : 'z',
+			(psr & 1<<29) ? 'C' : 'c',
+			(psr & 1<<28) ? 'V' : 'v',
+			(psr &  1<<7) ? 'F' : 'f',
+			(psr &  1<<6) ? 'I' : 'i',
+			(psr &  1<<5) ? 'T' : 't',
 			mode);
 }
 
 
 /* Print as much info as we can about the processor state pre-exception. */
-void Debug_PrintSavedRegisterState(const unsigned int *regs)
+void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs)
 {
 	for (int i  = 0; i < 10; i++)
 	{
-		Debug_Printf("\tr%d : %08x", i, regs[i]);
+		Debug_Printf("\tr%d : %08x", i, regs->r[i]);
 		if (((i + 1) % 3) == 0)
 			Debug_Puts("\n");
 	}
 	Debug_Printf("\tr10: %08x\tfp : %08x\n", 
-			regs[10], regs[11]);
+			regs->r[10], regs->r[11]);
 	Debug_Printf("\tip : %08x\tsp : %08x\tlr : %08x\n",
-			regs[12], regs[13], regs[14]);
+			regs->r[12], regs->sp, regs->lr);
+
+	Debug_PrintCPSR(regs->cpsr);
 }

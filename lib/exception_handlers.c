@@ -13,23 +13,45 @@
 
 #include "FreeRTOS.h"
 
-/* This array is written to with register contents by the assembler part of the
- * exception handlers (in hardware/cpu-X/crt0.s). The CPSR goes on the end.
+/* This global struct is filled out with register state by the assembler
+ * component of the exception handlers (in hardware/cpu-X/crt0.s).
  */
-unsigned int SavedRegs[16];
+struct Debug_RegisterDump SavedRegs;
+
+enum ExceptionType
+{
+	DataAbort = 0,
+	PrefetchAbort,
+	UndefinedInstruction
+};
 
 /* Print as much info as we can about the processor state pre-exception. */
-__attribute__ ((noreturn)) void PrintAbortInfo(const unsigned int addr)
+static __attribute__ ((noreturn)) void PrintAbortInfo(enum ExceptionType type)
 {
-	Debug_Printf(" at pc : [<%08x>]\n", addr);
+	// pc is the actual address, and pc_ptr is the actually opcode at that address
+	switch (type)
+	{
+		case DataAbort:
+			Debug_Puts("\n[FreeRTOS] Fatal Error: Data Abort");
+			Debug_Printf(" at pc : [<%08x>] -> 0x%08x\n", SavedRegs.pc, SavedRegs.pc_ptr);
+			break;
 
-	// Print registers
+		case PrefetchAbort:
+			Debug_Puts("\n[FreeRTOS] Fatal Error: Prefetch Abort");
+			Debug_Printf(" at pc : [<%08x>]\n", SavedRegs.pc);
+			break;
+
+		case UndefinedInstruction:
+			Debug_Puts("\n[FreeRTOS] Fatal Error: Data Abort");
+			Debug_Printf(" at pc : [<%08x>] -> 0x%08x\n", SavedRegs.pc, SavedRegs.pc_ptr);
+			break;
+	}
+
 	Debug_Puts("\nProcesor State:\n");
-	Debug_PrintSavedRegisterState(SavedRegs);
-	Debug_PrintCPSR(SavedRegs[15]);
+	Debug_PrintSavedRegisterState(&SavedRegs);
 
 	Debug_Puts("\nBacktrace:\n");
-	Debug_PrintBacktrace((void *)SavedRegs[11]); // r11 is the frame pointer
+	Debug_PrintBacktrace(SavedRegs.r[11]); // r11 is the frame pointer
 
 	// FIXME some FreeRTOS-specific thread information should go here?
 
@@ -39,26 +61,27 @@ __attribute__ ((noreturn)) void PrintAbortInfo(const unsigned int addr)
 	PowerManagement_PowerDown();
 }
 
-__attribute__ ((noreturn)) void Exception_PrefetchAbort(unsigned int addr)
+
+__attribute__ ((noreturn)) void Exception_PrefetchAbort()
 {
 	portDISABLE_INTERRUPTS();
-	Debug_Puts("\n[FreeRTOS] Fatal Error: Prefetch Abort");
-	PrintAbortInfo(addr);
+	PrintAbortInfo(PrefetchAbort);
 }
 
-__attribute__ ((noreturn)) void Exception_DataAbort(unsigned int addr)
+
+__attribute__ ((noreturn)) void Exception_DataAbort()
 {
 	portDISABLE_INTERRUPTS();
-	Debug_Puts("\n[FreeRTOS] Fatal Error: Data Abort");
-	PrintAbortInfo(addr);
+	PrintAbortInfo(DataAbort);
 }
 
-__attribute__ ((noreturn)) void Exception_UndefinedInstruction(unsigned int addr)
+
+__attribute__ ((noreturn)) void Exception_UndefinedInstruction()
 {
 	portDISABLE_INTERRUPTS();
-	Debug_Puts("\n[FreeRTOS] Fatal Error: Undefined Instruction");
-	PrintAbortInfo(addr);
+	PrintAbortInfo(UndefinedInstruction);
 }
+
 
 __attribute__ ((noreturn)) void Exception_UnhandledIRQ()
 {
@@ -67,6 +90,7 @@ __attribute__ ((noreturn)) void Exception_UnhandledIRQ()
 	// FIXME try to print *which* interrupt it was...
 	PowerManagement_PowerDown();
 }
+
 
 __attribute__ ((noreturn)) void Exception_UnhandledFIQ()
 {

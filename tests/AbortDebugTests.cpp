@@ -1,6 +1,16 @@
 #include <stdio.h>
 
-int global_int;
+volatile int global_int;
+
+/* Func5 generates an undefined instruction trap */
+void func5(void)
+{
+	printf("About to undefined instruction trap... bye bye\n");
+
+	int opcode = 0x07f000f0;
+	int *addr = &opcode;
+	asm volatile ("STR  PC, [%[addr]]" : : [addr] "r" (addr));
+}
 
 /* Func4 generates a prefetch abort */
 void func4(void)
@@ -16,14 +26,21 @@ void func3(void)
 {
 	int *bad = (int *)0x09000000;
 
-	printf("About to have a data abort... bye bye\n");
+	/* Random stuff in register (to check the register dump is correct): */
+	volatile register int test1 = 0xDEADBEEF;
+
+	printf("About to have a data abort [0x%x]... bye bye\n", test1);
+
+	if (global_int == 2) /* Trick the optimizer */
+		test1 <<= 4;
+
 	*bad = 0x12345678;
 }
 
 /* Func1 and Func2 are just to add some stuff to the backtrace */
 void func2(void)
 {
-	int *good = &global_int;
+	volatile int *good = &global_int;
 	*good = 2;
 
 	printf("In func%d\n", global_int);
@@ -32,7 +49,7 @@ void func2(void)
 
 void func1(void)
 {
-	int *good = &global_int;
+	volatile int *good = &global_int;
 	*good = 1;
 
 	printf("In func%d\n", global_int);

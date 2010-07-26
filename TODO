@@ -18,6 +18,7 @@ GENERALIZATIONS:
 
 ADDITIONS:
 [1] POSIX wrappers for threading, sockets, etc.
+[1] Allow particular tasks to register for ISRs and have the kernel mediate access to vectors.
 [2] Add gdb-stubs for remote debug over serial port.
 [3] Add mbed local file system support and integrate with newlib. Some details here:
 		http://mbed.org/users/jsnyder/notebook/elua-preliminary-port/
@@ -48,6 +49,7 @@ EXTERNAL DEVICE DRIVERS:
 [1] Temperature sensors (TBD) (via I2C or maybe 1-wire, TBD).
 
 THINGS TO CHECK:
+[1] Stack overflow checker needs checking.
 [1] Check __attribute__ ((packed)) usage for structs where alignment matters.
 [1] Check KEEP() in linker script wrt ctors/dtors. Fix (any) remaining alignment issues in linker script.
 [1] Try to avoid duplicating what http://www-users.cs.york.ac.uk/~pcc/MCP/index.html are doing.
