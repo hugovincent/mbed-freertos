@@ -42,8 +42,8 @@ static __attribute__ ((noreturn)) void PrintAbortInfo(enum ExceptionType type)
 			break;
 
 		case UndefinedInstruction:
-			Debug_Puts("\n[FreeRTOS] Fatal Error: Data Abort");
-			Debug_Printf(" at pc : [<%08x>] -> 0x%08x\n", SavedRegs.pc, SavedRegs.pc_ptr);
+			Debug_Puts("\n[FreeRTOS] Fatal Error: Undefined Instruction");
+			Debug_Printf(" 0x%08x at pc : [<%08x>]\n", SavedRegs.pc_ptr, SavedRegs.pc);
 			break;
 	}
 

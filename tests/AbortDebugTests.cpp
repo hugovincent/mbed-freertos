@@ -7,9 +7,9 @@ void func5(void)
 {
 	printf("About to undefined instruction trap... bye bye\n");
 
-	int opcode = 0x07f000f0;
-	int *addr = &opcode;
-	asm volatile ("STR  PC, [%[addr]]" : : [addr] "r" (addr));
+	int opcode = 0x07f000f0; // this is the minimal guaranteed undefined (as opposed to unpredictable) instruction
+	void (*test)() = (void (*)())&opcode;
+	test();
 }
 
 /* Func4 generates a prefetch abort */
