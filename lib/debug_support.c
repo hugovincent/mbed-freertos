@@ -23,7 +23,16 @@ void Debug_Puts(const char *str)
 }
 
 
-/* Assumes a full APCS stack frame, so compile with -mapcs-frame and don't
+// FIXME these should be pulled in magically though linker-foo
+#define RAM_BASE (0x40000000)
+#define RAM_LENGTH (0x8000)
+int  Debug_ValidMemory(unsigned int addr)
+{
+	return (addr >= RAM_BASE && addr < (RAM_BASE + RAM_LENGTH)) ? 1 : 0;
+}
+
+
+/* Assumes a full AAPCS stack frame, so compile with -mapcs-frame and don't
    use -fomit-frame-pointer (enabled by default for -O2).
    
    See http://csg.lbl.gov/pipermail/vxwexplo/2004-February/004397.html
@@ -37,7 +46,7 @@ struct StackFrame {
 void Debug_PrintBacktrace(unsigned int fp)
 {
 	int depth = 0;
-	struct StackFrame *frame = (struct StackFrame *)fp - 8;
+	struct StackFrame *frame = (struct StackFrame *)(fp - 3 * sizeof(int*));
 
 	// Walk the linked list as long as we remain in seemingly-valid frames
 	while (Debug_ValidMemory((unsigned int)frame) && depth < MAX_BACKTRACE_FRAMES)
@@ -45,15 +54,15 @@ void Debug_PrintBacktrace(unsigned int fp)
 		depth++;
 
 		Debug_Printf("\t#%d: [<%08x>] called from [<%08x>]\n", depth,
-				frame->pc, frame->lr - 8);
+				frame->pc, frame->lr - 8); // LR is offset by 8 due to CPU pipeline
 
 		// FIXME would ideally print stack local variables here too?
 
-		frame = (struct StackFrame *)(frame->fp - 12);
+		frame = (struct StackFrame *)(frame->fp - 3 * sizeof(int*));
 	}
 	if (depth == 0)
 		Debug_Puts("\t(Stack frame corrupt?)\n");
-	if (depth == MAX_BACKTRACE_FRAMES)
+	else if (depth == MAX_BACKTRACE_FRAMES)
 		Debug_Puts("\t... truncated ...\n");
 }
 

@@ -26,17 +26,12 @@ struct Debug_RegisterDump {
 	unsigned int r[13];
 };
 
-void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs);
-void Debug_PrintCPSR(unsigned int cpsr);
+#define MAX_BACKTRACE_FRAMES	(12)
 void Debug_PrintBacktrace(unsigned int fp);
 
-#define MAX_BACKTRACE_FRAMES	(12)
-
-// FIXME these should be pulled in magically though linker-foo
-#define RAM_BASE (0x40000000)
-#define RAM_LENGTH (0x8000)
-
-#define Debug_ValidMemory(addr) (addr >= RAM_BASE && addr < (RAM_BASE + RAM_LENGTH))
+void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs);
+void Debug_PrintCPSR(unsigned int cpsr);
+int  Debug_ValidMemory(unsigned int addr);
 
 #ifdef __cplusplus
 } // extern "C"
