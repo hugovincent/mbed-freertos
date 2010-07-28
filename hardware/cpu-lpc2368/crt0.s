@@ -1,5 +1,3 @@
-.include "hardware/cpu-common/crt0.s"
-
 @ crt0.s: startup file for NXP LPC230x Family Microprocessors
 @
 @ Copyright(C) 2006, NXP Semiconductor

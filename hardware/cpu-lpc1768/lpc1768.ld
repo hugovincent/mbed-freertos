@@ -13,6 +13,13 @@ MEMORY
 	CanRam (rw) : ORIGIN = 0x40038000, LENGTH = 2k
 }
 
+__FLASH_segment_start__ = ORIGIN( Flash );
+__FLASH_segment_end__ = __FLASH_segment_start__ + LENGTH( Flash );
+__SRAM_segment_start__ = ORIGIN( Ram );
+__SRAM_segment_end__ = __SRAM_segment_start__ + LENGTH( Ram );
+
+Stack_Size_Total = 16;
+
 INCLUDE "hardware/cpu-common/common.ld"
 
 SECTIONS

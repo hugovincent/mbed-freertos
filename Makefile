@@ -15,7 +15,7 @@
 
 # Set target here according to which type of mbed you have:
 # (can be lpc2368 for older mbeds, or lpc1768 for newer ones)
-TARGET=lpc2368
+TARGET=lpc1768
 LDSCRIPT=hardware/cpu-$(TARGET)/$(TARGET).ld
 BINNAME=RTOSDemo
 
@@ -29,10 +29,14 @@ ifeq ($(TARGET), lpc2368)
 CPUFLAGS= \
 		-mcpu=arm7tdmi-s
 COMMON_FLAGS= \
-		-DMBED_LPC23xx -DTARGET_LPC2368 -DPLAT_NAME="\"mbed (LPC2368)\"" \
+		-DMBED_LPC23xx \
+		-DTARGET_LPC2368 \
+		-DPLAT_NAME="\"mbed (LPC2368)\"" \
 		-Iinclude/LPC2368
 PORT_DIR= \
 		ARM7_LPC23xx
+ASM_SOURCE= \
+		hardware/cpu-lpc2368/crt0.s
 endif
 
 #------------------------------------------------------------------------------
@@ -42,12 +46,26 @@ CPUFLAGS= \
 		-mcpu=cortex-m3 \
 		-mthumb
 COMMON_FLAGS= \
-		-DMBED_LPC17xx -DTARGET_LPC1768 -DPLAT_NAME="\"mbed (LPC1768)\"" \
+		-DMBED_LPC17xx \
+		-DTARGET_LPC1768 \
+		-DPLAT_NAME="\"mbed (LPC1768)\"" \
 		-Iinclude/LPC1768
+LINKER_FLAGS= \
+		-mthumb \
+		-mcpu=cortex-m3 \
+		-march=armv7-m \
+		-mno-thumb-interwork
 PORT_DIR= \
-		ARM_CM3
+		ARM_CM3_MPU
 EXTRA_LDFLAGS= \
+		-mcpu=cortex-m3 \
+		-march=armv7-m \
 		-mthumb
+CXX_SOURCE= \
+		hardware/cpu-lpc1768/crt0.cpp
+C_SOURCE= \
+		hardware/cpu-lpc1768/core_cm3.c \
+		lib/mpu_manager.c
 endif
 
 #------------------------------------------------------------------------------
@@ -96,10 +114,6 @@ ASM_FLAGS= \
 
 #------------------------------------------------------------------------------
 # Source Code:
-
-# Assembler bootcode
-ASM_SOURCE+= \
-		hardware/cpu-$(TARGET)/crt0.s
 
 # Core Operating System
 C_SOURCE+= \

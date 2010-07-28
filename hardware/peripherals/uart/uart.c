@@ -14,13 +14,19 @@
 #include "uartISRs.h"
 
 #include "uart_fractional_baud.h"
+#include "cmsis_nvic.h"
 
+#warning Temporary uart imp:
+#define SIMPLE_UART		1
+
+#if !defined(SIMPLE_UART)
 // Queues used to hold received characters, and characters waiting to be transmitted
 static xQueueHandle xRX0Queue; 
 static xQueueHandle xTX0Queue; 
 
 // Communication flag between the interrupt service routine and serial API
 static volatile portCHAR *pcTHREEmpty0;
+#endif
 
 signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength)
 {
@@ -34,6 +40,7 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 	}
 	sulWantedBaud = ulWantedBaud;
 
+#if !defined(SIMPLE_UART)
 	if (!uxQueueLength)
 	{
 		uxQueueLength = suxQueueLength;
@@ -47,6 +54,7 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 	{
 		return 0;
 	}
+#endif
 
 	taskENTER_CRITICAL();
 	{
@@ -73,12 +81,18 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 		// Turn on the FIFO's and clear the buffers
 		LPC_UART0->FCR = UART_FCR_EN | UART_FCR_CLR;
 
+#if !defined(SIMPLE_UART)
 		// Setup the VIC for the UART
 		NVIC_SetVector(UART0_IRQn, (portLONG)vUart0ISR);
+#if defined(TARGET_LPC1768)
+		#warning Note: This should be automatically set by the OS when allocating interrupts as it will lock up when the ISR makes sys calls
+		NVIC_SetPriority(UART0_IRQn, 6);
+#endif
 		NVIC_EnableIRQ(UART0_IRQn);
 
 		// Enable UART0 interrupts
 		LPC_UART0->IER |= UART_IER_EI;
+#endif // def SIMPLE_UART
 	}
 	taskEXIT_CRITICAL();
 
@@ -87,9 +101,86 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 
 signed portBASE_TYPE uart0GetChar(signed portCHAR *pcRxedChar, portTickType xBlockTime)
 {
+#if defined(SIMPLE_UART)
+	portTickType i = 0;
+	*pcRxedChar = 0;
+	for (;;)
+	{
+		if ((LPC_UART0->FIFOLVL & 0xF) > 0) // FIFO got something
+		{
+			*pcRxedChar = LPC_UART0->RBR & 0xFF;
+			return pdTRUE;
+		}
+		if (++i > xBlockTime)
+			return pdFALSE;
+		vTaskDelay(1);
+	}
+#else
 	return xQueueReceive(xRX0Queue, pcRxedChar, xBlockTime) ? pdTRUE : pdFALSE;
+#endif
 }
 
+#if defined(SIMPLE_UART)
+signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockTime)
+{
+#if 0
+	portTickType i = 0;
+	for (;;)
+	{
+		if (((LPC_UART0->FIFOLVL >> 8) & 0xF) < 0xF) // room for a char
+		{
+			LPC_UART0->THR = cOutChar;
+			return pdTRUE;
+		}
+		if (++i > xBlockTime)
+			return pdFALSE;
+		vTaskDelay(1);
+	}
+#else
+	return uart0PutChar_debug(cOutChar, 0);
+#endif
+}
+
+signed portBASE_TYPE uart0PutChar_debug(signed portCHAR c, portTickType dummy)
+{
+	volatile int i;
+	//while (!(((LPC_UART0->FIFOLVL >> 8) & 0xF) < 0xE)) // room for a char
+	while (!(LPC_UART0->LSR & (1 << 5)))
+	{ }
+	LPC_UART0->THR = c;
+	return pdTRUE;
+}
+
+#else
+
+#if defined(TARGET_LPC1768) && portUSING_MPU_WRAPPERS != 0
+#warning At present we do it this way but will be replaced by a proper hardware driver call 
+static void uart0PutCharStarter(void)
+{
+	// Someone else may have kickstarted uart since so ignore if not empty
+	if (*pcTHREEmpty0 == (portCHAR)pdTRUE)
+	{
+		signed portCHAR cOutChar;
+		if (xQueueReceive(xTX0Queue, &cOutChar, 0))
+		{
+			*pcTHREEmpty0 = pdFALSE;
+			LPC_UART0->THR = cOutChar;
+		}
+	}
+}
+
+signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockTime)
+{
+	if(xQueueSend(xTX0Queue, &cOutChar, xBlockTime))
+	{
+		if (*pcTHREEmpty0 == (portCHAR) pdTRUE)
+		{
+			vRunCodePrivileged(&uart0PutCharStarter);
+		}
+	}
+	return pdFAIL;
+}
+#else
 signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockTime)
 {
 	signed portBASE_TYPE xReturn = 0;
@@ -124,6 +215,7 @@ signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockT
 
 	return xReturn;
 }
+#endif
 
 /* This is a minimal, blocking putchar function for use when interrupts are
  * disabled, where FreeRTOS API calls can't be made (before scheduler is running
@@ -147,6 +239,7 @@ signed portBASE_TYPE uart0PutChar_debug(signed portCHAR c, portTickType dummy)
 		NVIC_ClearPendingIRQ(UART0_IRQn);
 	}
 	taskEXIT_CRITICAL();
-
 	return 0;
 }
+
+#endif // !def SIMPLE_UART

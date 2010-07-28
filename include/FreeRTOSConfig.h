@@ -38,7 +38,7 @@
  *----------------------------------------------------------*/
 
 #define configUSE_PREEMPTION					1
-#define configUSE_IDLE_HOOK						0
+#define configUSE_IDLE_HOOK						1
 #define configUSE_TICK_HOOK						1
 #define configCPU_CLOCK_HZ						( SystemCoreClock  )
 #define configTICK_RATE_HZ						( ( portTickType ) 1000 )
@@ -49,11 +49,22 @@
 #define configIDLE_SHOULD_YIELD					1
 #define configUSE_MUTEXES						1
 
+
+#if defined(MBED_LPC17xx)
+#ifdef __NVIC_PRIO_BITS
+	#define configPRIO_BITS       		__NVIC_PRIO_BITS
+#else
+	#define configPRIO_BITS       		5        /* 32 priority levels */
+#endif
+/* LOW NUMBERS ARE HIGHER PRIORITY! */
+#define configKERNEL_INTERRUPT_PRIORITY 		( 31 << (8 - configPRIO_BITS) )
+/* This is max any driver ISR should be: */
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 5 << (8 - configPRIO_BITS) )
+/* This is the prio that SVC calls should be. Need to have higher prio than sys calls so that they're never disabled */
+#define configSVC_INTERRUPT_PRIORITY			( 4 << (8 - configPRIO_BITS) )
+#elif defined(MBED_LPC23xx)
 // Additions specific to this distribution of FreeRTOS
 #define configIRQ_CAN_CONTEXT_SWITCH			0
-
-#ifdef MBED_LPC17xx
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY	1 // FIXME!
 #endif
 
 /* Debugging/testing options */

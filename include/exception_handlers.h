@@ -17,6 +17,7 @@ void Exception_DataAbort();
 void Exception_UndefinedInstruction();
 void Exception_UnhandledIRQ();
 void Exception_UnhandledFIQ();
+void Exception_HardFault();
 
 #ifdef __cplusplus
 } // extern "C"

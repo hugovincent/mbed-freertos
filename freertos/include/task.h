@@ -1181,6 +1181,10 @@ void vTaskSwitchContext( void ) PRIVILEGED_FUNCTION;
  */
 xTaskHandle xTaskGetCurrentTaskHandle( void ) PRIVILEGED_FUNCTION;
 
+xTaskHandle MPU_xTaskGetCurrentTaskHandle( void ) PRIVILEGED_FUNCTION;
+
+#define xTaskGetCurrentTaskHandleFromISR()	MPU_xTaskGetCurrentTaskHandle()
+
 /*
  * Capture the current time status for future reference.
  */

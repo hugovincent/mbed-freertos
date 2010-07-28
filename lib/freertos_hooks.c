@@ -1,12 +1,16 @@
 #include <sys/types.h>
 #include "FreeRTOS.h"
 #include "task.h"
+#include "FreeRTOSconfig.h"
 #include "lib/syscalls/heap.h"
 #include "power_management.h"
+#include "mpu_manager.h"
 
 #if configUSE_IDLE_HOOK == 1
 void vApplicationIdleHook()
 {
+	WDT_Feed();
+	Mpu_Idle();
 	PowerManagement_Idle();
 }
 #endif

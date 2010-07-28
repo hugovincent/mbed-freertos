@@ -1,8 +1,9 @@
-#if 0
+#include <reent.h>
 
 // Function to add multithread support to newlib
 struct _reent *__getreent( void )
 {
+#if 0
 	NU_HISR *HisrPtr;
 	NU_TASK *TaskPtr;
 
@@ -17,9 +18,11 @@ struct _reent *__getreent( void )
 		return TaskPtr->_impure_ptr;
 	}
 	return HisrPtr->_impure_ptr;
+#endif
 	return _impure_ptr;
 }
 
+#if 0
 /*** From reent.c ***/
 
 /* Interim cleanup code */

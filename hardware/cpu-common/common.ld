@@ -9,20 +9,34 @@ SECTIONS
 	/* ------------------------- START OF ROM CODE ------------------------- */
 
 	/* first section is .text which is used for code */
+	__text_start__ = . ;
 	.text : AT ( 0x0 )
 	{
-		*crt0.o ( .vectors )				/* Exception vectors from crt0.s */
-		*crt0.o ( .text )					/* remaining boot code */
-		*device_init.o ( .text )
-		*device_init.o ( .text.* )
-		*( .text )
-		*( .text.* )
+		__privileged_functions_start__ = .;
+
+		__vectors_start__ = . ;
+		KEEP(*( .vectors ))
+		__vectors_end__ = .;
+
+		*(privileged_functions .privileged_functions)
+
+		/* Align to nearest power of two */
+		prvFLen_ = . - __privileged_functions_start__;
+		prvFLen2_ = prvFLen_ - 1;
+		prvFLen2_ |= prvFLen2_ >> 1;
+		prvFLen2_ |= prvFLen2_ >> 2;
+		prvFLen2_ |= prvFLen2_ >> 4;
+		prvFLen2_ |= prvFLen2_ >> 8;
+		prvFLen2_ |= prvFLen2_ >> 16;
+		. = ALIGN(MAX(prvFLen2_ + 1, 32));			/* Min MPU size is 32 bytes */
+
+		__privileged_functions_end__ = .;
+
+		*( .text .text.* )
 		*( .gnu.linkonce.t.* )
-		*( .glue_7 )
-		*( .glue_7t )
+		*( .glue_7 .glue_7t )
 		*( .gcc_except_table )
-		*( .rodata )						/* read-only data (constants) */
-		*( .rodata* )
+		*( .rodata .rodata* )
 		*( .gnu.linkonce.r.* )
 	} > Flash
 
@@ -58,19 +72,6 @@ SECTIONS
 
 	__text_end__ = . ;
 
-	/* .data section -- used for initialized data */
-	.data : AT ( __text_end__ ) 
-	{
-		. = ALIGN(8);
-		__data_start__ = . ;
-		SORT(CONSTRUCTORS)
-		*( .data )
-		*( .data.* )
-		*( .gnu.linkonce.d* )
-		. = ALIGN(8);
-		__data_end__ = . ;
-	} > Ram
-
 	/* -------------------------- END OF ROM CODE -------------------------- */
 
 	/* .bss section -- used for uninitialized data */
@@ -78,12 +79,42 @@ SECTIONS
 	{
 		. = ALIGN(8);
 		__bss_start__ = . ;
-		*( .bss )
-		*( .bss.* )
+
+		__privileged_data_start__ = .;
+
+		KEEP(*crt0.o( privileged_bss .privileged_bss ))
+		KEEP(*( privileged_bss .privileged_bss ))
+
+		prvDLen_ = . - __privileged_data_start__;
+		prvDLen2_ = prvDLen_ - 1;
+		prvDLen2_ |= prvDLen2_ >> 1;
+		prvDLen2_ |= prvDLen2_ >> 2;
+		prvDLen2_ |= prvDLen2_ >> 4;
+		prvDLen2_ |= prvDLen2_ >> 8;
+		prvDLen2_ |= prvDLen2_ >> 16;
+		. = ALIGN(MAX(prvDLen2_ + 1, 32));
+
+		__privileged_data_end__ = .;
+
+		*(.shbss)
+		*(.bss .bss.* .gnu.linkonce.b.*)
 		*( .gnu.linkonce.b* )
 		*( COMMON )
 		. = ALIGN(8);
+		*(.ram.b .bss.ram)
 		__bss_end__ = . ;
+	} > Ram
+
+	/* .data section -- used for initialized data */
+	.data : AT ( __text_end__ ) 
+	{
+		. = ALIGN(8);
+		__data_start__ = . ;
+		SORT(CONSTRUCTORS)
+		*( .data .data.* )
+		*( .gnu.linkonce.d* )
+		. = ALIGN(8);
+		__data_end__ = . ;
 	} > Ram
 
 	/* Heap starts here and grows up in memory */

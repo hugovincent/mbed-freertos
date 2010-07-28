@@ -100,3 +100,11 @@ __attribute__ ((noreturn)) void Exception_UnhandledFIQ()
 	PowerManagement_PowerDown();
 }
 
+__attribute__ ((noreturn)) void Exception_HardFault()
+{
+	portDISABLE_INTERRUPTS();
+	Debug_Puts("\n[FreeRTOS] Fatal Error: HardFault.\n");
+	// FIXME try to print all the details about it
+	PowerManagement_PowerDown();
+}
+

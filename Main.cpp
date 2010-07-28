@@ -45,6 +45,7 @@
 #include "example_tasks/dynamic.h"
 #include "example_tasks/webserver_task.h"
 
+#include "hardware/uart.h"
 #include "hardware/wdt.h"
 #include "power_management.h"
 
@@ -54,17 +55,74 @@
 #define mainFLASH_PRIORITY              (tskIDLE_PRIORITY + 2)
 #define mainGEN_QUEUE_TASK_PRIORITY		(tskIDLE_PRIORITY)
 
+
+void SimplePrint(const char *str)
+{
+	while (*str)
+	{
+		/* Make line endings behave like normal serial terminals. */
+		if (*str == '\n')
+		{
+			uart0PutChar('\r', 0);
+		}
+		uart0PutChar(*str++, 0);
+	}
+}
+
+void xBadTask(void *params)
+{
+extern unsigned long __privileged_data_end__[];
+extern unsigned long __privileged_functions_end__[];
+extern unsigned long __SRAM_segment_end__[];
+extern unsigned long __FLASH_segment_end__[];
+volatile unsigned long *pul;
+volatile unsigned long ulReadData;
+	printf("Misbehaving task started...\n");
+	vTaskDelay(150);
+	
+
+	portSWITCH_TO_USER_MODE();
+	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
+
+	/*taskENTER_CRITICAL();
+	taskEXIT_CRITICAL();*/
+
+	pul = __privileged_data_end__ + 1;
+	ulReadData = *pul;
+	pul = __SRAM_segment_end__ - 1;
+	ulReadData = *pul;
+
+	pul = __privileged_functions_end__ + 1;
+	ulReadData = *pul;
+	pul = __FLASH_segment_end__ - 1;
+	ulReadData = *pul;
+	printf("Misbehaving task writing LEDs...\n");
+	vTaskDelay(150);
+	volatile int v = LPC_UART0->DLM;
+	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
+
+	printf("Misbehaving task finished...\n");
+
+	for (;;)
+	{
+		vTaskDelay(1000);
+		printf("Alive\n");
+	}
+}
+
+
 int main()
 {
 	// Start the standard demo tasks.
-	vStartLEDFlashTasks( mainFLASH_PRIORITY );
-	vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
+	vStartLEDFlashTasks( mainFLASH_PRIORITY | portPRIVILEGE_BIT );
+	/*vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
 	vCreateBlockTimeTasks();
 	vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
-
-	vStartWebserverTask();
+	
+	vStartWebserverTask();*/
+	xTaskCreate( xBadTask, ( signed char * ) "Bad", configMINIMAL_STACK_SIZE + 800, ( void * ) NULL, tskIDLE_PRIORITY  | portPRIVILEGE_BIT, NULL );
 	
 	printf("Starting scheduler.\n");
 
@@ -79,6 +137,7 @@ int main()
 #if configUSE_TICK_HOOK == 1
 extern "C" void vApplicationTickHook()
 {
+#if 0
 	static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
 	// Called from every tick interrupt. Have enough ticks passed to make it
@@ -136,6 +195,6 @@ extern "C" void vApplicationTickHook()
 			printf("All Good.\n");
 		}
 	}
+#endif
 }
 #endif
-
