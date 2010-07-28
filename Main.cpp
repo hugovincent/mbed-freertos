@@ -120,8 +120,8 @@ int main()
 	vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
-	
 	vStartWebserverTask();*/
+
 	xTaskCreate( xBadTask, ( signed char * ) "Bad", configMINIMAL_STACK_SIZE + 800, ( void * ) NULL, tskIDLE_PRIORITY  | portPRIVILEGE_BIT, NULL );
 	
 	printf("Starting scheduler.\n");
@@ -137,7 +137,6 @@ int main()
 #if configUSE_TICK_HOOK == 1
 extern "C" void vApplicationTickHook()
 {
-#if 0
 	static unsigned portLONG ulTicksSinceLastDisplay = 0;
 
 	// Called from every tick interrupt. Have enough ticks passed to make it
@@ -195,6 +194,5 @@ extern "C" void vApplicationTickHook()
 			printf("All Good.\n");
 		}
 	}
-#endif
 }
 #endif
