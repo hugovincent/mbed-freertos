@@ -11,7 +11,7 @@ BUGS:
 [f] Test/fix ethernet code.
 
 GENERALIZATIONS:
-[1] Provide bootcode support for LPC1768-based devices.
+[1] Check and refactor common.ld linker script and LPC1768 crt0.c
 [1] Refactor to consistently use CMSIS api naming.
 [2] Finish GPIO driver.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.

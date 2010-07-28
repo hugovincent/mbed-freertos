@@ -53,18 +53,15 @@ COMMON_FLAGS= \
 LINKER_FLAGS= \
 		-mthumb \
 		-mcpu=cortex-m3 \
-		-march=armv7-m \
 		-mno-thumb-interwork
 PORT_DIR= \
 		ARM_CM3_MPU
 EXTRA_LDFLAGS= \
 		-mcpu=cortex-m3 \
-		-march=armv7-m \
 		-mthumb
-CXX_SOURCE= \
-		hardware/cpu-lpc1768/crt0.cpp
 C_SOURCE= \
 		hardware/cpu-lpc1768/core_cm3.c \
+		hardware/cpu-lpc1768/crt0.c \
 		lib/mpu_manager.c
 endif
 

@@ -40,53 +40,57 @@ uint32_t SystemCoreClock = 72000000;
 
 void LowLevelInit(void)
 {
-	/* FIXME get/store reset-reason. */
+	// FIXME get/store reset-reason.
 
-	/* Disconnect the PLL if it's already connected. */
+	/*************************************************************************/
+	// Core Clock Setup
+
+	// Disconnect the PLL if it's already connected.
 	if (LPC_SC->PLL0CON & (PLL_CONNECT | PLL_ENABLE))
 	{
 		LPC_SC->PLL0CON = PLL_ENABLE;
 		PLL_FEED();
 	}
 
-	/* Disable the PLL. */
+	// Disable the PLL.
 	LPC_SC->PLL0CON = 0;
 	PLL_FEED();
 
-	/* Turn on the oscillator clock source and wait for it to start.
-	 * Also, enable fast mode on GPIO ports 0 and 1.
-	 */
+	// Turn on the oscillator clock source and wait for it to start.
+	// Also, enable fast mode on GPIO ports 0 and 1.
 	LPC_SC->SCS |= OSC_ENABLE | FAST_GPIO;
-	while( !( LPC_SC->SCS & OSC_STAT ) );
+	while (!(LPC_SC->SCS & OSC_STAT));
 	LPC_SC->CLKSRCSEL = OSC_SELECT;
 
-	/* Setup the PLL to multiply the XTAL input up to Fcco = 288 MHz. */
-	LPC_SC->PLL0CFG =  (PLL_MUL - 1) | (((PLL_DIV - 1) << 16));
+	// Setup the PLL to multiply the XTAL input up to Fcco = 288 MHz.
+	LPC_SC->PLL0CFG = (PLL_MUL - 1) | (((PLL_DIV - 1) << 16));
 	PLL_FEED();
 
-	/* Turn on and wait for the PLL to lock. */
+	// Turn on and wait for the PLL to lock.
 	LPC_SC->PLL0CON = PLL_ENABLE;
 	PLL_FEED();
-	while( !( LPC_SC->PLL0STAT & PLL_LOCK ) );
+	while (!(LPC_SC->PLL0STAT & PLL_LOCK));
 
-	/* Set clock dividors for CPU and USB blocks. */
+	// Set clock dividors for CPU and USB blocks.
 	LPC_SC->CCLKCFG = (CPU_CLK_DIV - 1);
 	LPC_SC->USBCLKCFG = (USB_CLK_DIV - 1);
 
-	/* Connect the PLL and wait for it to connect. */
+	// Connect the PLL and wait for it to connect.
 	LPC_SC->PLL0CON = PLL_CONNECT | PLL_ENABLE;
 	PLL_FEED();
-	while( !( LPC_SC->PLL0STAT & PLL_CONNECTED ) );
+	while (!(LPC_SC->PLL0STAT & PLL_CONNECTED));
 
-	/* Setup and turn on the MAM.  Four cycle access is used due to the fast
-	 * PLL used.  It is possible faster overall performance could be obtained by
-	 * tuning the MAM and PLL settings.
-	 */
+	/*************************************************************************/
+	// Memory and VIC setup
+
+	// Setup and turn on the MAM.  Four cycle access is used due to the fast
+	// PLL used.  It is possible faster overall performance could be obtained by
+	// tuning the MAM and PLL settings.
 	LPC_SC->MAMCR = 0;
 	LPC_SC->MAMTIM = MAM_TIM_4;
 	LPC_SC->MAMCR = MAM_MODE_FULL;
 
-	/* Set vectors for unhandled and/or spurious interrupts in the VIC. */
+	// Set vectors for unhandled and/or spurious interrupts in the VIC.
 	for (int irq = 0; irq < 32; irq++)
 	{
 		LPC_VIC->VectAddr[irq] = (unsigned int)Exception_UnhandledIRQ;

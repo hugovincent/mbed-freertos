@@ -71,21 +71,21 @@ void SimplePrint(const char *str)
 
 void xBadTask(void *params)
 {
-extern unsigned long __privileged_data_end__[];
-extern unsigned long __privileged_functions_end__[];
-extern unsigned long __SRAM_segment_end__[];
-extern unsigned long __FLASH_segment_end__[];
-volatile unsigned long *pul;
-volatile unsigned long ulReadData;
+	extern unsigned long __privileged_data_end__[];
+	extern unsigned long __privileged_functions_end__[];
+	extern unsigned long __SRAM_segment_end__[];
+	extern unsigned long __FLASH_segment_end__[];
+	volatile unsigned long *pul;
+	volatile unsigned long ulReadData;
 	printf("Misbehaving task started...\n");
 	vTaskDelay(150);
-	
+
 
 	portSWITCH_TO_USER_MODE();
 	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
 
 	/*taskENTER_CRITICAL();
-	taskEXIT_CRITICAL();*/
+	  taskEXIT_CRITICAL();*/
 
 	pul = __privileged_data_end__ + 1;
 	ulReadData = *pul;
@@ -123,7 +123,7 @@ int main()
 	vStartWebserverTask();*/
 
 	xTaskCreate( xBadTask, ( signed char * ) "Bad", configMINIMAL_STACK_SIZE + 800, ( void * ) NULL, tskIDLE_PRIORITY  | portPRIVILEGE_BIT, NULL );
-	
+
 	printf("Starting scheduler.\n");
 
 	// Start the scheduler.
@@ -160,6 +160,7 @@ extern "C" void vApplicationTickHook()
 
 		// Has an error been found in any task?
 		int allGood = 1;
+#if 0
 		if( xAreBlockingQueuesStillRunning() != pdTRUE )
 		{
 			printf("ERROR - BLOCKQ\n");
@@ -189,6 +190,7 @@ extern "C" void vApplicationTickHook()
 			printf("ERROR - DYNAMIC\n");
 			allGood = 0;
 		}
+#endif
 		if (allGood == 1)
 		{
 			printf("All Good.\n");

@@ -1322,7 +1322,7 @@ static __INLINE uint32_t SysTick_Config(uint32_t ticks)
  *
  * Initialize a system reset request to reset the MCU
  */
-static __INLINE void NVIC_SystemReset(void)
+__attribute ((noreturn)) static __INLINE void NVIC_SystemReset(void)
 {
   SCB->AIRCR  = (NVIC_AIRCR_VECTKEY | (SCB->AIRCR & (0x700)) | (1<<NVIC_SYSRESETREQ)); /* Keep priority group unchanged */
   __DSB();                                                                             /* Ensure completion of memory access */              

@@ -144,31 +144,13 @@ LoopFill:       CMP     R1, R2
 BSSIsEmpty:
 
 @  ----------------------------------------------------------------------------
-@  Call the low level initialization functions (sets up clocks etc)
-                .extern LowLevelInit, BoardInit
-                LDR     R0, =LowLevelInit
+@  Jump into C BootInit() code (lib/os_init.c).
+                .extern BootInit
+                LDR     R0, =BootInit
                 MOV     LR, PC
                 BX      R0
 
-                LDR     R0, =BoardInit
-                MOV     LR, PC
-                BX      R0
-
-                LDR     R0, =SystemInit
-                MOV     LR, PC
-                BX      R0
-
-@  ----------------------------------------------------------------------------
-@  Finally, enter the C code (via a shim that ensures global C++ objects have
-@  their constructors called first. This shim is in lib/min_c++.cpp and
-@  is called __cxx_main, which becomes _Z10__cxx_mainv due to C++ name mangling).
-                .extern _Z10__cxx_mainv
-                ADD     LR, PC, #4
-                LDR     R0, =_Z10__cxx_mainv
-                BX      R0
-
-@  ----------------------------------------------------------------------------
-@  If C main ever returns, reset the device
+@  The C main should never return, but if it does, reset the device
                 LDR     R0, =Reset_Handler
                 BX      R0
 

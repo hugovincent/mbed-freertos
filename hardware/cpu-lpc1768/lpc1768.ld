@@ -18,7 +18,7 @@ __FLASH_segment_end__ = __FLASH_segment_start__ + LENGTH( Flash );
 __SRAM_segment_start__ = ORIGIN( Ram );
 __SRAM_segment_end__ = __SRAM_segment_start__ + LENGTH( Ram );
 
-Stack_Size_Total = 16;
+Stack_Size_Total = 768;
 
 INCLUDE "hardware/cpu-common/common.ld"
 

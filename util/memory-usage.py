@@ -40,18 +40,15 @@ for line in sh('arm-none-eabi-objdump -t %s' % sys.argv[2]).strip().split('\n'):
 
 # Parse RAM/flash capacities from linker-script
 memories = {}
-for line in sh('cat hardware/cpu-' + target + '/' + target + '.ld | grep " (r.) *:"').strip().split('\n'):
+for line in sh('cat hardware/cpu-' + target + '/' + target + '.ld | grep " (r.*) *:"').strip().split('\n'):
 	memory = line.strip().split()
-	# Parse 'k' suffixes
+	# Parse 'k' suffixes FIXME
 	memsize = 1024 * int(memory[-1][:-1])
 	memories[memory[0]] = memsize
 
-# Parse stack allocations from boot code (assembly)
-total_stack = 0
-for line in sh('grep "_Stack_Size," hardware/cpu-' + target + '/crt0.s | grep "\.equ"').strip().split('\n'):
-	if line.strip() == "":
-		continue
-	total_stack += int(line.split()[2], 16)
+# Parse stack allocations from linker output
+line = sh('grep "Stack_Size_Total" %s.map' % "RTOSDemo.elg".split('.')[0]).strip().split('\n')[0]
+total_stack = int(line.split()[-1], 16)
 
 # Parse ELF program headers (for definitive total flash and RAM usage)
 for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[2]).strip().split('\n'):
@@ -62,7 +59,7 @@ for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[2]).strip().split('\n'):
 			total_init_ram = int(parse[4], 16)
 		elif parse[6] == 'R' and parse[7] == 'E':
 			total_text = int(parse[5], 16)
-			
+
 #------------------------------------------------------------------------------
 # Summarize usage (note: sizes are approximate due to padding for alignment)
 print

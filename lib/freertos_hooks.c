@@ -5,6 +5,7 @@
 #include "lib/syscalls/heap.h"
 #include "power_management.h"
 #include "mpu_manager.h"
+#include "hardware/wdt.h"
 
 #if configUSE_IDLE_HOOK == 1
 void vApplicationIdleHook()

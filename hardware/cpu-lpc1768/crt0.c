@@ -1,15 +1,7 @@
-
-
-#include "hardware/cpu-common/crt1.cpp"
 #include "exception_handlers.h"
 
-#if defined (__cplusplus)
-extern "C" {
-#endif
-
 #include <stdint.h>                           /* Include standard types */
-#include "LPC17xx.h"
-#include "system_LPC17xx.h"
+#include <cmsis.h>
 
 void Reset_Handler(void);
 void NMI_Handler(void);
@@ -19,7 +11,7 @@ void BusFault_Handler(void);
 void UsageFault_Handler(void);
 void DebugMon_Handler(void);
 
-extern void CrtStart(void);
+extern void BootInit();
 
 extern void (* const Vectors[])(void);
 extern void __top_of_stack__(void);
@@ -59,7 +51,7 @@ void BusFault_Handler()
 	bool bfarValid = cfsr & CFSR_BFARVALID ? true : false,
 		stkErr = cfsr & CFSR_STKERR ? true : false, // stacking from exception bus fault
 		unstkErr = cfsr & CFSR_UNSTKERR ? true : false, // unstacking from exception bus fault
-		impreciseErr = cfsr & CFSR_IMPRECISERR ? true : false, // imprecise data bus err. 
+		impreciseErr = cfsr & CFSR_IMPRECISERR ? true : false, // imprecise data bus err.
 		preciseErr = cfsr & CFSR_PRECISERR ? true : false, // precise data bus err
 		ibusErr = cfsr & CFSR_IBUSERR ? true : false; // instruction bus error flag caused by prefetch
 	unsigned int busFaultAddr = bfarValid ? SCB->BFAR : 0;
@@ -116,7 +108,7 @@ void (* const Vectors[])(void) = {
 };
 
 unsigned long *__ram_vectors_start__;
-extern unsigned long __text_start__, __text_end__, 
+extern unsigned long __text_start__, __text_end__,
 	__vectors_start__, __vectors_end__,
 	__data_start__, __data_end__,
 	__bss_start__, __bss_end__;
@@ -125,38 +117,34 @@ extern unsigned long __text_start__, __text_end__,
 #define VECTORS_LEN_LPC17XX	(35)
 #define VECTORS_LEN			(VECTORS_LEN_CORE + VECTORS_LEN_LPC17XX)
 
-void Reset_Handler(void) {
+__attribute__ ((noreturn)) void Reset_Handler(void)
+{
     unsigned long *pulSrc, *pulDest;
-	static void (* RamVectors[VECTORS_LEN])(void)  __attribute__ ((aligned(0x100), section("privileged_bss")));
+	static void (* RamVectors[VECTORS_LEN])(void) __attribute__ ((aligned(0x100), section("privileged_bss")));
 
-    //
     // Copy the data segment initializers from flash to SRAM.
-    //
     pulSrc = &__text_end__;
     for (pulDest = &__data_start__; pulDest < &__data_end__; )
         *pulDest++ = *pulSrc++;
 
-    //
     // Zero fill the bss segment.  This is done with inline assembly since this
     // will clear the value of pulDest if it is not kept in a register.
-    //
 	for (register unsigned long *dst = &__bss_start__; dst < &__bss_end__; dst++)
 		*dst = 0;
 
-	//
     // Copy the initial vector table from flash to SRAM and then init the rest
-    //
 	pulSrc = &__vectors_start__;
-    for (pulDest = (unsigned long *)RamVectors; pulDest < (unsigned long *)(RamVectors + VECTORS_LEN_CORE); )
+    for (pulDest = (unsigned long *)RamVectors; 
+			pulDest < (unsigned long *)(RamVectors + VECTORS_LEN_CORE); )
         *pulDest++ = *pulSrc++;
 	while (pulDest < (unsigned long *)(RamVectors + VECTORS_LEN))
 		*pulDest++ = (unsigned long)&Exception_UnhandledIRQ;
 	__ram_vectors_start__ = (unsigned long *)RamVectors;
 	SCB->VTOR = (unsigned long)RamVectors;
 
-	CrtStart();
+	BootInit();
+	
+	// If main ever returns, reset the board
+	NVIC_SystemReset();
 }
-
-
-
 
