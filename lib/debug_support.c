@@ -23,46 +23,87 @@ void Debug_Puts(const char *str)
 }
 
 
-// FIXME these should be pulled in magically though linker-foo
-#define RAM_BASE (0x40000000)
-#define RAM_LENGTH (0x8000)
-int  Debug_ValidMemory(unsigned int addr)
+int  Debug_ValidMemory(unsigned int *addr)
 {
-	return (addr >= RAM_BASE && addr < (RAM_BASE + RAM_LENGTH)) ? 1 : 0;
+	/* These symbols are defined by the linker script. */
+	extern unsigned int __data_start__, __top_of_stack__;
+
+	return (addr >= &__data_start__ 
+			&& addr < &__top_of_stack__) ? 1 : 0;
 }
 
-
-/* Assumes a full AAPCS stack frame, so compile with -mapcs-frame and don't
-   use -fomit-frame-pointer (enabled by default for -O2).
-   
-   See http://csg.lbl.gov/pipermail/vxwexplo/2004-February/004397.html
- */
-struct StackFrame {
-	struct StackFrame *fp;
-	unsigned int sp;
-	unsigned int lr; // LR is offset by 8 due to pipelining
-	unsigned int pc; // frame pointer points here (high address end of struct)
-};
-void Debug_PrintBacktrace(unsigned int fp)
+void Debug_PrintBacktraceHere(int skip_frames)
 {
-	int depth = 0;
-	struct StackFrame *frame = (struct StackFrame *)(fp - 3 * sizeof(int*));
+	register unsigned int *fp asm("r11");
+	Debug_PrintBacktrace(fp, skip_frames + 1); // We don't want Debug_PrintBacktraceHere in the backtrace
+}
+
+/* Assumes a full AAPCS stack frame, so compile with:
+		-mapcs-frame -fno-omit-frame-pointer.
+   
+   See http://csg.lbl.gov/pipermail/vxwexplo/2004-February/004397.html,
+   and the stack dump implementations in Ethernet Nut/OS and LostARM.
+ */
+#define NEXT_FRAME_VALID() (next_frame < (frame - sizeof(struct StackFrame)) \
+		&& next_frame > next_frame - 1024)
+void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
+{
+	struct StackFrame {
+		struct StackFrame *fp;
+		unsigned int sp;
+		unsigned int lr; // LR is offset by 8 due to CPU pipeline
+		unsigned int pc;
+	} *frame, *next_frame;
+
+	// The frame pointer points to the end of the struct, so we need to
+	// manually offset the pointer address
+	frame = (struct StackFrame *)(fp - sizeof(struct StackFrame) / sizeof(int*));
 
 	// Walk the linked list as long as we remain in seemingly-valid frames
-	while (Debug_ValidMemory((unsigned int)frame) && depth < MAX_BACKTRACE_FRAMES)
+	int depth = 0;
+	while (Debug_ValidMemory((unsigned int *)frame) 
+			&& depth < (MAX_BACKTRACE_FRAMES + skip_frames))
 	{
+		// Get the next frame (similarly offset as above)
+		next_frame = (struct StackFrame *)(frame->fp - 3);
+
 		depth++;
+		if (depth > skip_frames)
+		{
+			Debug_Printf("\t#%d: [<%08x>] called from [<%08x>]\n", 
+					depth - skip_frames, frame->pc, frame->lr - 8);
 
-		Debug_Printf("\t#%d: [<%08x>] called from [<%08x>]\n", depth,
-				frame->pc, frame->lr - 8); // LR is offset by 8 due to CPU pipeline
+			Debug_Printf("\t\tframe : %p    next_frame : %p\n", frame, next_frame);
 
-		// FIXME would ideally print stack local variables here too?
+			// Print relevant part of the stack itself
+			if (NEXT_FRAME_VALID())
+			{
+				unsigned int *j = (unsigned int *)next_frame + 4;
+				unsigned int *k = (unsigned int *)frame;
 
-		frame = (struct StackFrame *)(frame->fp - 3 * sizeof(int*));
+				int count = 0;
+				for (; j < k && count < MAX_BACKTRACE_STACKDETAIL; j++)
+				{
+					count++;
+					if ((count % 3) == 1);
+						Debug_Puts("\t");
+					Debug_Printf("\t%08x", *j);
+					if ((count % 3) == 0)
+						Debug_Puts("\n");
+				}
+			}
+		}
+
+		// Does the next frame appear somewhat valid?
+		if (NEXT_FRAME_VALID())
+			frame = next_frame;
+		else
+			break;
 	}
+
 	if (depth == 0)
 		Debug_Puts("\t(Stack frame corrupt?)\n");
-	else if (depth == MAX_BACKTRACE_FRAMES)
+	else if (depth >= MAX_BACKTRACE_FRAMES)
 		Debug_Puts("\t... truncated ...\n");
 }
 

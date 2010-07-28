@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <debug_support.h>
 
 volatile int global_int;
 
@@ -25,6 +26,9 @@ void func4(void)
 void func3(void)
 {
 	int *bad = (int *)0x09000000;
+
+	Debug_Puts("Current Backtrace:\n");
+	Debug_PrintBacktraceHere(0);
 
 	printf("About to have a data abort... bye bye\n");
 

@@ -76,11 +76,11 @@ CFLAGS = $(COMMON_FLAGS) \
 		-std=gnu99 
 #-Wc++-compat 
 
-CXXFLAGS= $(COMMON_FLAGS) \
-		-fno-unwind-tables \
-		-fno-enforce-eh-specs \
-		-fno-use-cxa-get-exception-ptr \
-		-fno-stack-protector
+CXXFLAGS= $(COMMON_FLAGS)
+#		-fno-unwind-tables \
+#		-fno-enforce-eh-specs \
+#		-fno-use-cxa-get-exception-ptr \
+#		-fno-stack-protector
 
 LINKER_FLAGS= \
 		-nostartfiles -nostdinc++ \
@@ -151,7 +151,7 @@ C_SOURCE+= \
 		lib/syscalls/write.c
 CXX_SOURCE+= \
 		lib/min_c++.cpp
-include lib/ustl/ustl.mk
+#include lib/ustl/ustl.mk
 
 # Peripheral device drivers
 C_SOURCE+= \
@@ -188,11 +188,11 @@ C_SOURCE+= \
 #		lib/uip/timer.c \
 #		lib/uip/uip.c
 
-## Tests 
-#CXX_SOURCE+= \
-#		tests/CxxTest.cpp \
-#		tests/Tests.cpp \
-#		tests/AbortDebugTests.cpp
+# Tests 
+CXX_SOURCE+= \
+		tests/CxxTest.cpp \
+		tests/Tests.cpp \
+		tests/AbortDebugTests.cpp
 
 #------------------------------------------------------------------------------
 # Build Rules:

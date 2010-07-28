@@ -18,20 +18,22 @@ void Debug_Puts(const char *str);
 }
 
 struct Debug_RegisterDump {
+	unsigned int r[13];
 	unsigned int pc;
 	unsigned int pc_ptr;
 	unsigned int cpsr;
 	unsigned int lr;
 	unsigned int sp;
-	unsigned int r[13];
 };
 
-#define MAX_BACKTRACE_FRAMES	(12)
-void Debug_PrintBacktrace(unsigned int fp);
+#define MAX_BACKTRACE_FRAMES		(12)
+#define MAX_BACKTRACE_STACKDETAIL	(16)
+void Debug_PrintBacktrace(unsigned int *fp, int skip_frames);
+void Debug_PrintBacktraceHere(int skip_frames);
 
 void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs);
 void Debug_PrintCPSR(unsigned int cpsr);
-int  Debug_ValidMemory(unsigned int addr);
+int  Debug_ValidMemory(unsigned int *addr);
 
 #ifdef __cplusplus
 } // extern "C"

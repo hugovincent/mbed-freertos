@@ -51,7 +51,7 @@ static __attribute__ ((noreturn)) void PrintAbortInfo(enum ExceptionType type)
 	Debug_PrintSavedRegisterState(&SavedRegs);
 
 	Debug_Puts("\nBacktrace:\n");
-	Debug_PrintBacktrace(SavedRegs.r[11]); // r11 is the frame pointer
+	Debug_PrintBacktrace((unsigned int *)SavedRegs.r[11], 0); // r11 is the frame pointer
 
 	// FIXME some FreeRTOS-specific thread information should go here?
 

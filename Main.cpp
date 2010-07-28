@@ -91,9 +91,13 @@ extern "C" void vApplicationTickHook()
 		WDT_Feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
-		static char taskListBuffer[1400]; // FIXME really?!...
-		vTaskGetRunTimeStats((signed portCHAR *)taskListBuffer);
-		printf(taskListBuffer);
+		int8_t *taskListBuffer = (int8_t *)malloc(40 * uxTaskGetNumberOfTasks());
+		if (taskListBuffer != NULL)
+		{
+			vTaskGetRunTimeStats((int8_t *)taskListBuffer);
+			puts((const char *)taskListBuffer);
+			free(taskListBuffer);
+		}
 #endif
 
 		// Has an error been found in any task?

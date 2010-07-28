@@ -48,10 +48,6 @@
 
 @  ----------------------------------------------------------------------------
 @  Stack configuration definitions (sizes in bytes)
-@      Note: Exception-mode stacks are zero-length; these stacks are aliased
-@      over the other stacks below them, so using them will mangle memory
-@      unrecoverably. This is OK for our purposes as we don't attempt to
-@      recover from exceptions.
 
 .equ UND_Stack_Size,     0x00000010
 .equ SVC_Stack_Size,     0x00000200
@@ -185,8 +181,8 @@ BSSIsEmpty:
 
 @ Code from http://www.eetimes.com/design/other/4006695/How-to-use-ARM-s-data-abort-exception
 PAbt_Handler:
-                STMFD   SP!, {R0-R12, LR}       @ save superset of the AAPCS scheme (r4-r11)
-                LDR     SP, =(SavedRegs + 5*4)  @ set sp_abt to data array w/offset (restore later)
+                PUSH    {R0-R12,LR}             @ save superset of the AAPCS scheme (r4-r11)
+                LDR     SP, =SavedRegs          @ set sp_abt to data array (restore later)
                 STMIA   SP, {R0-R12}            @ save 1st dataset in r0-r12 registers to array
                 SUB     R0, LR, #4              @ calculate pc value of abort instr: r0 = lr-4
                 MRS     R5, CPSR                @ save current mode to r5 for mode switching
@@ -200,22 +196,22 @@ PAbt_Handler:
                 MOV     R3, LR                  @ dabt generating mode and state
                 MOV     R4, SP                  @ get lr (= r3) and sp (= r4)
                 MSR     CPSR, R5                @ switch back to Mode_ABT 
-                LDR     SP, =SavedRegs          @ reset sp to array's starting addr
-                STMIA   SP, {r0-r4}             @ and save the 2nd dataset from r0 to r4
+                LDR     SP, =(SavedRegs + 13*4) @ reset sp to array's starting addr
+                STMIA   SP, {R0-R4}             @ and save the 2nd dataset from r0 to r4
 
                 @ cleanup & restoration follows:
                                                 @ restored full context, sp first
                 LDR     SP, =(__top_of_stack__ - UND_Stack_Size)
                                                 @ sp uses abort stack (which is top of stack
                                                 @ minus undefined stack length)
-                LDMDB   SP, {r0-r12, lr}        @ r0-r12 and lr using restored stack pointer
+                POP     {R0-R12,LR}             @ r0-r12 and lr using restored stack pointer
                 LDR     R0, =Exception_PrefetchAbort
                 BX      R0                      @ call C-compiled handler
 
 @ See comments for PAbt_Handler above.
 DAbt_Handler:
-                STMFD   SP!, {R0-R12, LR}
-                LDR     SP, =(SavedRegs + 5*4)
+                PUSH    {R0-R12,LR}
+                LDR     SP, =SavedRegs
                 STMIA   SP, {R0-R12}
                 SUB     R0, LR, #8
                 MRS     R5, CPSR
@@ -231,18 +227,18 @@ DAbt_Handler:
                 TST     R6, #0x20               @ Thumb state raised exception?
                 LDRNEH  R1, [R0]                @ yes T-state, load 16-bit instr: r1 = [pc](dabt)
                 LDREQ   R1, [R0]                @ no A-state, load 32-bit instr: r1 = [pc](dabt)
-                LDR     SP, =SavedRegs
-                STMIA   SP, {r0-r4}
+                LDR     SP, =(SavedRegs + 13*4)
+                STMIA   SP, {R0-R4}
                 LDR     SP, =(__top_of_stack__ - UND_Stack_Size)
-                LDMDB   SP, {r0-r12, lr}
+                POP     {R0-R12,LR}
                 LDR     R0, =Exception_DataAbort
                 BX      R0
 
 @ See comments for PAbt_Handler above.
 @ FIXME this probably needs some other changes?
 Undef_Handler:
-                STMFD   SP!, {R0-R12, LR}
-                LDR     SP, =(SavedRegs + 5*4)
+                PUSH    {R0-R12,LR}
+                LDR     SP, =SavedRegs
                 STMIA   SP, {R0-R12}
                 SUB     R0, LR, #4
                 MRS     R5, CPSR
@@ -258,10 +254,10 @@ Undef_Handler:
                 TST     R6, #0x20
                 LDRNEH  R1, [R0]
                 LDREQ   R1, [R0]
-                LDR     SP, =SavedRegs
-                STMIA   SP, {r0-r4}
+                LDR     SP, =(SavedRegs + 13*4)
+                STMIA   SP, {R0-R4}
                 LDR     SP, =__top_of_stack__
-                LDMDB   SP, {r0-r12, lr}
+                POP     {R0-R12,LR}
                 LDR     R0, =Exception_UndefinedInstruction
                 BX      R0
 .end
