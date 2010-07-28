@@ -11,7 +11,9 @@
 void vApplicationIdleHook()
 {
 	WDT_Feed();
+#if TARGET_LPC1768
 	Mpu_Idle();
+#endif
 	PowerManagement_Idle();
 }
 #endif

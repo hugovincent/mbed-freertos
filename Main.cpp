@@ -69,6 +69,7 @@ void SimplePrint(const char *str)
 	}
 }
 
+#ifdef TARGET_LPC1768
 void xBadTask(void *params)
 {
 	extern unsigned long __privileged_data_end__[];
@@ -109,6 +110,7 @@ void xBadTask(void *params)
 		printf("Alive\n");
 	}
 }
+#endif
 
 
 int main()
@@ -122,7 +124,9 @@ int main()
 	vStartDynamicPriorityTasks();
 	vStartWebserverTask();*/
 
+#ifdef TARGET_LPC1768
 	xTaskCreate( xBadTask, ( signed char * ) "Bad", configMINIMAL_STACK_SIZE + 800, ( void * ) NULL, tskIDLE_PRIORITY  | portPRIVILEGE_BIT, NULL );
+#endif
 
 	printf("Starting scheduler.\n");
 

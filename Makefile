@@ -238,7 +238,7 @@ $(CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
 # ARM Assembler Code:
-$(ASM_OBJS) : $(ODIR)/%.o : %.s hardware/cpu-common/crt0.s $(ODIR)/exists
+$(ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
 	@echo "  [Assembling (asm)] $<"
 	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
 

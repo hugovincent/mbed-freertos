@@ -99,6 +99,7 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 	return 1;
 }
 
+#ifndef SIMPLE_UART
 signed portBASE_TYPE uart0GetChar(signed portCHAR *pcRxedChar, portTickType xBlockTime)
 {
 #if defined(SIMPLE_UART)
@@ -119,6 +120,7 @@ signed portBASE_TYPE uart0GetChar(signed portCHAR *pcRxedChar, portTickType xBlo
 	return xQueueReceive(xRX0Queue, pcRxedChar, xBlockTime) ? pdTRUE : pdFALSE;
 #endif
 }
+#endif
 
 #if defined(SIMPLE_UART)
 signed portBASE_TYPE uart0PutChar(signed portCHAR cOutChar, portTickType xBlockTime)
