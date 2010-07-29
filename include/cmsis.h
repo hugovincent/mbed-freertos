@@ -8,9 +8,9 @@
 #ifndef MBED_CMSIS_H
 #define MBED_CMSIS_H
 
-#if defined(TARGET_LPC1768)
+#if defined(TARGET_LPC17xx)
 #include "LPC17xx.h"
-#elif defined(TARGET_LPC2368)
+#elif defined(TARGET_LPC23xx)
 #include "LPC23xx.h"
 #else
 #error "CMSIS Target not recognised"

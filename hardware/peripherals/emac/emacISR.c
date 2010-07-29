@@ -13,7 +13,7 @@ void vEmacISR_Handler(void)
 
     /* Clear the interrupt. */
     LPC_EMAC->IntClear = 0xffff;
-#if defined(MBED_LPC23xx)
+#if defined(TARGET_LPC23xx)
     LPC_VIC->Address = 0;
 #endif
 

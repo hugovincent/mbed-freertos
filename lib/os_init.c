@@ -4,7 +4,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#ifdef TARGET_LPC1768
+#ifdef CORE_HAS_MPU
 #include "mpu_manager.h"
 #endif
 
@@ -13,7 +13,7 @@ void SystemInit()
 	// This initialises the stdio layer in Newlib. FIXME temporary
 	extern void initialise_stdio();
 
-#ifdef TARGET_LPC1768
+#ifdef CORE_HAS_MPU
 	MpuManager_Init();
 #endif
 	DeviceManager_Init();

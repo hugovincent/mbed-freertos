@@ -50,7 +50,7 @@
 #define configUSE_MUTEXES						1
 
 
-#if defined(MBED_LPC17xx)
+#if defined(TARGET_LPC17xx)
 #ifdef __NVIC_PRIO_BITS
 	#define configPRIO_BITS       		__NVIC_PRIO_BITS
 #else
@@ -62,7 +62,7 @@
 #define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 5 << (8 - configPRIO_BITS) )
 /* This is the prio that SVC calls should be. Need to have higher prio than sys calls so that they're never disabled */
 #define configSVC_INTERRUPT_PRIORITY			( 4 << (8 - configPRIO_BITS) )
-#elif defined(MBED_LPC23xx)
+#elif defined(TARGET_LPC23xx)
 // Additions specific to this distribution of FreeRTOS
 #define configIRQ_CAN_CONTEXT_SWITCH			0
 #endif

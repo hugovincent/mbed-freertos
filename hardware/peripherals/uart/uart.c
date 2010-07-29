@@ -84,7 +84,7 @@ signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE
 #if !defined(SIMPLE_UART)
 		// Setup the VIC for the UART
 		NVIC_SetVector(UART0_IRQn, (portLONG)vUart0ISR);
-#if defined(TARGET_LPC1768)
+#if defined(TARGET_LPC17xx)
 		#warning Note: This should be automatically set by the OS when allocating interrupts as it will lock up when the ISR makes sys calls
 		NVIC_SetPriority(UART0_IRQn, 6);
 #endif
@@ -155,7 +155,7 @@ signed portBASE_TYPE uart0PutChar_debug(signed portCHAR c, portTickType dummy)
 
 #else
 
-#if defined(TARGET_LPC1768) && portUSING_MPU_WRAPPERS != 0
+#if defined(TARGET_LPC17xx) && portUSING_MPU_WRAPPERS != 0
 #warning At present we do it this way but will be replaced by a proper hardware driver call 
 static void uart0PutCharStarter(void)
 {

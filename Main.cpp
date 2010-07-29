@@ -69,7 +69,7 @@ void SimplePrint(const char *str)
 	}
 }
 
-#ifdef TARGET_LPC1768
+#ifdef CORE_HAS_MPU
 void xBadTask(void *params)
 {
 	extern unsigned long __privileged_data_end__[];
@@ -124,7 +124,7 @@ int main()
 	vStartDynamicPriorityTasks();
 	vStartWebserverTask();*/
 
-#ifdef TARGET_LPC1768
+#ifdef CORE_HAS_MPU
 	xTaskCreate( xBadTask, ( signed char * ) "Bad", configMINIMAL_STACK_SIZE + 800, ( void * ) NULL, tskIDLE_PRIORITY  | portPRIVILEGE_BIT, NULL );
 #endif
 

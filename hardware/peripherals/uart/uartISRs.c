@@ -40,7 +40,7 @@ void vUart0ISRCreateQueues(unsigned portBASE_TYPE uxQueueLength, xQueueHandle *p
 #if configIRQ_CAN_CONTEXT_SWITCH == 1
 void vUart0ISR_Handler(void)
 #else
-#if defined(MBED_LPC17xx)
+#if defined(TARGET_LPC17xx)
 void vUart0ISR(void)
 #else
 __attribute__ ((interrupt ("IRQ"))) void vUart0ISR(void)
@@ -90,7 +90,7 @@ __attribute__ ((interrupt ("IRQ"))) void vUart0ISR(void)
 			break;
 	}
 
-#if defined(MBED_LPC23xx)
+#if defined(TARGET_LPC23xx)
 	/* Clear the interrupt. */
 	LPC_VIC->Address = 0;
 
@@ -99,7 +99,7 @@ __attribute__ ((interrupt ("IRQ"))) void vUart0ISR(void)
 		/* Giving the semaphore woke a task. */
 		vPortYieldFromISR();
 	}
-#elif defined(MBED_LPC17xx)
+#elif defined(TARGET_LPC17xx)
 	portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 #endif
 }

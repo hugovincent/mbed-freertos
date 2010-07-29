@@ -4,14 +4,17 @@
 #include "FreeRTOSconfig.h"
 #include "lib/syscalls/heap.h"
 #include "power_management.h"
-#include "mpu_manager.h"
 #include "hardware/wdt.h"
+
+#ifdef CORE_HAS_MPU
+#include "mpu_manager.h"
+#endif
 
 #if configUSE_IDLE_HOOK == 1
 void vApplicationIdleHook()
 {
 	WDT_Feed();
-#if TARGET_LPC1768
+#ifdef CORE_HAS_MPU
 	Mpu_Idle();
 #endif
 	PowerManagement_Idle();

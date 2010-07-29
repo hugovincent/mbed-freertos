@@ -29,9 +29,8 @@ ifeq ($(TARGET), lpc2368)
 CPUFLAGS= \
 		-mcpu=arm7tdmi-s
 COMMON_FLAGS= \
-		-DMBED_LPC23xx \
-		-DTARGET_LPC2368 \
-		-DPLAT_NAME="\"mbed (LPC2368)\"" \
+		-DTARGET_LPC23xx \
+		-DPLAT_NAME="\"LPC2368\"" \
 		-Iinclude/LPC2368
 PORT_DIR= \
 		ARM7_LPC23xx
@@ -46,9 +45,9 @@ CPUFLAGS= \
 		-mcpu=cortex-m3 \
 		-mthumb
 COMMON_FLAGS= \
-		-DMBED_LPC17xx \
-		-DTARGET_LPC1768 \
-		-DPLAT_NAME="\"mbed (LPC1768)\"" \
+		-DTARGET_LPC17xx \
+		-DCORE_HAS_MPU \
+		-DPLAT_NAME="\"LPC1768\"" \
 		-Iinclude/LPC1768
 LINKER_FLAGS= \
 		-mthumb \

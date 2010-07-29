@@ -20,7 +20,7 @@ void WDT_Feed()
 {
 	taskENTER_CRITICAL();
 	{
-#if defined(MBED_LPC23xx)
+#if defined(TARGET_LPC23xx)
 		/* Have to be super-paranoid and disable interrupts at VIC level too
 		 * otherwise we are susceptible to spurious interrupts.
 		 */
@@ -30,7 +30,7 @@ void WDT_Feed()
 
 		LPC_WDT->WDFEED = 0xAA; LPC_WDT->WDFEED = 0x55;
 
-#if defined(MBED_LPC23xx)
+#if defined(TARGET_LPC23xx)
 		LPC_VIC->IntEnable = irqsEnabled;
 #endif
 	}

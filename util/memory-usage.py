@@ -47,8 +47,15 @@ for line in sh('cat hardware/cpu-' + target + '/' + target + '.ld | grep " (r.*)
 	memories[memory[0]] = memsize
 
 # Parse stack allocations from linker output
-line = sh('grep "Stack_Size_Total" %s.map' % "RTOSDemo.elg".split('.')[0]).strip().split('\n')[0]
-total_stack = int(line.split()[-1], 16)
+if target == 'lpc1768':
+	line = sh('grep "Stack_Size_Total" %s.map' % "RTOSDemo.elg".split('.')[0]).strip().split('\n')[0]
+	total_stack = int(line.split()[-1], 16)
+else:
+	total_stack = 0
+	for line in sh('grep "_Stack_Size," hardware/cpu-' + target + '/crt0.s | grep "\.equ"').strip().split('\n'):
+		if line.strip() == "":
+			continue
+		total_stack += int(line.split()[2], 16)
 
 # Parse ELF program headers (for definitive total flash and RAM usage)
 for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[2]).strip().split('\n'):
