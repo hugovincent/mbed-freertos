@@ -115,7 +115,7 @@ ASM_FLAGS= \
 C_SOURCE+= \
 		hardware/cpu-$(TARGET)/device_init.c \
 		hardware/board-mbed/board_init.c \
-		hardware/cpu-common/power_management.c \
+		hardware/cpu-$(TARGET)/power_management.c \
 		freertos/list.c \
 		freertos/queue.c \
 		freertos/tasks.c \

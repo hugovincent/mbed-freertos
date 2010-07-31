@@ -99,7 +99,7 @@ void xBadTask(void *params)
 	ulReadData = *pul;
 	printf("Misbehaving task writing LEDs...\n");
 	vTaskDelay(150);
-	volatile int v = LPC_UART0->DLM;
+	//volatile int v = LPC_UART0->DLM;
 	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
 
 	printf("Misbehaving task finished...\n");
@@ -116,16 +116,18 @@ void xBadTask(void *params)
 int main()
 {
 	// Start the standard demo tasks.
-	vStartLEDFlashTasks( mainFLASH_PRIORITY | portPRIVILEGE_BIT );
-	/*vStartBlockingQueueTasks( mainBLOCK_Q_PRIORITY );
+	vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
+	/*
+	vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
 	vCreateBlockTimeTasks();
-	vStartGenericQueueTasks( mainGEN_QUEUE_TASK_PRIORITY );
+	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
-	vStartWebserverTask();*/
+	vStartWebserverTask();
+	*/
 
 #ifdef CORE_HAS_MPU
-	xTaskCreate( xBadTask, ( signed char * ) "Bad", configMINIMAL_STACK_SIZE + 800, ( void * ) NULL, tskIDLE_PRIORITY  | portPRIVILEGE_BIT, NULL );
+	xTaskCreate(xBadTask, (signed char *)"Bad", configMINIMAL_STACK_SIZE + 800, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
 
 	printf("Starting scheduler.\n");

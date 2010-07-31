@@ -1,4 +1,4 @@
-/* Power management for LPC1768 and LPC2368 (and probably others).
+/* Power management for LPC2368.
  *
  * Hugo Vincent, 24 July 2010.
  */

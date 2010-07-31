@@ -13,7 +13,6 @@
 #if configUSE_IDLE_HOOK == 1
 void vApplicationIdleHook()
 {
-	WDT_Feed();
 #ifdef CORE_HAS_MPU
 	Mpu_Idle();
 #endif
