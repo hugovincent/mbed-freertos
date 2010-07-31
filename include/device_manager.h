@@ -15,12 +15,12 @@ extern "C" {
 #endif
 
 // Function pointer prototypes
-typedef int (*FileLikeObj_RdWr)(int fd, void *buf, size_t len);
-typedef int (*FileLikeObj_Ioctl)(int fd, unsigned long request, ...);
-typedef int (*FileLikeObj_Open)(const char *path, int flags, int mode); 
-typedef int (*FileLikeObj_FdOp)(int fd); 
-typedef int (*FileLikeObj_Fstat)(int fd, struct stat *st);
-typedef int (*FileLikeObj_Lseek)(int fd, _off_t offs, int dir);
+typedef ssize_t (*FileLikeObj_RdWr)(int fd, void *buf, size_t len);
+typedef     int (*FileLikeObj_Ioctl)(int fd, unsigned long request, ...);
+typedef     int (*FileLikeObj_Open)(const char *path, int flags, int mode); 
+typedef     int (*FileLikeObj_FdOp)(int fd); 
+typedef     int	(*FileLikeObj_Fstat)(int fd, struct stat *st);
+typedef   off_t (*FileLikeObj_Lseek)(int fd, off_t offs, int whence);
 
 /* A file-like object (FLO) is a node in the root filesystem, and thus behaves 
  * like a file. This encompasses regular files, and notably devices such as

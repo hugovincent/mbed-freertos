@@ -125,6 +125,7 @@ C_SOURCE+= \
 		lib/debug_support.c \
 		lib/device_manager.c \
 		lib/freertos_hooks.c \
+		lib/semifs.c \
 		lib/os_init.c
 CXX_SOURCE+= \
 		Main.cpp \
