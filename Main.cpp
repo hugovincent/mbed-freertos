@@ -27,7 +27,6 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include <unistd.h>
 
 // Scheduler includes.
 #include "FreeRTOS.h"
@@ -81,7 +80,6 @@ void xBadTask(void *params)
 	printf("Misbehaving task started...\n");
 	vTaskDelay(150);
 
-
 	portSWITCH_TO_USER_MODE();
 	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
 
@@ -112,16 +110,6 @@ void xBadTask(void *params)
 }
 #endif
 
-#if 1 /* Temporary testing of semihosted mbed filesystem */
-#include "device_manager.h"
-#include <fcntl.h>
-#include <errno.h>
-extern "C" {
-	extern struct FileLikeObj SemiFS_FLO;
-	struct FileLikeObj *semi = &SemiFS_FLO;
-}
-#endif
-
 int main()
 {
 	// Start the standard demo tasks.
@@ -139,21 +127,9 @@ int main()
 	xTaskCreate(xBadTask, (signed char *)"Bad", configMINIMAL_STACK_SIZE + 800, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
 
-#if 1 /* Temporary testing of semihosted mbed filesystem */
-	printf("Trying to open a file...\n");
-	int fd = semi->open_("test.txt", O_CREAT | O_APPEND, 0x755);
-	if (fd != -1)
-	{
-		char str[] = "hello world";
-		printf("Trying to write %d bytes to /semifs/test.txt (fd=%d)...\n", strlen(str), fd);
-		ssize_t nwritten = semi->write_(fd, str, strlen(str));
-		if (nwritten != (ssize_t)strlen(str))
-			printf("Failed to write (%d) %s\n", nwritten, strerror(errno));
-		semi->close_(fd);
-	}
-	else
-		printf("Failed to open /semifs/test.txt for writing\n");
-#endif
+	/* Temporary file/device-manager testing code */
+	extern void TestSemiFS();
+	TestSemiFS();
 
 	printf("Starting scheduler.\n");
 

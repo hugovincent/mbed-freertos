@@ -13,14 +13,16 @@
 #	disasm	- Produce a disassembly listing of the whole program.
 #
 
-# Set target here according to which type of mbed you have:
-# (can be lpc2368 for older mbeds, or lpc1768 for newer ones)
+# Set CPU type here (can be lpc2368 for older mbeds, or lpc1768 for newer ones):
 TARGET=lpc1768
-LDSCRIPT=hardware/cpu-$(TARGET)/$(TARGET).ld
-BINNAME=RTOSDemo
 
-ODIR=.buildtmp
+# Set programming method here (can be mbed or serial_isp):
+PROG_TYPE=mbed
+#ISP_OPT=/dev/tty.usbserial-isp 115200 12000
+
+# Set local options here:
 INSTALL_PATH=/Volumes/MBED/
+BINNAME=RTOSDemo
 TOOLPRE=util/arm-none-eabi
 
 #------------------------------------------------------------------------------
@@ -69,6 +71,8 @@ endif
 
 DEBUG=-DNDEBUG=1 -g
 OPTIM=-O2
+LDSCRIPT=hardware/cpu-$(TARGET)/$(TARGET).ld
+ODIR=.buildtmp
 
 COMMON_FLAGS += \
 		$(CPUFLAGS) \
@@ -201,9 +205,10 @@ C_SOURCE+= \
 
 # Tests 
 CXX_SOURCE+= \
-		tests/CxxTest.cpp \
-		tests/Tests.cpp \
-		tests/AbortDebugTests.cpp
+		tests/Cxx_Test.cpp \
+		tests/Malloc_Test.cpp \
+		tests/FileIO_Test.cpp \
+		tests/Debug_Abort_Test.cpp
 
 #------------------------------------------------------------------------------
 # Build Rules:
@@ -278,9 +283,15 @@ clean:
 	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map example_tasks/webserver/http-strings.* example_tasks/webserver/httpd-fsdata.c
 
 install: $(BINNAME).bin
+ifeq ($(PROG_TYPE), mbed)
 	@echo "  [Installing to mbed...]"
 	@cp $(BINNAME).bin $(INSTALL_PATH)
 	@echo "  [Done.                ]"
+else ifeq ($(PROG_TYPE), serial_isp)
+	@echo "  [Installing by ISP... ]"
+	@./util/lpc21isp/lpc21isp -wipe -bin $(BINNAME).bin $(ISP_OPT)
+	@echo "  [Done.                ]"
+endif
 
 #------------------------------------------------------------------------------
 # Dependency Management (run make dep to generate, otherwise ignored)

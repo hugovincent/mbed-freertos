@@ -1,8 +1,14 @@
 #include <FreeRTOS.h>
 #include "hardware/gpio.h"
-
-#include "CxxTest.h"
 #include <string>
+
+class CxxTest {
+public:
+	CxxTest() {}
+	~CxxTest() {}
+
+	int someMethod();
+};
 
 int CxxTest::someMethod() {
 

@@ -1,8 +1,10 @@
 #include "device_manager.h"
+#include "semifs.h"
 
 void DeviceManager_Init()
 {
-
+	// FIXME check this board actually has a semihosted filesystem?
+	SemiFS_Init();
 }
 
 int  DeviceManager_Register(struct FileLikeObj *dev)
