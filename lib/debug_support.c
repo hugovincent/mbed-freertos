@@ -178,8 +178,7 @@ void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs)
  *     DCRDR[23:16] is used for by host for status
  *     DCRDR[31:24] is used for by host for write buffer
  */
-
-static void DCC_WriteWord(unsigned long dcc_data)
+static void __dcc_write(unsigned long dcc_data)
 {
 	int len = 4;
 
@@ -196,7 +195,7 @@ static void DCC_WriteWord(unsigned long dcc_data)
 
 #elif defined(TARGET_LPC23xx)
 
-static void DCC_WriteWord(unsigned long dcc_data)
+static void __dcc_write(unsigned long dcc_data)
 {
 	unsigned long dcc_status;
 
@@ -215,7 +214,7 @@ void DCC_Write(const unsigned char *val, long len)
 {
 	unsigned long dcc_data;
 
-	DCC_WriteWord(TARGET_REQ_DEBUGMSG_HEXMSG(1) | ((len & 0xffff) << 16));
+	__dcc_write(TARGET_REQ_DEBUGMSG_HEXMSG(1) | ((len & 0xffff) << 16));
 
 	while (len > 0)
 	{
@@ -224,7 +223,7 @@ void DCC_Write(const unsigned char *val, long len)
 			| ((len > 2) ? val[2] << 16 : 0x00)
 			| ((len > 3) ? val[3] << 24 : 0x00);
 
-		DCC_WriteWord(dcc_data);
+		__dcc_write(dcc_data);
 
 		val += 4;
 		len -= 4;
@@ -233,7 +232,7 @@ void DCC_Write(const unsigned char *val, long len)
 
 void DCC_Putc(char msg)
 {
-	DCC_WriteWord(TARGET_REQ_DEBUGCHAR | ((msg & 0xff) << 16));
+	__dcc_write(TARGET_REQ_DEBUGCHAR | ((msg & 0xff) << 16));
 }
 
 void DCC_Puts(const char *msg)
@@ -243,7 +242,7 @@ void DCC_Puts(const char *msg)
 
 	for (len = 0; msg[len] && (len < 65536); len++);
 
-	DCC_WriteWord(TARGET_REQ_DEBUGMSG_ASCII | ((len & 0xffff) << 16));
+	__dcc_write(TARGET_REQ_DEBUGMSG_ASCII | ((len & 0xffff) << 16));
 
 	while (len > 0)
 	{
@@ -251,7 +250,7 @@ void DCC_Puts(const char *msg)
 			| ((len > 1) ? msg[1] << 8 : 0x00)
 			| ((len > 2) ? msg[2] << 16 : 0x00)
 			| ((len > 3) ? msg[3] << 24 : 0x00);
-		DCC_WriteWord(dcc_data);
+		__dcc_write(dcc_data);
 
 		msg += 4;
 		len -= 4;

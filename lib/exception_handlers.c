@@ -26,7 +26,7 @@ enum ExceptionType
 };
 
 /* Print as much info as we can about the processor state pre-exception. */
-static __attribute__ ((noreturn)) void PrintAbortInfo(enum ExceptionType type)
+static __attribute__ ((noreturn)) void __print_info(enum ExceptionType type)
 {
 	// pc is the actual address, and pc_ptr is the actually opcode at that address
 	switch (type)
@@ -65,21 +65,21 @@ static __attribute__ ((noreturn)) void PrintAbortInfo(enum ExceptionType type)
 __attribute__ ((noreturn)) void Exception_PrefetchAbort()
 {
 	portDISABLE_INTERRUPTS();
-	PrintAbortInfo(PrefetchAbort);
+	__print_info(PrefetchAbort);
 }
 
 
 __attribute__ ((noreturn)) void Exception_DataAbort()
 {
 	portDISABLE_INTERRUPTS();
-	PrintAbortInfo(DataAbort);
+	__print_info(DataAbort);
 }
 
 
 __attribute__ ((noreturn)) void Exception_UndefinedInstruction()
 {
 	portDISABLE_INTERRUPTS();
-	PrintAbortInfo(UndefinedInstruction);
+	__print_info(UndefinedInstruction);
 }
 
 
@@ -108,3 +108,29 @@ __attribute__ ((noreturn)) void Exception_HardFault()
 	PowerManagement_PowerDown();
 }
 
+#if 0 && CORE_HAS_MPU
+void pop_registers_from_fault_stack(unsigned int * hardfault_args)
+{
+	unsigned int stacked_r0;
+	unsigned int stacked_r1;
+	unsigned int stacked_r2;
+	unsigned int stacked_r3;
+	unsigned int stacked_r12;
+	unsigned int stacked_lr;
+	unsigned int stacked_pc;
+	unsigned int stacked_psr;
+
+	stacked_r0 = ((unsigned long) hardfault_args[0]);
+	stacked_r1 = ((unsigned long) hardfault_args[1]);
+	stacked_r2 = ((unsigned long) hardfault_args[2]);
+	stacked_r3 = ((unsigned long) hardfault_args[3]);
+
+	stacked_r12 = ((unsigned long) hardfault_args[4]);
+	stacked_lr = ((unsigned long) hardfault_args[5]);
+	stacked_pc = ((unsigned long) hardfault_args[6]);
+	stacked_psr = ((unsigned long) hardfault_args[7]);
+
+	/* Inspect stacked_pc to locate the offending instruction. */
+	for( ;; );
+}
+#endif
