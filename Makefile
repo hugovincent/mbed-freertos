@@ -270,7 +270,7 @@ example_tasks/webserver/httpd.c: example_tasks/webserver/http-strings.c
 .PHONY: disasm clean install
 disasm :
 	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
-	@$(TOOLPRE)-objdump --disassemble $(BINNAME).elf > $(BINNAME)-disassembled.s
+	@$(TOOLPRE)-objdump --source $(BINNAME).elf > $(BINNAME)-disassembled.s
 
 clean:
 	@echo "  [Cleaning...          ]"

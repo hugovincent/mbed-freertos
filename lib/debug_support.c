@@ -1,3 +1,4 @@
+#include <cmsis.h>
 #include "debug_support.h"
 #include "hardware/uart.h"
 
@@ -28,7 +29,7 @@ int  Debug_ValidMemory(unsigned int *addr)
 	/* These symbols are defined by the linker script. */
 	extern unsigned int __data_start__, __top_of_stack__;
 
-	return (addr >= &__data_start__ 
+	return (addr >= &__data_start__
 			&& addr < &__top_of_stack__) ? 1 : 0;
 }
 
@@ -40,7 +41,7 @@ void Debug_PrintBacktraceHere(int skip_frames)
 
 /* Assumes a full AAPCS stack frame, so compile with:
 		-mapcs-frame -fno-omit-frame-pointer.
-   
+
    See http://csg.lbl.gov/pipermail/vxwexplo/2004-February/004397.html,
    and the stack dump implementations in Ethernet Nut/OS and LostARM.
  */
@@ -61,7 +62,7 @@ void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 
 	// Walk the linked list as long as we remain in seemingly-valid frames
 	int depth = 0;
-	while (Debug_ValidMemory((unsigned int *)frame) 
+	while (Debug_ValidMemory((unsigned int *)frame)
 			&& depth < (MAX_BACKTRACE_FRAMES + skip_frames))
 	{
 		// Get the next frame (similarly offset as above)
@@ -70,7 +71,7 @@ void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 		depth++;
 		if (depth > skip_frames)
 		{
-			Debug_Printf("\t#%d: [<%08x>] called from [<%08x>]\n", 
+			Debug_Printf("\t#%d: [<%08x>] called from [<%08x>]\n",
 					depth - skip_frames, frame->pc, frame->lr - 8);
 
 			Debug_Printf("\t\tframe : %p    next_frame : %p\n", frame, next_frame);
@@ -122,7 +123,7 @@ void Debug_PrintCPSR(unsigned int psr)
 		case 0x1f: mode = "sys";		break;
 		default:   mode = "unknown";	break;
 	}
-	Debug_Printf("\tpsr: %08x (%c%c%c%c...%c%c%c %s-mode)\n", 
+	Debug_Printf("\tpsr: %08x (%c%c%c%c...%c%c%c %s-mode)\n",
 			psr,
 			(psr & 1<<31) ? 'N' : 'n',
 			(psr & 1<<30) ? 'Z' : 'z',
@@ -144,10 +145,116 @@ void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs)
 		if (((i + 1) % 3) == 0)
 			Debug_Puts("\n");
 	}
-	Debug_Printf("\tr10: %08x\tfp : %08x\n", 
+	Debug_Printf("\tr10: %08x\tfp : %08x\n",
 			regs->r[10], regs->r[11]);
 	Debug_Printf("\tip : %08x\tsp : %08x\tlr : %08x\n",
 			regs->r[12], regs->sp, regs->lr);
 
 	Debug_PrintCPSR(regs->cpsr);
 }
+
+/*****************************************************************************/
+
+/* Debug Communications Channel Output (libdcc):
+ * Provided with OpenOCD in the contrib/ directory.
+ *
+ *	Copyright (C) 2008 by Dominic Rath
+ *	Dominic.Rath@gmx.de
+ *	Copyright (C) 2008 by Spencer Oliver
+ *	spen@spen-soft.co.uk
+ *	Copyright (C) 2008 by Frederik Kriewtz
+ *	frederik@kriewitz.eu
+ */
+
+#define TARGET_REQ_DEBUGMSG_ASCII			0x01
+#define TARGET_REQ_DEBUGMSG_HEXMSG(size)	(0x01 | ((size & 0xff) << 8))
+#define TARGET_REQ_DEBUGCHAR				0x02
+
+#if defined(TARGET_LPC17xx)
+
+/* We use the Cortex-M3 DCRDR reg to simulate a ARM7/9 dcc channel
+ *     DCRDR[7:0] is used by target for status
+ *     DCRDR[15:8] is used by target for write buffer
+ *     DCRDR[23:16] is used for by host for status
+ *     DCRDR[31:24] is used for by host for write buffer
+ */
+
+static void DCC_WriteWord(unsigned long dcc_data)
+{
+	int len = 4;
+
+	while (len--)
+	{
+		/* wait for data ready */
+		while (CoreDebug->DCRDR & 1 /* Busy */);
+
+		/* write our data and set write flag - tell host there is data*/
+		CoreDebug->DCRDR = (unsigned short)(((dcc_data & 0xff) << 8) | 1 /* Busy */);
+		dcc_data >>= 8;
+	}
+}
+
+#elif defined(TARGET_LPC23xx)
+
+static void DCC_WriteWord(unsigned long dcc_data)
+{
+	unsigned long dcc_status;
+
+	do {
+		asm volatile("mrc p14, 0, %0, c0, c0" : "=r" (dcc_status));
+	} while (dcc_status & 0x2);
+
+	asm volatile("mcr p14, 0, %0, c1, c0" : : "r" (dcc_data));
+}
+
+#else
+#error libdcc does not support this target!
+#endif
+
+void DCC_Write(const unsigned char *val, long len)
+{
+	unsigned long dcc_data;
+
+	DCC_WriteWord(TARGET_REQ_DEBUGMSG_HEXMSG(1) | ((len & 0xffff) << 16));
+
+	while (len > 0)
+	{
+		dcc_data = val[0]
+			| ((len > 1) ? val[1] << 8 : 0x00)
+			| ((len > 2) ? val[2] << 16 : 0x00)
+			| ((len > 3) ? val[3] << 24 : 0x00);
+
+		DCC_WriteWord(dcc_data);
+
+		val += 4;
+		len -= 4;
+	}
+}
+
+void DCC_Putc(char msg)
+{
+	DCC_WriteWord(TARGET_REQ_DEBUGCHAR | ((msg & 0xff) << 16));
+}
+
+void DCC_Puts(const char *msg)
+{
+	long len;
+	unsigned long dcc_data;
+
+	for (len = 0; msg[len] && (len < 65536); len++);
+
+	DCC_WriteWord(TARGET_REQ_DEBUGMSG_ASCII | ((len & 0xffff) << 16));
+
+	while (len > 0)
+	{
+		dcc_data = msg[0]
+			| ((len > 1) ? msg[1] << 8 : 0x00)
+			| ((len > 2) ? msg[2] << 16 : 0x00)
+			| ((len > 3) ? msg[3] << 24 : 0x00);
+		DCC_WriteWord(dcc_data);
+
+		msg += 4;
+		len -= 4;
+	}
+}
+

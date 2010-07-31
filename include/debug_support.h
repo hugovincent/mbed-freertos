@@ -35,6 +35,11 @@ void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs);
 void Debug_PrintCPSR(unsigned int cpsr);
 int  Debug_ValidMemory(unsigned int *addr);
 
+/* JTAG Debug Communications Channel (for use with OpenOCD): */
+void DCC_Putc(char msg);
+void DCC_Puts(const char *msg);
+void DCC_Write(const unsigned char *val, long len);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
