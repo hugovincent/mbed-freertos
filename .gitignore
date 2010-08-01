@@ -1,9 +1,11 @@
 *.elf
 *.bin
 *.map
+**.*.swp
 *-disassembled.s
 util/arm-none-eabi-*
 .buildtmp/**
+lib/romfs_data.h
 example_tasks/webserver/http-strings.c
 example_tasks/webserver/http-strings.h
 example_tasks/webserver/httpd-fsdata.c

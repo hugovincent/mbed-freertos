@@ -130,6 +130,7 @@ C_SOURCE+= \
 		lib/device_manager.c \
 		lib/freertos_hooks.c \
 		lib/semifs.c \
+		lib/romfs.c \
 		lib/os_init.c
 CXX_SOURCE+= \
 		Main.cpp \
@@ -269,6 +270,13 @@ example_tasks/webserver/httpd-fsdata.c: util/uip_makefsdata example_tasks/webser
 
 example_tasks/webserver/httpd-fs.c: example_tasks/webserver/httpd-fsdata.c
 example_tasks/webserver/httpd.c: example_tasks/webserver/http-strings.c
+
+# RomFS script build rules
+lib/romfs_data.h: util/build_romfs.py romfs/*
+	@echo "  [Packaging RomFS data]"
+	@python util/build_romfs.py lib/romfs_data.h romfs/
+
+lib/romfs.c: lib/romfs_data.h
 
 #------------------------------------------------------------------------------
 # Psuedo-targets:

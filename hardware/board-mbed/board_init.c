@@ -11,6 +11,7 @@
 #include "hardware/gpio.h"
 #include "hardware/uart.h"
 #include "hardware/wdt.h"
+#include "semifs.h"
 
 void BoardInit( void )
 {
@@ -27,26 +28,11 @@ void BoardInit( void )
 	vGpioInitialise();
 }
 
-#if configGENERATE_RUN_TIME_STATS == 1
-/* This uses Timer 1 to record task run-time statistics. Allows FreeRTOS
- * to generate a nice, tabular `top`-style CPU-usage listing. 
- */
-void ConfigureTimerForRunTimeStats( void )
+void BoardDeviceInit()
 {
-	/* Power up and feed the timer with a clock. */
-	LPC_SC->PCONP |= 0x1<<2;
-	LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(0x3<<4))) | (0x01<<4);
+	extern void initialise_stdio();
+	initialise_stdio();
 
-	/* Reset Timer 1. */
-	LPC_TIM1->TCR = 0x1<<1;
-
-	/* Prescale to a frequency that is good enough to get a decent resolution,
-	   but not too fast so as to overflow all the time. */
-	LPC_TIM1->PR =  ( SystemCoreClock / 10000UL ) - 1UL;
-
-	/* Start the counter, counting up. */
-	LPC_TIM1->CTCR = 0x0;
-	LPC_TIM1->TCR = 0x1<<0;
+	SemiFS_Init();
 }
-#endif
 

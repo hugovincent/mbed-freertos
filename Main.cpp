@@ -128,8 +128,8 @@ int main()
 #endif
 
 	/* Temporary file/device-manager testing code */
-	extern void TestSemiFS();
-	TestSemiFS();
+	extern void TestRomFS();
+	TestRomFS();
 
 	printf("Starting scheduler.\n");
 

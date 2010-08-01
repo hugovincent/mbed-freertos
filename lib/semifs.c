@@ -21,8 +21,6 @@
 
 #include <string.h>
 #include <errno.h>
-#include <stdio.h>
-#include <sys/ioctl.h>
 #include <stdint.h>
 #include <fcntl.h>
 
@@ -257,6 +255,7 @@ static off_t SemiFS_Lseek(int fd, off_t off, int whence)
 	return res == 0 ? off : -1;
 }
 
+#if 0
 static void* SemiFS_OpenDir(const char *dname)
 {
 	static const char *testpattern = "*";
@@ -273,7 +272,6 @@ static int SemiFS_CloseDir(void *d)
 }
 
 /* FIXME this is broken and needs integrating with Device_Manager too: */
-#if 0
 #define DM_MAX_FNAME_LENGTH	32
 static struct dm_dirent* SemiFS_ReadDir(void *d)
 {
@@ -305,7 +303,7 @@ static struct dm_dirent* SemiFS_ReadDir(void *d)
 
 struct FileLikeObj SemiFS_FLO =
 {
-	.pathprefix = "/SemiFS/",
+	.pathprefix = "/mbed/",
 	.is_leaf = 0,
 
 	.read_  = SemiFS_Read,

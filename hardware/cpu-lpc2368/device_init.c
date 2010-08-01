@@ -7,6 +7,7 @@
  * Hugo Vincent, 2 May 2010.
  */
 
+#include "FreeRTOSConfig.h"
 #include <cmsis.h>
 #include <exception_handlers.h>
 
@@ -97,4 +98,27 @@ void LowLevelInit(void)
 		LPC_VIC->VectPriority[irq] = 15; // lowest
 	}
 }
+
+#if configGENERATE_RUN_TIME_STATS == 1
+/* This uses Timer 1 to record task run-time statistics. Allows FreeRTOS
+ * to generate a nice, tabular `top`-style CPU-usage listing. 
+ */
+void ConfigureTimerForRunTimeStats( void )
+{
+	// Power up and feed the timer with a clock.
+	LPC_SC->PCONP |= 0x1<<2;
+	LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(0x3<<4))) | (0x01<<4);
+
+	// Reset Timer 1.
+	LPC_TIM1->TCR = 0x1<<1;
+
+	// Prescale to a frequency that is good enough to get a decent resolution,
+	// but not too fast so as to overflow all the time.
+	LPC_TIM1->PR =  ( SystemCoreClock / 10000UL ) - 1UL;
+
+	// Start the counter, counting up.
+	LPC_TIM1->CTCR = 0x0;
+	LPC_TIM1->TCR = 0x1<<0;
+}
+#endif
 

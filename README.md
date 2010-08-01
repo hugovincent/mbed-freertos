@@ -4,7 +4,7 @@ FreeRTOS/OS - A FreeRTOS distribution for ARM devices
 	Hugo Vincent <hugo.vincent@gmail.com>, 24 July 2010.
 
 This is a real-time operating system for very small devices built around an ARM
-microcontroller (with typically at least 16 kB of RAM and 128 kB of flash). 
+microcontroller (with typically at least 16 kB of RAM and 64 kB of flash).
 
 It consists of the realtime kernel from FreeRTOS (www.freertos.org) version 6.0.4,
 and a set of additions for hardware abstraction and C/C++ support. It aims to
@@ -16,21 +16,24 @@ A core aim of this project is to provide a canonical distribution of FreeRTOS
 with a clean, maintained build system, a fully functional standard C library,
 and with well defined, portable ways of doing hardware abstraction, peripheral
 access, filesystem access, and so on. The FreeRTOS project just provides a kernel
-along with a large number of example/demo implementations, most of which are 
-incompatible with each other. 
+along with a large number of example/demo implementations, most of which are
+incompatible with each other.
 
 FEATURES:
 ---------
 
 * Complete C library support (including malloc, standard file IO etc).
 * C++ support, including lightweight STL (with uSTL).
-* Ethernet networking using uIP, including a web server. 
+* Ethernet networking using uIP, including a web server.
 * Support for power management.
-* Build system lists total flash and RAM, and provides an estimate for 
+* Build system lists total flash and RAM, and provides an estimate for
   available heap space for dynamically allocated (malloc'd) memory.
 * A UNIX-like filesystem hierarchy. Devices can be accessed via their /dev/
   nodes. Filesystems (depending on target hardware) can be added to segments
-  of the filesystem hierarchy such as /flash or /sd_card. 
+  of the filesystem hierarchy such as /flash or /sd_card. A read-only in-flash
+  filesystem is supported on all targets.
+* mbed (mbed.org) target supports semihosted local filesystem, accessible via
+  the mbed USB interface. 
 * Exception handlers. Bugs that generate and ARM hardware exception (prefetch
   abort, data abort, undefined instruction etc) are trapped and debug output
   is shown. Shows a stack backtrace and processor state information.
@@ -42,7 +45,7 @@ FEATURES:
 INSTALATION:
 ------------
 
-1. Download and install a suitable arm-none-eabi GNU toolchain, such as the 
+1. Download and install a suitable arm-none-eabi GNU toolchain, such as the
    toolchain at http://github.com/hugovincent/arm-eabi-toolchain.
 2. Edit the configuration options at the top of the Makefile.
 3. Run `make`.
@@ -53,7 +56,7 @@ NOTES:
 ------
 
 Tested with the Codesourcery 2010q1-188 arm-non-eabi toolchain, built from
-source with http://github.com/hugovincent/arm-eabi-toolchain (on Mac OS X 10.6). 
+source with http://github.com/hugovincent/arm-eabi-toolchain (on Mac OS X 10.6).
 You will probably have problems with an official Codesourcery toolchain as a
 number of compiler and C library options had to be changed to suit this project.
 
@@ -79,7 +82,7 @@ Portions copyright Richard Barry, Real Time Engineers Ltd:
 	GNU General Public License for more details.
 
 Portions copyright Hugo Vincent:
-	
+
 	Copyright (C) 2010 Hugo Vincent <hugo.vincent@gmail.com>
 
 	This program is free software; you can redistribute it and/or modify
@@ -91,8 +94,8 @@ Portions copyright Hugo Vincent:
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
-The FreeRTOS source code is licensed by the modified GNU General Public 
-License (GPL) text provided below. 
+The FreeRTOS source code is licensed by the modified GNU General Public
+License (GPL) text provided below.
 
 This is a list of files for which Real Time Engineers Ltd or Hugo Vincent are
 not the copyright owner and are NOT COVERED BY THE GPL.
@@ -101,11 +104,11 @@ not the copyright owner and are NOT COVERED BY THE GPL.
    that define processor specific memory addresses and utility macros.
    Permission has been granted by the various copyright holders for these
    files to be included in the FreeRTOS download.  Users must ensure license
-   conditions are adhered to for any use other than compilation of the 
+   conditions are adhered to for any use other than compilation of the
    FreeRTOS demo applications.
 
 2. The uIP TCP/IP stack the copyright of which is held by Adam Dunkels.
-   Users must ensure the open source license conditions stated at the top 
+   Users must ensure the open source license conditions stated at the top
    of each uIP source file is understood and adhered to.
 
 
