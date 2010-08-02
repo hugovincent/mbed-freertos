@@ -1399,10 +1399,8 @@ static __INLINE int ITM_CheckChar (void) {
   }
 }
 
-
-
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif
 
 #endif /* __CM3_CORE_H__ */

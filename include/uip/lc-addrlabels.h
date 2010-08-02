@@ -60,6 +60,10 @@
 #ifndef __LC_ADDRLABELS_H__
 #define __LC_ADDRLABELS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /** \hideinitializer */
 typedef void * lc_t;
 
@@ -77,6 +81,10 @@ typedef void * lc_t;
   do { ({ __label__ resume; resume: (s) = &&resume; }); }while(0)
 
 #define LC_END(s)
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __LC_ADDRLABELS_H__ */
 

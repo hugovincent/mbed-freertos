@@ -48,6 +48,10 @@
 
 #include "uip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Representation of a uIP network interface.
  */
@@ -170,6 +174,9 @@ void uip_fw_periodic(void);
  */
 #define UIP_FW_DROPPED   5
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP_FW_H__ */
 

@@ -57,6 +57,10 @@
 
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * 8 bit datatype
  *
@@ -150,6 +154,10 @@ typedef unsigned short uip_stats_t;
 /*#include "dhcpc.h"*/
 /*#include "resolv.h"*/
 /*#include "webclient.h"*/
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP_CONF_H__ */
 

@@ -72,6 +72,10 @@
 #ifndef __UIP_SPLIT_H__
 #define __UIP_SPLIT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Handle outgoing packets.
  *
@@ -89,6 +93,10 @@
  *
  */
 void uip_split_output(void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP_SPLIT_H__ */
 

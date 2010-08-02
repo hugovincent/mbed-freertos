@@ -244,7 +244,7 @@ static __INLINE void NVIC_ClearPendingIRQ()
 
 
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif
 
 #endif /* __ARM7_CORE_H__ */

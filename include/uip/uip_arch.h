@@ -63,6 +63,10 @@
 
 #include "uip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * Carry out a 32-bit addition.
  *
@@ -134,5 +138,9 @@ u16_t uip_udpchksum(void);
 
 /** @} */
 /** @} */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP_ARCH_H__ */

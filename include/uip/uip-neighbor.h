@@ -44,6 +44,10 @@
 
 #include "uip.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct uip_neighbor_addr {
 #if UIP_NEIGHBOR_CONF_ADDRTYPE
   UIP_NEIGHBOR_CONF_ADDRTYPE addr;
@@ -57,5 +61,9 @@ void uip_neighbor_add(uip_ipaddr_t ipaddr, struct uip_neighbor_addr *addr);
 void uip_neighbor_update(uip_ipaddr_t ipaddr);
 struct uip_neighbor_addr *uip_neighbor_lookup(uip_ipaddr_t ipaddr);
 void uip_neighbor_periodic(void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __UIP-NEIGHBOR_H__ */

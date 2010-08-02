@@ -8,7 +8,7 @@
 #define __LPC23xx_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif 
 
 /*
@@ -859,7 +859,7 @@ typedef struct
 #define LPC_VIC                   ((      LPC_VIC_TypeDef *)       LPC_VIC_BASE)
 
 #ifdef __cplusplus
- }
+} // extern "C"
 #endif 
 
 #endif  // __LPC23xx_H

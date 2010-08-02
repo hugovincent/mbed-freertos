@@ -51,6 +51,10 @@
 
 #include "lc.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct pt {
   lc_t lc;
 };
@@ -317,6 +321,10 @@ struct pt {
   } while(0)
 
 /** @} */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __PT_H__ */
 

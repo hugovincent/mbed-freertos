@@ -36,7 +36,15 @@
 
 #include "FreeRTOS.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef unsigned long clock_time_t;
 #define CLOCK_CONF_SECOND configTICK_RATE_HZ
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __CLOCK_ARCH_H__ */

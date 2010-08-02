@@ -8,7 +8,7 @@ extern "C" {
 void vStartWebserverTask(void);
 
 #ifdef __cplusplus
-} // end extern "C"
+} // extern "C"
 #endif 
 
 #endif // ifndef Webserver_h

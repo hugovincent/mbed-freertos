@@ -43,6 +43,10 @@
 #ifndef __UIPLIB_H__
 #define __UIPLIB_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * \addtogroup uipconvfunc
  * @{
@@ -65,6 +69,10 @@
  * \retval Non-zero If the IP address was parsed.
  */
 unsigned char uiplib_ipaddrconv(char *addrstr, unsigned char *addr);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 /** @} */
 

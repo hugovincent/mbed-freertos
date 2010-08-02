@@ -6,6 +6,10 @@
 #ifndef GPIO_h
 #define GPIO_h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // FIXME register pins, set direction, register interrupt
 
 void GPIO_Init(); // fixme should pass in pins & directions here
@@ -20,6 +24,10 @@ inline void GPIO_PinClear(int block, int pin) { GPIO_Write(block, 0, 0x1<<pin); 
 inline void GPIO_PinToggle(int block, int pin) { GPIO_Toggle(block, 0x1<<pin); }
 inline void GPIO_PinWrite(int block, int pin, int value) { if (value) \
 	GPIO_PinSet(block, pin); else GPIO_PinClear(block, pin); }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // ifndef GPIO_h
 

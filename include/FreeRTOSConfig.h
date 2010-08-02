@@ -25,6 +25,10 @@
 #include <stdio.h>
 #include <cmsis.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*-----------------------------------------------------------
  * Application specific definitions.
  *
@@ -98,6 +102,10 @@ to exclude the API function. */
 extern void ConfigureTimerForRunTimeStats( void );
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()	ConfigureTimerForRunTimeStats()
 #define portGET_RUN_TIME_COUNTER_VALUE()			(LPC_TIM1->TC)
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif /* FREERTOS_CONFIG_H */

@@ -1,6 +1,10 @@
 #ifndef Console_h_
 #define Console_h_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void Console_Init();
 
 // SingleMode pauses the scheduler, disables IRQs and FIQs, and switches the
@@ -8,6 +12,10 @@ void Console_Init();
 // exception recovery etc.
 void Console_SingleMode();
 void Console_NormalMode();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // ifndef Console_h_
 

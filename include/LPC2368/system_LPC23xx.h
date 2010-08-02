@@ -36,9 +36,8 @@ extern void SystemInit (void);
  */
 extern void SystemCoreClockUpdate (void);
 
-
 #ifdef __cplusplus
-}
+} // extern "C"
 #endif 
 
 #endif
