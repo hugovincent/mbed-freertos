@@ -1,7 +1,7 @@
 #include "os_init.h"
 
 #include "device_manager.h"
-#include "stdio_device.h"
+#include "console.h"
 #include "romfs.h"
 
 #ifdef CORE_HAS_MPU
@@ -16,11 +16,7 @@ void Boot_Init()
 {
 	LowLevel_Init();
 	Board_EarlyInit();
-
-	// FIXME:
-	extern void initialise_stdio();
-	initialise_stdio();
-
+	Console_Init();
 	System_Init();
 	Board_LateInit();
 
@@ -36,7 +32,6 @@ void System_Init()
 	MpuManager_Init();
 #endif
 	DeviceManager_Init();
-	StdIO_Init();
 	RomFS_Init();
 
 	printf("FreeRTOS Kernel " tskKERNEL_VERSION_NUMBER

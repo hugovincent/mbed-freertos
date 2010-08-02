@@ -163,5 +163,5 @@ SECTIONS
 	.debug_varnames  0 : { *(.debug_varnames) }
 }
 
-ENTRY( Vectors )
+ENTRY( vectors )
 

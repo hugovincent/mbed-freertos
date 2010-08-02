@@ -94,6 +94,9 @@ int main()
 	xTaskCreate(xBadTask, (signed char *)"Bad", configMINIMAL_STACK_SIZE + 800, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
 
+	extern void func3();
+	//func3();
+
 	printf("Starting scheduler.\n");
 
 	// Start the scheduler.

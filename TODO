@@ -6,7 +6,6 @@ BUGS:
 [1] fd allocation in SemiFS and RomFS is broken and should be done by device_manager.
 [1] Fix dirent.h and enable dirent-related functions in semifs, add to romfs and device manager.
 [1] Enable _POSIX_TIMERS, _POSIX_MONOTONIC_CLOCK, gettimeofday etc and HAVE_GETDATE in Newlib.
-[1] Finish factoring crt0 code into core-specific and common parts.
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
 [3] Fix/finish the uSTL integration.
@@ -14,6 +13,7 @@ BUGS:
     uIP's built in httpd-fs stuff.
 
 GENERALIZATIONS:
+[1] Finish RTC time integration.
 [1] Standardized debug/log messages system.
 [1] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
 [1] Thread-local memory. Finish dynamic reentrancy in syscalls.
@@ -22,7 +22,7 @@ GENERALIZATIONS:
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 
 ADDITIONS:
-[1] POSIX wrappers for threading, sockets, etc.
+[1] POSIX wrappers for threading, sockets, timers, date/time etc.
 [1] Allow particular tasks to register for ISRs and have the kernel mediate access to vectors.
 [2] Configuration management system.
 [2] Add gdb-stubs for remote debug over serial port.

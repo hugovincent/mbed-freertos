@@ -38,6 +38,8 @@ PORT_DIR= \
 		ARM7_LPC23xx
 ASM_SOURCE= \
 		mach/cpu-lpc2368/crt0.s
+C_SOURCE= \
+		mach/cpu-lpc2368/exception_handlers.c
 endif
 
 #------------------------------------------------------------------------------
@@ -63,6 +65,7 @@ EXTRA_LDFLAGS= \
 C_SOURCE= \
 		mach/cpu-lpc1768/core_cm3.c \
 		mach/cpu-lpc1768/crt0.c \
+		mach/cpu-lpc1768/fault_handlers.c \
 		lib/mpu_manager.c
 endif
 
@@ -125,12 +128,12 @@ C_SOURCE+= \
 		kernel/tasks.c \
 		kernel/port/$(PORT_DIR)/port.c \
 		kernel/malloc_wrappers.c \
-		lib/exception_handlers.c \
 		lib/debug_support.c \
 		lib/device_manager.c \
 		lib/freertos_hooks.c \
 		lib/semifs.c \
 		lib/romfs.c \
+		lib/console.c \
 		lib/os_init.c
 CXX_SOURCE+= \
 		Main.cpp \

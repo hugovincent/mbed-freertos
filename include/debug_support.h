@@ -10,13 +10,6 @@
 extern "C" {
 #endif
 
-void Debug_Puts(const char *str);
-#define Debug_Printf(fmt, args...) { \
-	extern char Debug_MsgBuffer[64]; \
-	sprintf(Debug_MsgBuffer, fmt, args); \
-	Debug_Puts(Debug_MsgBuffer); \
-}
-
 struct Debug_RegisterDump {
 	unsigned int r[13];
 	unsigned int pc;

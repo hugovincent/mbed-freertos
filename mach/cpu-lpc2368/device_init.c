@@ -10,7 +10,6 @@
 #include "os_init.h"
 #include "FreeRTOSConfig.h"
 #include <cmsis.h>
-#include <exception_handlers.h>
 
 /* Constants to setup the PLL and clock dividers:
  *
@@ -39,6 +38,8 @@
 #define PLL_FEED()		{ LPC_SC->PLL0FEED = 0xAA; LPC_SC->PLL0FEED = 0x55; }
 
 uint32_t SystemCoreClock = 72000000;
+
+extern void Exception_UnhandledIRQ();
 
 void LowLevel_Init(void)
 {

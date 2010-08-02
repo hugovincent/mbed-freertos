@@ -1,30 +1,13 @@
+/* Debug support functions.
+ *
+ * Hugo Vincent, 23 July 2010.
+ */
+
 #include <cmsis.h>
 #include "debug_support.h"
 #include "drivers/uart.h"
 
-/* Preallocated buffer for Debug_Printf() */
-char Debug_MsgBuffer[64];
-
-
-/* In combination with uart0PutChar_debug, this is guaranteed to be safe when
- * IRQs are disabled, and can also be used at other times when the OS/scheduler,
- * stack or memory integrity can not be relied on.
- */
-void Debug_Puts(const char *str)
-{
-	while (*str)
-	{
-		/* Make line endings behave like normal serial terminals. */
-		if (*str == '\n')
-		{
-			uart0PutChar_debug('\r', 0);
-		}
-		uart0PutChar_debug(*str++, 0);
-	}
-}
-
-
-int  Debug_ValidMemory(unsigned int *addr)
+int Debug_ValidMemory(unsigned int *addr)
 {
 	/* These symbols are defined by the linker script. */
 	extern unsigned int __data_start__, __top_of_stack__;
@@ -71,10 +54,10 @@ void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 		depth++;
 		if (depth > skip_frames)
 		{
-			Debug_Printf("\t#%d: [<%08x>] called from [<%08x>]\n",
+			printf("\t#%d: [<%08x>] called from [<%08x>]\n",
 					depth - skip_frames, frame->pc, frame->lr - 8);
 
-			Debug_Printf("\t\tframe : %p    next_frame : %p\n", frame, next_frame);
+			printf("\t\tframe : %p    next_frame : %p\n", frame, next_frame);
 
 			// Print relevant part of the stack itself
 			if (NEXT_FRAME_VALID())
@@ -87,10 +70,10 @@ void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 				{
 					count++;
 					if ((count % 3) == 1);
-						Debug_Puts("\t");
-					Debug_Printf("\t%08x", *j);
+						putchar('\t');
+					printf("\t%08x", *j);
 					if ((count % 3) == 0)
-						Debug_Puts("\n");
+						putchar('\n');
 				}
 			}
 		}
@@ -103,9 +86,9 @@ void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 	}
 
 	if (depth == 0)
-		Debug_Puts("\t(Stack frame corrupt?)\n");
+		puts("\t(Stack frame corrupt?)\n");
 	else if (depth >= MAX_BACKTRACE_FRAMES)
-		Debug_Puts("\t... truncated ...\n");
+		puts("\t... truncated ...\n");
 }
 
 
@@ -123,7 +106,7 @@ void Debug_PrintCPSR(unsigned int psr)
 		case 0x1f: mode = "sys";		break;
 		default:   mode = "unknown";	break;
 	}
-	Debug_Printf("\tpsr: %08x (%c%c%c%c...%c%c%c %s-mode)\n",
+	printf("\tpsr: %08x (%c%c%c%c...%c%c%c %s-mode)\n",
 			psr,
 			(psr & 1<<31) ? 'N' : 'n',
 			(psr & 1<<30) ? 'Z' : 'z',
@@ -141,13 +124,13 @@ void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs)
 {
 	for (int i  = 0; i < 10; i++)
 	{
-		Debug_Printf("\tr%d : %08x", i, regs->r[i]);
+		printf("\tr%d : %08x", i, regs->r[i]);
 		if (((i + 1) % 3) == 0)
-			Debug_Puts("\n");
+			putchar('\n');
 	}
-	Debug_Printf("\tr10: %08x\tfp : %08x\n",
+	printf("\tr10: %08x\tfp : %08x\n",
 			regs->r[10], regs->r[11]);
-	Debug_Printf("\tip : %08x\tsp : %08x\tlr : %08x\n",
+	printf("\tip : %08x\tsp : %08x\tlr : %08x\n",
 			regs->r[12], regs->sp, regs->lr);
 
 	Debug_PrintCPSR(regs->cpsr);
