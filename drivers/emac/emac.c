@@ -20,7 +20,7 @@
 #include <FreeRTOS.h>
 #include <semphr.h>
 #include <task.h>
-#include "hardware/emac.h"
+#include "drivers/emac.h"
 
 /* The semaphore used to wake the uIP task when data arives. */
 xSemaphoreHandle xEMACSemaphore = NULL;
@@ -411,5 +411,43 @@ void DoSend_EMAC(unsigned short FrameSize)
   TX_DESC_CTRL(idx) = FrameSize | TCTRL_LAST;
   if (++idx == NUM_TX_FRAG) idx = 0;
   LPC_EMAC->TxProduceIndex = idx;
+}
+
+/*****************************************************************************/
+// ISR:
+
+extern xSemaphoreHandle xEMACSemaphore;
+
+void vEmacISR_Handler(void)
+{
+	int xHigherPriorityTaskWoken = pdFALSE;
+
+    /* Ensure the uIP task is not blocked as data has arrived. */
+    xSemaphoreGiveFromISR(xEMACSemaphore, (portBASE_TYPE *)&xHigherPriorityTaskWoken);
+
+    /* Clear the interrupt. */
+    LPC_EMAC->IntClear = 0xffff;
+#if defined(TARGET_LPC23xx)
+    LPC_VIC->Address = 0;
+#endif
+
+	if (xHigherPriorityTaskWoken)
+    {
+    	/* Giving the semaphore woke a task. */
+        vPortYieldFromISR();
+    }
+}
+
+__attribute__ ((naked)) void vEmacISR(void)
+{
+	/* Save the context of the interrupted task. */
+	portSAVE_CONTEXT();
+
+	/* Call the handler to do the work.  This must be a separate
+	function to ensure the stack frame is set up correctly. */
+	__asm volatile ("bl			vEmacISR_Handler");
+
+	/* Restore the context of whichever task will execute next. */
+	portRESTORE_CONTEXT();
 }
 

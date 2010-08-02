@@ -1,11 +1,11 @@
-Last Update: 1 August 2010.
+Last Update: 2 August 2010.
 
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
 BUGS:
 [1] fd allocation in SemiFS and RomFS is broken and should be done by device_manager.
-[1] Enable <dirent.h> in Newlib toolchain configuration and reenabled dirent-related
-    functions in semifs, add to romfs and device manager.
+[1] Fix dirent.h and enable dirent-related functions in semifs, add to romfs and device manager.
+[1] Enable _POSIX_TIMERS, _POSIX_MONOTONIC_CLOCK, gettimeofday etc and HAVE_GETDATE in Newlib.
 [1] Finish factoring crt0 code into core-specific and common parts.
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
@@ -14,40 +14,42 @@ BUGS:
     uIP's built in httpd-fs stuff.
 
 GENERALIZATIONS:
+[1] Standardized debug/log messages system.
+[1] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
 [1] Thread-local memory. Finish dynamic reentrancy in syscalls.
 [1] Figure out protected-mode driver access model and syscalls via SVC/SWI?
-[1] Refactor to consistently use CMSIS api naming.
 [2] Finish GPIO driver.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 
 ADDITIONS:
 [1] POSIX wrappers for threading, sockets, etc.
 [1] Allow particular tasks to register for ISRs and have the kernel mediate access to vectors.
+[2] Configuration management system.
 [2] Add gdb-stubs for remote debug over serial port.
+[2] Add symbol table so backtrace etc can show symbols instead of addresses.
 [3] Integrate PicoC for scripting. 
 [f] Integrate some nice DSP libraries.
 
-ON-CHIP PERIPHERAL DRIVERS:
-[d] I2C master (all 3 buses).
-[d] SPI master.
-[d] ADC.
-[1] PWM.
-[2] RTC.
-[3] USB device with CDC virtual serial port.
-[3] DAC.
-[3] 1-Wire master.
-[f] CAN.
-[f] SD/MMC Controller.
-[f] USB host/OTG.
-[f] Other uses of USB device besides CDC virtual serial.
-[f] Generalised SSP besides SPI.
-[f] I2S/audio
-
-EXTERNAL DEVICE DRIVERS:
-[d] Intersil ISL9208 multicell lithium battery analog front end (via I2C).
-[d] DS2745 battery monitor (via I2C). 
-[1] Linear LTC1960 lithium battery charger and powerpath controller (via SPI).
-[1] Temperature sensors (TBD) (via I2C or maybe 1-wire, TBD).
+DRIVERS:
+  On-Chip:
+	[d] I2C master (all 3 buses).
+	[d] SPI master.
+	[d] ADC.
+	[1] PWM.
+	[3] USB device with CDC virtual serial port.
+	[3] DAC.
+	[3] 1-Wire master.
+	[f] CAN.
+	[f] SD/MMC Controller.
+	[f] USB host/OTG.
+	[f] Other uses of USB device besides CDC virtual serial.
+	[f] Generalised SSP besides SPI.
+	[f] I2S/audio
+  External devices:
+	[d] Intersil ISL9208 multicell lithium battery analog front end (via I2C).
+	[d] DS2745 battery monitor (via I2C). 
+	[3] Linear LTC1960 lithium battery charger and powerpath controller (via SPI).
+	[3] Linear LTC6802 lithium battery AFE (via SPI-like-bus) 
 
 THINGS TO CHECK:
 [1] Stack overflow checker needs checking.

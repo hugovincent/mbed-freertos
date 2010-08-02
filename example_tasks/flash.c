@@ -40,7 +40,7 @@
 #include <task.h>
 
 /* Demo program include files. */
-#include "hardware/gpio.h"
+#include "drivers/gpio.h"
 #include "example_tasks/flash.h"
 
 #define ledSTACK_SIZE		( configMINIMAL_STACK_SIZE )

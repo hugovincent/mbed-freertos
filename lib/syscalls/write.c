@@ -7,7 +7,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "hardware/uart.h"
+#include "drivers/uart.h"
 
 /* fd, is a user file descriptor. */
 int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)

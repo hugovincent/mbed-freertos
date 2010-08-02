@@ -1,6 +1,6 @@
 #include <cmsis.h>
 #include "debug_support.h"
-#include "hardware/uart.h"
+#include "drivers/uart.h"
 
 /* Preallocated buffer for Debug_Printf() */
 char Debug_MsgBuffer[64];

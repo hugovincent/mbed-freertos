@@ -19,17 +19,19 @@
     FreeRTOS WEB site.
 */
 
-/* FreeRTOS.org includes. */
 #include <FreeRTOS.h>
-
-/* Demo application includes. */
-#include "hardware/gpio.h"
+#include "drivers/gpio.h"
 
 void vGpioInitialise()
 {
 	// We have four LEDs on P1.18, P1.20, P1,21, and P1,23.
-	LPC_PINCON->PINSEL10 = 0x0;
 	LPC_GPIO1->FIODIR |= (0x1 << 18) | (0x1 << 20) | (0x1 << 21) | (0x1 << 23);
+
+	// For now, disable ethernet (cut power to oscillator, hold in reset)
+	// FIXME
+	LPC_GPIO1->FIODIR |= (0x1 << 27) | (0x1 << 28);
+	LPC_GPIO1->FIOCLR |= (0x1 << 27);
+	LPC_GPIO1->FIOSET |= (0x1 << 28);
 }
 
 void vGpioSet(unsigned portBASE_TYPE uxPin, signed portBASE_TYPE xValue)

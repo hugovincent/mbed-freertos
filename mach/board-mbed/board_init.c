@@ -8,9 +8,9 @@
  */
 
 #include "cmsis.h"
-#include "hardware/gpio.h"
-#include "hardware/uart.h"
-#include "hardware/wdt.h"
+#include "drivers/gpio.h"
+#include "drivers/uart.h"
+#include "drivers/wdt.h"
 #include "semifs.h"
 
 void BoardInit( void )

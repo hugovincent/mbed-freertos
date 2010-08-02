@@ -4,7 +4,7 @@
 #include "FreeRTOSconfig.h"
 #include "lib/syscalls/heap.h"
 #include "power_management.h"
-#include "hardware/wdt.h"
+#include "drivers/wdt.h"
 
 #ifdef CORE_HAS_MPU
 #include "mpu_manager.h"

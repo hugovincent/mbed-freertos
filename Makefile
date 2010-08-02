@@ -37,7 +37,7 @@ COMMON_FLAGS= \
 PORT_DIR= \
 		ARM7_LPC23xx
 ASM_SOURCE= \
-		hardware/cpu-lpc2368/crt0.s
+		mach/cpu-lpc2368/crt0.s
 endif
 
 #------------------------------------------------------------------------------
@@ -61,8 +61,8 @@ EXTRA_LDFLAGS= \
 		-mcpu=cortex-m3 \
 		-mthumb
 C_SOURCE= \
-		hardware/cpu-lpc1768/core_cm3.c \
-		hardware/cpu-lpc1768/crt0.c \
+		mach/cpu-lpc1768/core_cm3.c \
+		mach/cpu-lpc1768/crt0.c \
 		lib/mpu_manager.c
 endif
 
@@ -71,7 +71,7 @@ endif
 
 DEBUG=-DNDEBUG=1 -g
 OPTIM=-O2
-LDSCRIPT=hardware/cpu-$(TARGET)/$(TARGET).ld
+LDSCRIPT=mach/cpu-$(TARGET)/$(TARGET).ld
 ODIR=.buildtmp
 
 COMMON_FLAGS += \
@@ -80,19 +80,19 @@ COMMON_FLAGS += \
 		$(OPTIM) \
 		-I . \
 		-I include \
-		-I freertos/include \
-		-I freertos/portable/GCC/$(PORT_DIR) \
+		-I kernel/include \
+		-I kernel/port/$(PORT_DIR) \
 		-I lib/ustl \
 		-Wall -Wimplicit -Wpointer-arith \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
 		-Wcast-align \
 		-fno-omit-frame-pointer -mapcs-frame \
 		-ffunction-sections -fdata-sections \
-		-mfloat-abi=soft -mtp=soft -mabi=aapcs 
+		-mfloat-abi=soft -mtp=soft -mabi=aapcs
 
 CFLAGS = $(COMMON_FLAGS) \
-		-std=gnu99 
-#-Wc++-compat 
+		-std=gnu99
+#-Wc++-compat
 
 CXXFLAGS= $(COMMON_FLAGS)
 #		-fno-unwind-tables \
@@ -110,21 +110,21 @@ LINKER_FLAGS= \
 
 ASM_FLAGS= \
 		$(CPUFLAGS) \
-		-x assembler-with-cpp 
+		-x assembler-with-cpp
 
 #------------------------------------------------------------------------------
 # Source Code:
 
 # Core Operating System
 C_SOURCE+= \
-		hardware/cpu-$(TARGET)/device_init.c \
-		hardware/board-mbed/board_init.c \
-		hardware/cpu-$(TARGET)/power_management.c \
-		freertos/list.c \
-		freertos/queue.c \
-		freertos/tasks.c \
-		freertos/portable/GCC/$(PORT_DIR)/port.c \
-		freertos/portable/MemMang/heap_3.c \
+		mach/cpu-$(TARGET)/device_init.c \
+		mach/board-mbed/board_init.c \
+		mach/cpu-$(TARGET)/power_management.c \
+		kernel/list.c \
+		kernel/queue.c \
+		kernel/tasks.c \
+		kernel/port/$(PORT_DIR)/port.c \
+		kernel/malloc_wrappers.c \
 		lib/exception_handlers.c \
 		lib/debug_support.c \
 		lib/device_manager.c \
@@ -171,13 +171,11 @@ CXX_SOURCE+= \
 
 # Peripheral device drivers
 C_SOURCE+= \
-		hardware/peripherals/uart/uart.c \
-		hardware/peripherals/uart/uart_fractional_baud.c \
-		hardware/peripherals/uart/uartISRs.c \
-		hardware/peripherals/gpio/gpio.c \
-		hardware/peripherals/emac/emac.c \
-		hardware/peripherals/emac/emacISR.c \
-		hardware/peripherals/wdt/wdt.c
+		drivers/uart/uart.c \
+		drivers/uart/uart_fractional_baud.c \
+		drivers/gpio/gpio.c \
+		drivers/emac/emac.c \
+		drivers/wdt/wdt.c
 
 # Example Tasks
 C_SOURCE+= \
@@ -204,7 +202,7 @@ C_SOURCE+= \
 #		lib/uip/timer.c \
 #		lib/uip/uip.c
 
-# Tests 
+# Tests
 CXX_SOURCE+= \
 		tests/Cxx_Test.cpp \
 		tests/Malloc_Test.cpp \
@@ -250,13 +248,12 @@ $(ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
 
 # This target ensures the temporary build product directories exist
 $(ODIR)/exists:
-	@mkdir -p $(ODIR)/hardware/peripherals/uart $(ODIR)/hardware/peripherals/gpio 
-	@mkdir -p $(ODIR)/hardware/peripherals/emac $(ODIR)/hardware/peripherals/wdt
-	@mkdir -p $(ODIR)/hardware/board-mbed $(ODIR)/freertos/portable/MemMang
-	@mkdir -p $(ODIR)/hardware/cpu-$(TARGET) $(ODIR)/tests $(ODIR)/lib/syscalls
-	@mkdir -p $(ODIR)/example_tasks $(ODIR)/example_tasks/webserver $(ODIR)/lib/uip 
-	@mkdir -p $(ODIR)/freertos/portable/GCC/$(PORT_DIR) $(ODIR)/hardware/cpu-common
-	@mkdir -p $(ODIR)/lib/ustl
+	@mkdir -p $(ODIR)/drivers/uart $(ODIR)/drivers/gpio $(ODIR)/drivers/rtc
+	@mkdir -p $(ODIR)/drivers/emac $(ODIR)/drivers/wdt
+	@mkdir -p $(ODIR)/mach/board-mbed $(ODIR)/mach/cpu-$(TARGET)
+	@mkdir -p $(ODIR)/kernel $(ODIR)/mach/cpu-common $(ODIR)/kernel/port/$(PORT_DIR)
+	@mkdir -p $(ODIR)/example_tasks $(ODIR)/example_tasks/webserver $(ODIR)/lib/uip
+	@mkdir -p $(ODIR)/lib/ustl $(ODIR)/tests $(ODIR)/lib/syscalls
 	@touch $(ODIR)/exists
 
 # UIP script build rules

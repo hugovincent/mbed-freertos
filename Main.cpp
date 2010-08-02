@@ -8,33 +8,18 @@
     Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
 */
 
-/*
- * Creates all the demo application tasks, then starts the scheduler.  The WEB
- * documentation provides more details of the standard demo application tasks.
- * In addition to the standard demo tasks, the following tasks and tests are
- * defined and/or created within this file:
- *
- * "Check" hook -  This only executes every five seconds from the tick hook.
- * Its main function is to check that all the standard demo tasks are still
- * operational.  Should any unexpected behaviour within a demo task be discovered
- * the tick hook will write an error to the LCD (via the LCD task).  If all the
- * demo tasks are executing with their expected behaviour then the check task
- * writes PASS to the LCD (again via the LCD task), as described above.
- *
- * "uIP" task -  This is the task that handles the uIP stack.  All TCP/IP
- * processing is performed in this task.
- */
-
 #include <string.h>
 #include <stdlib.h>
+#include "drivers/wdt.h"
+#include "power_management.h"
 
-// Scheduler includes.
+// Scheduler includes:
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
 #include "semphr.h"
 
-// Demo app includes.
+// Demo app includes:
 #include "example_tasks/BlockQ.h"
 #include "example_tasks/death.h"
 #include "example_tasks/blocktim.h"
@@ -44,29 +29,11 @@
 #include "example_tasks/dynamic.h"
 #include "example_tasks/webserver_task.h"
 
-#include "hardware/uart.h"
-#include "hardware/wdt.h"
-#include "power_management.h"
-
 // Demo application definitions.
 #define mainCHECK_DELAY					((portTickType)5000 / portTICK_RATE_MS)
 #define mainBLOCK_Q_PRIORITY			(tskIDLE_PRIORITY + 2)
 #define mainFLASH_PRIORITY              (tskIDLE_PRIORITY + 2)
 #define mainGEN_QUEUE_TASK_PRIORITY		(tskIDLE_PRIORITY)
-
-
-void SimplePrint(const char *str)
-{
-	while (*str)
-	{
-		/* Make line endings behave like normal serial terminals. */
-		if (*str == '\n')
-		{
-			uart0PutChar('\r', 0);
-		}
-		uart0PutChar(*str++, 0);
-	}
-}
 
 #ifdef CORE_HAS_MPU
 void xBadTask(void *params)
@@ -126,10 +93,6 @@ int main()
 #ifdef CORE_HAS_MPU
 	xTaskCreate(xBadTask, (signed char *)"Bad", configMINIMAL_STACK_SIZE + 800, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
-
-	/* Temporary file/device-manager testing code */
-	extern void TestRomFS();
-	TestRomFS();
 
 	printf("Starting scheduler.\n");
 

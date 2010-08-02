@@ -1,6 +1,6 @@
 #include <FreeRTOS.h>
 #include <task.h>
-#include "hardware/wdt.h"
+#include "drivers/wdt.h"
 
 void WDT_Init(const unsigned int timeout_seconds)
 {

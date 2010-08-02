@@ -1,6 +1,6 @@
 #include <stdlib.h> 
 #include <string.h>
-#include "hardware/gpio.h"
+#include "drivers/gpio.h"
 
 /* This is hackish testing code that mallocs and frees while turning on and off
    LEDs to allow timings to be measured

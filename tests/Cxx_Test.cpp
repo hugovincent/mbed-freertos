@@ -1,5 +1,5 @@
 #include <FreeRTOS.h>
-#include "hardware/gpio.h"
+#include "drivers/gpio.h"
 #include <string>
 
 class CxxTest {
