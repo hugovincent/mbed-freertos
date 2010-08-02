@@ -1,7 +1,8 @@
-#include "exception_handlers.h"
+#include <stdint.h>
 
-#include <stdint.h>                           /* Include standard types */
-#include <cmsis.h>
+#include "cmsis.h"
+#include "os_init.h"
+#include "exception_handlers.h"
 
 void Reset_Handler(void);
 void NMI_Handler(void);
@@ -142,7 +143,7 @@ __attribute__ ((noreturn)) void Reset_Handler(void)
 	__ram_vectors_start__ = (unsigned long *)RamVectors;
 	SCB->VTOR = (unsigned long)RamVectors;
 
-	BootInit();
+	Boot_Init();
 	
 	// If main ever returns, reset the board
 	NVIC_SystemReset();

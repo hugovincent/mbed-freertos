@@ -1,37 +1,29 @@
 /* Board-specific hardware initialisation. Must set up the console serial 
  * port. 
  *
- * IMPORTANT NOTE: This runs before the C/C++ main() function and can't use a
- * number of standard library functions, including standard IO. 
- *
  * Hugo Vincent, 2 May 2010.
  */
 
-#include "cmsis.h"
+#include "os_init.h"
+#include "semifs.h"
+
 #include "drivers/gpio.h"
 #include "drivers/uart.h"
 #include "drivers/wdt.h"
-#include "semifs.h"
+#include "drivers/rtc.h"
 
-void BoardInit( void )
+void Board_EarlyInit( void )
 {
-	// This is where things like pinmux configuration should get done.
+	// FIXME This is where pinmux configuration should get done
 
-	// Start the watchdog timer.
-	WDT_Init(6);
-
-	// Setup the debug UART (talks to the PC through the mbed's second
-	// microcontroller).
-	uart0Init(115200, 128);
-
-	// Setup the led's on the mbed board.
-	vGpioInitialise();
+	UART_Init(/* UART: */ 0, /* baud rate: */ 115200, /* buffer size: */ 128);
+	WDT_Init(/* timeout in seconds: */ 6);
 }
 
-void BoardDeviceInit()
+void Board_LateInit()
 {
-	extern void initialise_stdio();
-	initialise_stdio();
+	GPIO_Init();
+	//RTC_Init();
 
 	SemiFS_Init();
 }

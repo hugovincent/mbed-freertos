@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-signed portBASE_TYPE uart0Init (unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength);
+signed portBASE_TYPE UART_Init(int which, unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength);
 signed portBASE_TYPE uart0GetChar (signed portCHAR *pcRxedChar, portTickType xBlockTime);
 signed portBASE_TYPE uart0PutChar (signed portCHAR cOutChar, portTickType xBlockTime);
 

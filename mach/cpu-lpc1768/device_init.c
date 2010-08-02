@@ -7,6 +7,7 @@
  * Rob Turner, 20 July 2010.
  */
 
+#include "os_init.h"
 #include "FreeRTOSConfig.h"
 #include <cmsis.h>
 
@@ -20,7 +21,7 @@
 
 uint32_t SystemCoreClock = 99000000;
 
-void LowLevelInit(void)
+void LowLevel_Init(void)
 {
 	/*************************************************************************/
 	// Core Clock Setup

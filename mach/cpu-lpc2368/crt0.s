@@ -144,9 +144,9 @@ LoopFill:       CMP     R1, R2
 BSSIsEmpty:
 
 @  ----------------------------------------------------------------------------
-@  Jump into C BootInit() code (lib/os_init.c).
-                .extern BootInit
-                LDR     R0, =BootInit
+@  Jump into C Boot_Init() code (lib/os_init.c).
+                .extern Boot_Init
+                LDR     R0, =Boot_Init
                 MOV     LR, PC
                 BX      R0
 

@@ -43,8 +43,11 @@ static xQueueHandle xTX0Queue;
 static volatile portCHAR *pcTHREEmpty0;
 #endif
 
-signed portBASE_TYPE uart0Init(unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength)
+signed portBASE_TYPE UART_Init(int which, unsigned portLONG ulWantedBaud, unsigned portBASE_TYPE uxQueueLength)
 {
+	if (which != 0)
+		return 0; // FIXME
+
 	unsigned portLONG ulDivisor, ulFracDiv;
 	static unsigned portLONG sulWantedBaud = 115200;
 	static unsigned portBASE_TYPE suxQueueLength = 64;

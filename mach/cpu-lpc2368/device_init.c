@@ -7,6 +7,7 @@
  * Hugo Vincent, 2 May 2010.
  */
 
+#include "os_init.h"
 #include "FreeRTOSConfig.h"
 #include <cmsis.h>
 #include <exception_handlers.h>
@@ -39,7 +40,7 @@
 
 uint32_t SystemCoreClock = 72000000;
 
-void LowLevelInit(void)
+void LowLevel_Init(void)
 {
 	// FIXME get/store reset-reason.
 

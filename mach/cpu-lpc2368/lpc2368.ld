@@ -14,7 +14,7 @@ MEMORY
 	BatRam (rw) : ORIGIN = 0xE0084000, LENGTH = 2k
 }
 
-INCLUDE "mach/cpu-common/common.ld"
+INCLUDE "mach/arm_common.ld"
 
 SECTIONS
 {

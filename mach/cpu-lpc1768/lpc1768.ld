@@ -20,7 +20,7 @@ __SRAM_segment_end__ = __SRAM_segment_start__ + LENGTH( Ram );
 
 Stack_Size_Total = 768;
 
-INCLUDE "mach/cpu-common/common.ld"
+INCLUDE "mach/arm_common.ld"
 
 SECTIONS
 {
