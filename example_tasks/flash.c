@@ -104,7 +104,7 @@ unsigned portBASE_TYPE uxLED;
 	{
 		/* Delay for half the flash period then toggle the LED. */
 		vTaskDelayUntil( &xLastFlashTime, xFlashRate );
-		vGpioToggle( uxLED );
+		GPIO_PinToggle(1, uxLED);
 	}
 } /*lint !e715 !e818 !e830 Function definition must be standard for task creation. */
 

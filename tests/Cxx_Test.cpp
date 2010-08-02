@@ -18,7 +18,7 @@ int CxxTest::someMethod() {
 	delete t;
 #endif
 
-	vGpioToggle( 18 );
+	GPIO_PinToggle(1, 18);
 	return 0;
 }
 

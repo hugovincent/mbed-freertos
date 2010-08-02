@@ -1,43 +1,25 @@
-/*
-    FreeRTOS V6.0.4 - Copyright (C) 2010 Real Time Engineers Ltd.
+/* General-purpose IO pins driver.
+ *
+ * Hugo Vincent, 2 August 2010.
+ */
 
-    This file is part of the FreeRTOS distribution.
+#ifndef GPIO_h
+#define GPIO_h
 
-    FreeRTOS is free software; you can redistribute it and/or modify it under
-    the terms of the GNU General Public License (version 2) as published by the
-    Free Software Foundation AND MODIFIED BY the FreeRTOS exception.
-    ***NOTE*** The exception to the GPL is included to allow you to distribute
-    a combined work that includes FreeRTOS without being obliged to provide the
-    source code for proprietary components outside of the FreeRTOS kernel.
-    FreeRTOS is distributed in the hope that it will be useful, but WITHOUT
-    ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-    FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-    more details. You should have received a copy of the GNU General Public 
-    License and the FreeRTOS license exception along with FreeRTOS; if not it 
-    can be viewed here: http://www.freertos.org/a00114.html and also obtained 
-    by writing to Richard Barry, contact details for whom are available on the
-    FreeRTOS WEB site.
-*/
+// FIXME register pins, set direction, register interrupt
 
-#ifndef GPIO_H
-#define GPIO_H
+void GPIO_Init(); // fixme should pass in pins & directions here
+void GPIO_Write(int block, unsigned int set_bitmap, unsigned int clear_bitmap);
+void GPIO_Toggle(int block, unsigned int bitmap);
+unsigned int GPIO_Read(int block);
 
-#include <FreeRTOS.h>
+// Convenience Wrappers:
+inline void GPIO_PinSet(int block, int pin) { GPIO_Write(block, 0x1<<pin, 0); }
+inline int  GPIO_PinRead(int block, int pin) { return GPIO_Read(block) & pin ? 1 : 0; }
+inline void GPIO_PinClear(int block, int pin) { GPIO_Write(block, 0, 0x1<<pin); }
+inline void GPIO_PinToggle(int block, int pin) { GPIO_Toggle(block, 0x1<<pin); }
+inline void GPIO_PinWrite(int block, int pin, int value) { if (value) \
+	GPIO_PinSet(block, pin); else GPIO_PinClear(block, pin); }
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-// FIXME register pins, set direction, read pins, register interrupt
-
-void vGpioInitialise(void);
-void vGpioSet(unsigned portBASE_TYPE uxPin, signed portBASE_TYPE xValue);
-void vGpioToggle(unsigned portBASE_TYPE uxPin);
-unsigned portBASE_TYPE uxGpioGet(unsigned portBASE_TYPE uxPin);
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
-
-#endif
+#endif // ifndef GPIO_h
 

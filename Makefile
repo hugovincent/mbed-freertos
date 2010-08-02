@@ -94,11 +94,11 @@ CFLAGS = $(COMMON_FLAGS) \
 		-std=gnu99
 #-Wc++-compat
 
-CXXFLAGS= $(COMMON_FLAGS)
-#		-fno-unwind-tables \
-#		-fno-enforce-eh-specs \
-#		-fno-use-cxa-get-exception-ptr \
-#		-fno-stack-protector
+CXXFLAGS= $(COMMON_FLAGS) \
+		-fno-unwind-tables \
+		-fno-enforce-eh-specs \
+		-fno-use-cxa-get-exception-ptr \
+		-fno-stack-protector
 
 LINKER_FLAGS= \
 		-nostartfiles -nostdinc++ \

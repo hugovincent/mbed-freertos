@@ -34,7 +34,7 @@ void TestMalloc()
 					good = 0;
 					break;
 				}
-		vGpioSet(18,good);
+		GPIO_PinWrite(1, 18, good);
 		good = 1;
 		if (t2)
 			for (int k = 0; k < 4000; k++)
@@ -43,7 +43,7 @@ void TestMalloc()
 					good = 0;
 					break;
 				}
-		vGpioSet(20,good);
+		GPIO_PinWrite(1, 20, good);
 		good = 1;
 		if (t3)
 			for (int k = 0; k < 5000; k++)
@@ -52,7 +52,7 @@ void TestMalloc()
 					good = 0;
 					break;
 				}
-		vGpioSet(21,good);
+		GPIO_PinWrite(1, 21, good);
 		good = 1;
 		if (t4)
 			for (int k = 0; k < 6000; k++)
@@ -61,7 +61,7 @@ void TestMalloc()
 					good = 0;
 					break;
 				}
-		vGpioSet(23,good);
+		GPIO_PinWrite(1, 23, good);
 
 		for (volatile int i = 0; i < 500000; i++);
 
@@ -70,10 +70,7 @@ void TestMalloc()
 		if (t3) free(t3);
 		if (t4) free(t4);
 
-		vGpioSet(18,0);
-		vGpioSet(20,0);
-		vGpioSet(21,0);
-		vGpioSet(23,0);
+		GPIO_Write(1, 0, 0x1<<18 | 0x1<<20 | 0x1<<21 | 0x1<<23);
 
 		for (volatile int i = 0; i < 500000; i++);
 	}
@@ -85,7 +82,7 @@ void TestMalloc2()
 	list = (unsigned char **)malloc(sizeof (unsigned char*) * 205);
 	if (list == NULL)
 	{
-		vGpioSet(18,1);
+		GPIO_PinClear(1, 18);
 		return;
 	}
 
@@ -96,11 +93,11 @@ void TestMalloc2()
 			list[i] = (unsigned char*)malloc(i);
 			if (list[i] == NULL)
 			{
-				vGpioSet(20,1);
+				GPIO_PinClear(1, 20);
 				if (i < 190)
-					vGpioSet(21,1);
+					GPIO_PinClear(1, 21);
 				if (i < 200)
-					vGpioSet(23,1);
+					GPIO_PinClear(1, 23);
 				return;
 			}
 			memset(list[i], i, i);
@@ -110,7 +107,7 @@ void TestMalloc2()
 				free(list[i]);
 
 		for (volatile int i = 0; i < 500000; i++);
-		vGpioToggle(20);
+		GPIO_PinToggle(1, 20);
 	}
 }
 
@@ -132,12 +129,12 @@ void TestInitializedData()
 		for (unsigned int k = 0; k < 21; k++)
 			if (numbers[k] != k)
 				good = 0;
-		vGpioSet(18, good);
+		GPIO_PinWrite(1, 18, good);
 
 		for (unsigned int k = 0; k < 5; k++)
 			if (text[k] != k + '0')
 				good = 0;
-		vGpioSet(21, good);
+		GPIO_PinWrite(1, 21, good);
 
 		/* Check uninitialized data */
 		memcpy(numbers2, numbers, 21 * sizeof(unsigned int));
@@ -146,15 +143,15 @@ void TestInitializedData()
 		for (unsigned int k = 0; k < 21; k++)
 			if (numbers[k] != k)
 				good = 0;
-		vGpioSet(18, good);
+		GPIO_PinWrite(1, 18, good);
 
 		for (unsigned int k = 0; k < 5; k++)
 			if (text[k] != k + '0')
 				good = 0;
-		vGpioSet(21, good);
+		GPIO_PinWrite(1, 21, good);
 
 		for (volatile int i = 0; i < 500000; i++);
-		vGpioToggle(20);
+		GPIO_PinToggle(1, 20);
 	}
 }
 

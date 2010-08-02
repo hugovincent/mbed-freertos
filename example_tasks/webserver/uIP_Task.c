@@ -34,8 +34,8 @@
 #include "httpd.h"
 
 /* Demo includes. */
-#include "hardware/emac.h"
-#include "hardware/gpio.h"
+#include "drivers/emac.h"
+#include "drivers/gpio.h"
 #include "cmsis_nvic.h"
 
 #include "webserver.h"
@@ -248,32 +248,9 @@ void vApplicationProcessFormInput( portCHAR *pcInputString, portBASE_TYPE xInput
 	if( c )
 	{
 		/* Turn LED's on or off in accordance with the check box status. */
-		if( strstr( c, "LED0=1" ) != NULL )
-		{
-			vGpioSet( 5, 0 );
-		}
-		else
-		{
-			vGpioSet( 5, 1 );
-		}		
-
-		if( strstr( c, "LED1=1" ) != NULL )
-		{
-			vGpioSet( 6, 0 );
-		}
-		else
-		{
-			vGpioSet( 6, 1 );
-		}		
-
-		if( strstr( c, "LED2=1" ) != NULL )
-		{
-			vGpioSet( 7, 0 );
-		}
-		else
-		{
-			vGpioSet( 7, 1 );
-		}
+		GPIO_PinWrite(1, 5, strstr( c, "LED0=1" ) != NULL);
+		GPIO_PinWrite(1, 6, strstr( c, "LED1=1" ) != NULL);
+		GPIO_PinWrite(1, 7, strstr( c, "LED2=1" ) != NULL);
 
 		/* Find the start of the text to be displayed on the LCD. */
 		pcText = strstr( c, "LCD=" );
