@@ -3,6 +3,7 @@
  * Hugo Vincent, 23 July 2010.
  */
 
+#include <unwind.h>
 #include <cmsis.h>
 #include "debug_support.h"
 #include "drivers/uart.h"
@@ -16,79 +17,21 @@ int Debug_ValidMemory(unsigned int *addr)
 			&& addr < &__top_of_stack__) ? 1 : 0;
 }
 
+
 void Debug_PrintBacktraceHere(int skip_frames)
 {
 	register unsigned int *fp asm("r11");
 	Debug_PrintBacktrace(fp, skip_frames + 1); // We don't want Debug_PrintBacktraceHere in the backtrace
 }
 
-/* Assumes a full AAPCS stack frame, so compile with:
-		-mapcs-frame -fno-omit-frame-pointer.
 
-   See http://csg.lbl.gov/pipermail/vxwexplo/2004-February/004397.html,
-   and the stack dump implementations in Ethernet Nut/OS and LostARM.
- */
-#define NEXT_FRAME_VALID() (next_frame < (frame - sizeof(struct StackFrame)) \
-		&& next_frame > next_frame - 1024)
 void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 {
-	struct StackFrame {
-		struct StackFrame *fp;
-		unsigned int sp;
-		unsigned int lr; // LR is offset by 8 due to CPU pipeline
-		unsigned int pc;
-	} *frame, *next_frame;
-
-	// The frame pointer points to the end of the struct, so we need to
-	// manually offset the pointer address
-	frame = (struct StackFrame *)(fp - sizeof(struct StackFrame) / sizeof(int*));
-
-	// Walk the linked list as long as we remain in seemingly-valid frames
-	int depth = 0;
-	while (Debug_ValidMemory((unsigned int *)frame)
-			&& depth < (MAX_BACKTRACE_FRAMES + skip_frames))
-	{
-		// Get the next frame (similarly offset as above)
-		next_frame = (struct StackFrame *)(frame->fp - 3);
-
-		depth++;
-		if (depth > skip_frames)
-		{
-			printf("\t#%d: [<%08x>] called from [<%08x>]\n",
-					depth - skip_frames, frame->pc, frame->lr - 8);
-
-			printf("\t\tframe : %p    next_frame : %p\n", frame, next_frame);
-
-			// Print relevant part of the stack itself
-			if (NEXT_FRAME_VALID())
-			{
-				unsigned int *j = (unsigned int *)next_frame + 4;
-				unsigned int *k = (unsigned int *)frame;
-
-				int count = 0;
-				for (; j < k && count < MAX_BACKTRACE_STACKDETAIL; j++)
-				{
-					count++;
-					if ((count % 3) == 1);
-						putchar('\t');
-					printf("\t%08x", *j);
-					if ((count % 3) == 0)
-						putchar('\n');
-				}
-			}
-		}
-
-		// Does the next frame appear somewhat valid?
-		if (NEXT_FRAME_VALID())
-			frame = next_frame;
-		else
-			break;
-	}
-
-	if (depth == 0)
-		puts("\t(Stack frame corrupt?)\n");
-	else if (depth >= MAX_BACKTRACE_FRAMES)
-		puts("\t... truncated ...\n");
+	// FIXME the old method I had here relied on obsolete ABI that could be made
+	// to work on ARM7 but can not work on ARM-CM3 with EABI. Need to misuse
+	// <unwind.h>, .debug_frame, and the exception handling infrastructure to 
+	// make this work...
+	puts("\t(Stack frame corrupt?)\n");
 }
 
 

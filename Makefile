@@ -55,8 +55,7 @@ COMMON_FLAGS= \
 		-Iinclude/LPC1768
 LINKER_FLAGS= \
 		-mthumb \
-		-mcpu=cortex-m3 \
-		-mno-thumb-interwork
+		-mcpu=cortex-m3
 PORT_DIR= \
 		ARM_CM3_MPU
 EXTRA_LDFLAGS= \
@@ -72,7 +71,7 @@ endif
 #------------------------------------------------------------------------------
 # Compiler, Assembler and Linker Options:
 
-DEBUG=-DNDEBUG=1 -g
+DEBUG=-DNDEBUG=1
 OPTIM=-O2
 LDSCRIPT=mach/cpu-$(TARGET)/$(TARGET).ld
 ODIR=.buildtmp
@@ -85,20 +84,17 @@ COMMON_FLAGS += \
 		-I include \
 		-I kernel/include \
 		-I kernel/port/$(PORT_DIR) \
-		-I lib/ustl \
-		-Wall -Wimplicit -Wpointer-arith \
+		-Wall -Wimplicit -Wpointer-arith -Wcast-align \
 		-Wswitch -Wreturn-type -Wshadow -Wunused \
-		-Wcast-align \
-		-fno-omit-frame-pointer -mapcs-frame \
+		-fexceptions -fsection-anchors -fomit-frame-pointer \
 		-ffunction-sections -fdata-sections \
 		-mfloat-abi=soft -mtp=soft -mabi=aapcs
 
 CFLAGS = $(COMMON_FLAGS) \
-		-std=gnu99
-#-Wc++-compat
+		-std=gnu99 -Wc++-compat
 
 CXXFLAGS= $(COMMON_FLAGS) \
-		-fno-unwind-tables \
+		-I lib/ustl \
 		-fno-enforce-eh-specs \
 		-fno-use-cxa-get-exception-ptr \
 		-fno-stack-protector
@@ -108,8 +104,7 @@ LINKER_FLAGS= \
 		-T$(LDSCRIPT) $(EXTRA_LDFLAGS) \
 		-Wl,--gc-sections \
 		-Wl,-Map=$(BINNAME).map \
-		-mabi=aapcs \
-		-lm -lsupc++
+		-lm -lsupc++ -mabi=aapcs
 
 ASM_FLAGS= \
 		$(CPUFLAGS) \
@@ -170,7 +165,7 @@ C_SOURCE+= \
 		lib/syscalls/write.c
 CXX_SOURCE+= \
 		lib/min_c++.cpp
-#include lib/ustl/ustl.mk
+include lib/ustl/ustl.mk
 
 # Peripheral device drivers
 C_SOURCE+= \
@@ -284,7 +279,7 @@ lib/romfs.c: lib/romfs_data.h
 .PHONY: disasm clean install
 disasm :
 	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
-	@$(TOOLPRE)-objdump --source $(BINNAME).elf > $(BINNAME)-disassembled.s
+	@$(TOOLPRE)-objdump -D $(BINNAME).elf > $(BINNAME)-disassembled.s
 
 clean:
 	@echo "  [Cleaning...          ]"
