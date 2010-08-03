@@ -1,24 +1,30 @@
 #include <FreeRTOS.h>
 #include "drivers/gpio.h"
-#include <string>
+//#include <string>
 
 class CxxTest {
 public:
-	CxxTest() {}
-	~CxxTest() {}
+	CxxTest() : have_initted(true) { printf("in the constructor\n"); }
+	~CxxTest() { have_initted = false; printf("destructing\n"); }
 
 	int someMethod();
+private:
+	bool have_initted;
 };
+
+static CxxTest obj;
 
 int CxxTest::someMethod() {
 
-#if 0
-	std::string *t = new std::string();
+/*	std::string *t = new std::string();
 	*t = "Hello world";
 	delete t;
-#endif
-
-	GPIO_PinToggle(1, 18);
+*/
+	GPIO_PinWrite(1, 18, have_initted);
 	return 0;
 }
 
+void test_cxx() 
+{
+	obj.someMethod();
+}

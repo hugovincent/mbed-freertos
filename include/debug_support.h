@@ -6,6 +6,8 @@
 #ifndef Debug_Support_h
 #define Debug_Support_h
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -26,7 +28,8 @@ void Debug_PrintBacktraceHere(int skip_frames);
 
 void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs);
 void Debug_PrintCPSR(unsigned int cpsr);
-int  Debug_ValidMemory(unsigned int *addr);
+bool Debug_ValidAddress_RAM(unsigned int *addr);
+bool Debug_ValidAddress_Flash(unsigned int *addr);
 
 /* JTAG Debug Communications Channel (for use with OpenOCD): */
 void DCC_Putc(char msg);

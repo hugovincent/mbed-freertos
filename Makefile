@@ -71,7 +71,7 @@ endif
 #------------------------------------------------------------------------------
 # Compiler, Assembler and Linker Options:
 
-DEBUG=-DNDEBUG=1
+DEBUG=-DNDEBUG=1 -g
 OPTIM=-O2
 LDSCRIPT=mach/cpu-$(TARGET)/$(TARGET).ld
 ODIR=.buildtmp
@@ -94,17 +94,19 @@ CFLAGS = $(COMMON_FLAGS) \
 		-std=gnu99 -Wc++-compat
 
 CXXFLAGS= $(COMMON_FLAGS) \
-		-I lib/ustl \
+		-I lib/ustl/public -nostdinc++ \
+		-fno-rtti \
 		-fno-enforce-eh-specs \
 		-fno-use-cxa-get-exception-ptr \
 		-fno-stack-protector
 
 LINKER_FLAGS= \
-		-nostartfiles -nostdinc++ \
 		-T$(LDSCRIPT) $(EXTRA_LDFLAGS) \
-		-Wl,--gc-sections \
+		-Wl,--gc-sections -Wl,-O3 \
 		-Wl,-Map=$(BINNAME).map \
-		-lm -lsupc++ -mabi=aapcs
+		-mabi=aapcs -static \
+		-nostartfiles -nodefaultlibs \
+		-Wl,--start-group -lgcc -lc -lm -lsupc++ -Wl,--end-group
 
 ASM_FLAGS= \
 		$(CPUFLAGS) \
@@ -165,7 +167,7 @@ C_SOURCE+= \
 		lib/syscalls/write.c
 CXX_SOURCE+= \
 		lib/min_c++.cpp
-include lib/ustl/ustl.mk
+#include lib/ustl/ustl.mk
 
 # Peripheral device drivers
 C_SOURCE+= \

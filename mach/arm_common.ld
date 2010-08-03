@@ -1,14 +1,19 @@
-/* Based on scripts found in the LPC yahoo-group and the Keil examples 
+/* Based on scripts found in the LPC yahoo-group and the Keil examples.
  * modified by Martin Thomas, Kaiserslautern, Germany
+ * Also based on GNU toolchain linker script arm-none-eabie/lib/ldscripts/armelf.x
  * modified by Hugo Vincent <http://hugovincent.com>
  */
 
-/* Section Definitions */
+OUTPUT_FORMAT( "elf32-littlearm", "elf32-bigarm", "elf32-littlearm" )
+OUTPUT_ARCH( arm )
+ENTRY( vectors )
+
 SECTIONS
 {
 	/* ------------------------- START OF ROM CODE ------------------------- */
 
 	/* first section is .text which is used for code */
+	/* Read-only sections, merged into text segment: */
 	__text_start__ = . ;
 	.text : AT ( 0x0 )
 	{
@@ -50,14 +55,14 @@ SECTIONS
 	} > Flash
 	.dtors :
 	{
-		__dtors_start__ = . ; 
+		__dtors_start__ = . ;
 		KEEP(*(SORT( .dtors.* )))
 		KEEP(*( .dtors ))
 		__dtors_end__ = . ;
 	} > Flash
 
 	/* .ARM.exidx and .ARM.extab are used for exception handling */
-	.ARM.extab : 
+	.ARM.extab :
 	{
 		*( .ARM.extab* )
 		*( .gnu.linkonce.armextab.* )
@@ -106,7 +111,7 @@ SECTIONS
 	} > Ram
 
 	/* .data section -- used for initialized data */
-	.data : AT ( __text_end__ ) 
+	.data : AT ( __text_end__ )
 	{
 		. = ALIGN(8);
 		__data_start__ = . ;
@@ -161,7 +166,14 @@ SECTIONS
 	.debug_funcnames 0 : { *(.debug_funcnames) }
 	.debug_typenames 0 : { *(.debug_typenames) }
 	.debug_varnames  0 : { *(.debug_varnames) }
+	/* DWARF 3 */
+	.debug_pubtypes 0 : { *(.debug_pubtypes) }
+	.debug_ranges   0 : { *(.debug_ranges) }
 }
 
-ENTRY( vectors )
+/* Needed for FreeRTOS CM3 port: */
+__FLASH_segment_start__ = ORIGIN( Flash );
+__FLASH_segment_end__   = ORIGIN( Flash) + LENGTH( Flash );
+__SRAM_segment_start__  = ORIGIN( Ram );
+__SRAM_segment_end__    = ORIGIN( Ram ) + LENGTH( Ram );
 

@@ -18,15 +18,20 @@ GENERALIZATIONS:
 [1] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
 [1] Thread-local memory. Finish dynamic reentrancy in syscalls.
 [1] Figure out protected-mode driver access model and syscalls via SVC/SWI?
+[2] RomFS should be FlashFS, with IAP.
 [2] Finish GPIO driver.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 
 ADDITIONS:
 [1] POSIX wrappers for threading, sockets, timers, date/time etc.
-[1] Allow particular tasks to register for ISRs and have the kernel mediate access to vectors.
+[1] Standardized, kernel-mediated interrupt API for drivers.
+[1] Standardized user-process-level signal-based interrupt abstraction.
+[1] Standardized DMA api.
 [2] Configuration management system.
 [2] Add gdb-stubs for remote debug over serial port.
 [2] Add symbol table so backtrace etc can show symbols instead of addresses.
+[3] New stack backtrace for modern, non-APCS-frame-pointer-using binary code.
+[3] Integrate FatFS filesystem support.
 [3] Integrate PicoC for scripting. 
 [f] Integrate some nice DSP libraries.
 

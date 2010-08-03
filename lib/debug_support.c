@@ -8,15 +8,23 @@
 #include "debug_support.h"
 #include "drivers/uart.h"
 
-int Debug_ValidMemory(unsigned int *addr)
+bool Debug_ValidAddress_RAM(unsigned int *addr)
 {
 	/* These symbols are defined by the linker script. */
-	extern unsigned int __data_start__, __top_of_stack__;
+	extern unsigned int __SRAM_segment_start__, __SRAM_segment_end__;
 
-	return (addr >= &__data_start__
-			&& addr < &__top_of_stack__) ? 1 : 0;
+	return (addr >= &__SRAM_segment_start__
+			&& addr < &__SRAM_segment_end__) ? true : false;
 }
 
+bool Debug_ValidAddress_Flash(unsigned int *addr)
+{
+	/* These symbols are defined by the linker script. */
+	extern unsigned int __FLASH_segment_start__, __FLASH_segment_end__;
+
+	return (addr >= &__FLASH_segment_start__
+			&& addr < &__FLASH_segment_end__) ? true : false;
+}
 
 void Debug_PrintBacktraceHere(int skip_frames)
 {
