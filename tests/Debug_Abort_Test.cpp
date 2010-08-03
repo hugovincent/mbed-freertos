@@ -27,7 +27,7 @@ void func3(void)
 {
 	int *bad = (int *)0x09000000;
 
-	puts("Current Backtrace:\n");
+	puts("Current Backtrace:");
 	Debug_PrintBacktraceHere(0);
 
 	printf("About to have a data abort... bye bye\n");

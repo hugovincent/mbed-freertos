@@ -26,12 +26,26 @@ bool Debug_ValidAddress_Flash(unsigned int *addr)
 			&& addr < &__FLASH_segment_end__) ? true : false;
 }
 
-void Debug_PrintBacktraceHere(int skip_frames)
+/* Stack backtrace helper function */
+_Unwind_Reason_Code trace_fcn(_Unwind_Context *ctx, void *d)
 {
-	register unsigned int *fp asm("r11");
-	Debug_PrintBacktrace(fp, skip_frames + 1); // We don't want Debug_PrintBacktraceHere in the backtrace
+	int *priv_data = (int*)d;
+	int *depth = &priv_data[0], *skip_frames = &priv_data[1];
+
+	if (*depth >= *skip_frames)
+	{
+		printf("\t#%d: [<%08x>]\n", *depth - *skip_frames, _Unwind_GetIP(ctx));
+	}
+	(*depth)++;
+
+	return _URC_NO_REASON;
 }
 
+void Debug_PrintBacktraceHere(int skip_frames)
+{
+	int priv_data[2] = {0, skip_frames + 1};
+  	_Unwind_Backtrace(&trace_fcn, &priv_data[0]);
+}
 
 void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 {
@@ -39,7 +53,9 @@ void Debug_PrintBacktrace(unsigned int *fp, int skip_frames)
 	// to work on ARM7 but can not work on ARM-CM3 with EABI. Need to misuse
 	// <unwind.h>, .debug_frame, and the exception handling infrastructure to 
 	// make this work...
-	puts("\t(Stack frame corrupt?)\n");
+	puts("\t(Stack frame corrupt?)");
+
+	// FIXME?
 }
 
 

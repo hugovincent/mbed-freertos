@@ -30,30 +30,30 @@ static __attribute__ ((noreturn)) void __print_info(enum ExceptionType type)
 	switch (type)
 	{
 		case DataAbort:
-			puts("\n[FreeRTOS] Fatal Error: Data Abort at pc : ");
+			printf("\n[FreeRTOS] Fatal Error: Data Abort at pc : ");
 			printf("[<%08x>] -> 0x%08x\n", SavedRegs.pc, SavedRegs.pc_ptr);
 			break;
 
 		case PrefetchAbort:
-			puts("\n[FreeRTOS] Fatal Error: Prefetch Abort at pc : ");
+			printf("\n[FreeRTOS] Fatal Error: Prefetch Abort at pc : ");
 			printf("[<%08x>]\n", SavedRegs.pc);
 			break;
 
 		case UndefinedInstruction:
-			puts("\n[FreeRTOS] Fatal Error: Undefined Instruction ");
+			printf("\n[FreeRTOS] Fatal Error: Undefined Instruction ");
 			printf("0x%08x at pc : [<%08x>]\n", SavedRegs.pc_ptr, SavedRegs.pc);
 			break;
 	}
 
-	puts("\nProcesor State:\n");
+	puts("\nProcesor State:");
 	Debug_PrintSavedRegisterState(&SavedRegs);
 
-	puts("\nBacktrace:\n");
+	puts("\nBacktrace:");
 	Debug_PrintBacktrace((unsigned int *)SavedRegs.r[11], 0); // r11 is the frame pointer
 
 	// FIXME some FreeRTOS-specific thread information should go here?
 
-	puts("\nHalting.\n\n");
+	puts("\nHalting.\n");
 
 	// Put processor core into sleep mode to conserve power.
 	PowerManagement_PowerDown();
@@ -84,7 +84,7 @@ __attribute__ ((noreturn)) void Exception_UndefinedInstruction()
 __attribute__ ((noreturn)) void Exception_UnhandledIRQ()
 {
 	Console_SingleMode();
-	puts("\n[FreeRTOS] Fatal Error: Unhandled/Spurious IRQ.\n");
+	puts("\n[FreeRTOS] Fatal Error: Unhandled/Spurious IRQ.");
 	// FIXME try to print *which* interrupt it was...
 	PowerManagement_PowerDown();
 }
@@ -93,7 +93,7 @@ __attribute__ ((noreturn)) void Exception_UnhandledIRQ()
 __attribute__ ((noreturn)) void Exception_UnhandledFIQ()
 {
 	Console_SingleMode();
-	puts("\n[FreeRTOS] Fatal Error: Unhandled/Spurious FIQ.\n");
+	puts("\n[FreeRTOS] Fatal Error: Unhandled/Spurious FIQ.");
 	// FIXME try to print *which* interrupt it was...
 	PowerManagement_PowerDown();
 }
@@ -101,7 +101,7 @@ __attribute__ ((noreturn)) void Exception_UnhandledFIQ()
 __attribute__ ((noreturn)) void Exception_HardFault()
 {
 	Console_SingleMode();
-	puts("\n[FreeRTOS] Fatal Error: HardFault.\n");
+	puts("\n[FreeRTOS] Fatal Error: HardFault.");
 	// FIXME try to print all the details about it
 	PowerManagement_PowerDown();
 }
