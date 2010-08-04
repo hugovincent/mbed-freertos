@@ -52,3 +52,32 @@ __attribute__ ((weak)) void vPortInitialiseBlocks(void)
 {
 	// Nothing needed here.
 }
+
+#if (defined(TARGET_LPC23xx) || (TARGET_LPC17xx))
+#if configGENERATE_RUN_TIME_STATS == 1
+/* FIXME this was written for LPC2368 - check it works here too */
+/* This uses Timer 1 to record task run-time statistics. Allows FreeRTOS
+ * to generate a nice, tabular `top`-style CPU-usage listing. 
+ */
+void vConfigureTimerForRunTimeStats( void )
+{
+	// Power up and feed the timer with a clock.
+	LPC_SC->PCONP |= 0x1<<2;
+	LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(0x3<<4))) | (0x01<<4);
+
+	// Reset Timer 1.
+	LPC_TIM1->TCR = 0x1<<1;
+
+	// Prescale to a frequency that is good enough to get a decent resolution,
+	// but not too fast so as to overflow all the time.
+	LPC_TIM1->PR =  ( SystemCoreClock / 10000UL ) - 1UL;
+
+	// Start the counter, counting up.
+	LPC_TIM1->CTCR = 0x0;
+	LPC_TIM1->TCR = 0x1<<0;
+}
+#endif
+#else
+#error "Target not supported"
+#endif
+

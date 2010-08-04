@@ -99,8 +99,8 @@ to exclude the API function. */
 
 /* Optional run-time statistics output (like `top`). Uses Timer 1. */
 #if configGENERATE_RUN_TIME_STATS == 1
-extern void ConfigureTimerForRunTimeStats( void );
-#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()	ConfigureTimerForRunTimeStats()
+extern void vConfigureTimerForRunTimeStats( void );
+#define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()	vConfigureTimerForRunTimeStats()
 #define portGET_RUN_TIME_COUNTER_VALUE()			(LPC_TIM1->TC)
 #endif
 

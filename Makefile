@@ -39,6 +39,7 @@ PORT_DIR= \
 ASM_SOURCE= \
 		mach/cpu-lpc2368/crt0.s
 C_SOURCE= \
+		mach/cpu-lpc2368/system_LPC23xx.c \
 		mach/cpu-lpc2368/exception_handlers.c
 endif
 
@@ -63,6 +64,7 @@ EXTRA_LDFLAGS= \
 		-mthumb
 C_SOURCE= \
 		mach/cpu-lpc1768/core_cm3.c \
+		mach/cpu-lpc1768/system_LPC17xx.c \
 		mach/cpu-lpc1768/crt0.c \
 		mach/cpu-lpc1768/fault_handlers.c \
 		lib/mpu_manager.c
@@ -92,7 +94,7 @@ COMMON_FLAGS += \
 		-mfloat-abi=soft -mtp=soft -mabi=aapcs
 
 CFLAGS = $(COMMON_FLAGS) \
-		-std=gnu99 -Wc++-compat
+		-std=gnu99
 
 CXXFLAGS= $(COMMON_FLAGS) \
 		-I lib/ustl/public -nostdinc++ \
@@ -117,7 +119,6 @@ ASM_FLAGS= \
 
 # Core Operating System
 C_SOURCE+= \
-		mach/cpu-$(TARGET)/device_init.c \
 		mach/board-mbed/board_init.c \
 		mach/cpu-$(TARGET)/power_management.c \
 		kernel/list.c \
@@ -125,6 +126,7 @@ C_SOURCE+= \
 		kernel/tasks.c \
 		kernel/port/$(PORT_DIR)/port.c \
 		kernel/malloc_wrappers.c \
+		lib/cmsis_nvic.c \
 		lib/debug_support.c \
 		lib/device_manager.c \
 		lib/freertos_hooks.c \

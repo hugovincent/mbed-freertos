@@ -1,17 +1,19 @@
-/******************************************************************************
- * @file:    LPC17xx.h
- * @purpose: CMSIS Cortex-M3 Core Peripheral Access Layer Header File for 
- *           NXP LPC17xx Device Series 
- * @version: V1.04
- * @date:    2. July 2009
- *----------------------------------------------------------------------------
+/**************************************************************************//**
+ * @file     LPC17xx.h
+ * @brief    CMSIS Cortex-M3 Core Peripheral Access Layer Header File for 
+ *           NXP LPC17xx Device Series
+ * @version  V1.07
+ * @date     19. October 2009
  *
- * Copyright (C) 2008 ARM Limited. All rights reserved.
+ * @note
+ * Copyright (C) 2009 ARM Limited. All rights reserved.
  *
- * ARM Limited (ARM) is supplying this software for use with Cortex-M3 
+ * @par
+ * ARM Limited (ARM) is supplying this software for use with Cortex-M 
  * processor based microcontrollers.  This file can be freely distributed 
  * within development tools that are supporting such ARM based processors. 
  *
+ * @par
  * THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
  * OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
  * MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
@@ -23,10 +25,6 @@
 
 #ifndef __LPC17xx_H__
 #define __LPC17xx_H__
-
-#ifdef __cplusplus
-extern "C" {
-#endif
 
 /*
  * ==========================================================================
@@ -95,7 +93,7 @@ typedef enum IRQn
 #define __Vendor_SysTickConfig    0         /*!< Set to 1 if different SysTick Config is used     */
 
 
-#include <core_cm3.h>                       /* Cortex-M3 processor and core peripherals           */
+#include "core_cm3.h"                       /* Cortex-M3 processor and core peripherals           */
 #include "system_LPC17xx.h"                 /* System Header                                      */
 
 
@@ -142,7 +140,7 @@ typedef struct
   __IO uint32_t PCLKSEL1;
        uint32_t RESERVED8[4];
   __IO uint32_t USBIntSt;               /* USB Device/OTG Interrupt Register  */
-       uint32_t RESERVED9;
+  __IO uint32_t DMAREQSEL;
   __IO uint32_t CLKOUTCFG;              /* Clock Output Configuration         */
  } LPC_SC_TypeDef;
 
@@ -182,12 +180,72 @@ typedef struct
 /*------------- General Purpose Input/Output (GPIO) --------------------------*/
 typedef struct
 {
-  __IO uint32_t FIODIR;
-       uint32_t RESERVED0[3];
-  __IO uint32_t FIOMASK;
-  __IO uint32_t FIOPIN;
-  __IO uint32_t FIOSET;
-  __O  uint32_t FIOCLR;
+  union {
+    __IO uint32_t FIODIR;
+    struct {
+      __IO uint16_t FIODIRL;
+      __IO uint16_t FIODIRH;
+    };
+    struct {
+      __IO uint8_t  FIODIR0;
+      __IO uint8_t  FIODIR1;
+      __IO uint8_t  FIODIR2;
+      __IO uint8_t  FIODIR3;
+    };
+  };
+  uint32_t RESERVED0[3];
+  union {
+    __IO uint32_t FIOMASK;
+    struct {
+      __IO uint16_t FIOMASKL;
+      __IO uint16_t FIOMASKH;
+    };
+    struct {
+      __IO uint8_t  FIOMASK0;
+      __IO uint8_t  FIOMASK1;
+      __IO uint8_t  FIOMASK2;
+      __IO uint8_t  FIOMASK3;
+    };
+  };
+  union {
+    __IO uint32_t FIOPIN;
+    struct {
+      __IO uint16_t FIOPINL;
+      __IO uint16_t FIOPINH;
+    };
+    struct {
+      __IO uint8_t  FIOPIN0;
+      __IO uint8_t  FIOPIN1;
+      __IO uint8_t  FIOPIN2;
+      __IO uint8_t  FIOPIN3;
+    };
+  };
+  union {
+    __IO uint32_t FIOSET;
+    struct {
+      __IO uint16_t FIOSETL;
+      __IO uint16_t FIOSETH;
+    };
+    struct {
+      __IO uint8_t  FIOSET0;
+      __IO uint8_t  FIOSET1;
+      __IO uint8_t  FIOSET2;
+      __IO uint8_t  FIOSET3;
+    };
+  };
+  union {
+    __O  uint32_t FIOCLR;
+    struct {
+      __O  uint16_t FIOCLRL;
+      __O  uint16_t FIOCLRH;
+    };
+    struct {
+      __O  uint8_t  FIOCLR0;
+      __O  uint8_t  FIOCLR1;
+      __O  uint8_t  FIOCLR2;
+      __O  uint8_t  FIOCLR3;
+    };
+  };
 } LPC_GPIO_TypeDef;
 
 typedef struct
@@ -319,8 +377,6 @@ typedef struct
   __IO uint8_t  TER;
        uint8_t  RESERVED6[39];
   __I  uint8_t  FIFOLVL;
-       uint8_t  RESERVED7[363];
-  __IO uint32_t DMAREQSEL;
 } LPC_UART0_TypeDef;
 
 typedef struct
@@ -846,7 +902,7 @@ typedef struct
 } LPC_EMAC_TypeDef;
 
 #if defined ( __CC_ARM   )
-#pragma anon_unions
+#pragma no_anon_unions
 #endif
 
 
@@ -968,9 +1024,5 @@ typedef struct
 #define LPC_GPDMACH6          ((LPC_GPDMACH_TypeDef   *) LPC_GPDMACH6_BASE )
 #define LPC_GPDMACH7          ((LPC_GPDMACH_TypeDef   *) LPC_GPDMACH7_BASE )
 #define LPC_USB               ((LPC_USB_TypeDef       *) LPC_USB_BASE      )
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
 
 #endif  // __LPC17xx_H__

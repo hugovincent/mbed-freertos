@@ -21,6 +21,8 @@ int CxxTest::someMethod() {
 	delete t;
 */
 	GPIO_PinWrite(1, 18, have_initted);
+	if (have_initted)
+		printf("turned on LED 1\n");
 	return 0;
 }
 

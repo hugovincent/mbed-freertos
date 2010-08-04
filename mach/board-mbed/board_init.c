@@ -12,8 +12,31 @@
 #include "drivers/wdt.h"
 #include "drivers/rtc.h"
 
+extern void vPortSVCHandler( void );
+extern void xPortPendSVHandler(void);
+extern void xPortSysTickHandler(void);
+
 void Board_EarlyInit( void )
 {
+	// Disable TPIU.
+	LPC_PINCON->PINSEL10 = 0;
+
+#if defined(TARGET_LPC17xx)
+
+	// MPU fault setup (SHCSR_MEMFAULTENA gets set by kernel when MPU is inited)
+	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk;
+
+	// Set system call and system timer tick interrupts (priorities for these are set by kernel)
+	NVIC_SetVector(SVCall_IRQn, (unsigned int)vPortSVCHandler);
+	NVIC_SetVector(PendSV_IRQn, (unsigned int)xPortPendSVHandler);
+	NVIC_SetVector(SysTick_IRQn, (unsigned int)xPortSysTickHandler);
+
+#elif defined(TARGET_LPC23xx)
+
+	// FIXME
+
+#endif
+
 	// FIXME This is where pinmux configuration should get done
 
 	UART_Init(/* UART: */ 0, /* baud rate: */ 115200, /* buffer size: */ 128);

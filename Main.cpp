@@ -81,12 +81,12 @@ int main()
 {
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
-	/*
 	vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
 	vCreateBlockTimeTasks();
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
+	/*
 	vStartWebserverTask();
 	*/
 
@@ -94,11 +94,8 @@ int main()
 	xTaskCreate(xBadTask, (signed char *)"Bad", configMINIMAL_STACK_SIZE + 800, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
 
-	//extern void func1();
-	//func1();
-	//extern void test_cxx();
-	//test_cxx();
-	//PowerManagement_PowerDown();
+	extern void test_cxx();
+	test_cxx();
 
 	printf("Starting scheduler.\n");
 
@@ -136,7 +133,6 @@ extern "C" void vApplicationTickHook()
 
 		// Has an error been found in any task?
 		int allGood = 1;
-#if 0
 		if( xAreBlockingQueuesStillRunning() != pdTRUE )
 		{
 			printf("ERROR - BLOCKQ\n");
@@ -166,7 +162,6 @@ extern "C" void vApplicationTickHook()
 			printf("ERROR - DYNAMIC\n");
 			allGood = 0;
 		}
-#endif
 		if (allGood == 1)
 		{
 			printf("All Good.\n");

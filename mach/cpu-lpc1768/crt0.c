@@ -3,7 +3,6 @@
 
 #include "cmsis.h"
 #include "os_init.h"
-#include "power_management.h"
 
 extern void Reset_Handler();
 extern void NMI_Handler();
@@ -78,8 +77,5 @@ __attribute__ ((noreturn)) void Reset_Handler(void)
 
 	// Boot the system: hardware initialisation etc., eventually calls main()
 	Boot_Init();
-
-	// If main ever returns, power down the board
-	PowerManagement_PowerDown();
 }
 

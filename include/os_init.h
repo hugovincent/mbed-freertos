@@ -5,11 +5,7 @@
 extern "C" {
 #endif
 
-void LowLevel_Init();
-void Boot_Init();
-void System_Init();
-void Board_EarlyInit();
-void Board_LateInit();
+void Boot_Init() __attribute__ ((noreturn));
 
 #ifdef __cplusplus
 } // extern "C"

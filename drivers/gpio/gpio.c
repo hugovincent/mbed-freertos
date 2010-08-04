@@ -23,6 +23,9 @@ static inline LPC_GPIO_TypeDef *block(int which)
 
 void GPIO_Init()
 {
+	// Enable GPIO peripheral power
+	LPC_SC->PCONP |= 0x00008000;
+
 	// We have four LEDs on P1.18, P1.20, P1,21, and P1,23.
 	LPC_GPIO1->FIODIR |= (0x1 << 18) | (0x1 << 20) | (0x1 << 21) | (0x1 << 23);
 
