@@ -16,14 +16,26 @@ void Boot_Init()
 {
 	LowLevel_Init();
 	Board_EarlyInit();
-	Console_Init();
+	Console_EarlyInit();
+
+	// Libc-provided function to initialize global structures e.g.
+	// calling constructors on global C++ objects
+	//extern void __libc_init_array();
+	//__libc_init_array();
+
 	System_Init();
+	Console_LateInit();
 	Board_LateInit();
 
-	// Call into C++ main (name mangled because it's C++) via a shim that
-	// ensures global constructors get called etc.
-	extern int _Z10__cxx_mainv();
-	_Z10__cxx_mainv();
+	extern int __main() __attribute__ ((weak));
+	if (__main)
+		__main();
+	extern int main();
+	main();
+
+	// If main() returns, call the finalizers/destructors
+	extern void __libc_fini_array();
+	__libc_fini_array();
 }
 
 void System_Init()

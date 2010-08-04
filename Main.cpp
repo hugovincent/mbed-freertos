@@ -38,10 +38,10 @@
 #ifdef CORE_HAS_MPU
 void xBadTask(void *params)
 {
-	extern unsigned long __privileged_data_end__[];
-	extern unsigned long __privileged_functions_end__[];
-	extern unsigned long __SRAM_segment_end__[];
-	extern unsigned long __FLASH_segment_end__[];
+	extern unsigned long __privileged_bss_end__;
+	extern unsigned long __privileged_code_end__;
+	extern unsigned long __SRAM_segment_end__;
+	extern unsigned long __FLASH_segment_end__;
 	volatile unsigned long *pul;
 	volatile unsigned long ulReadData;
 	printf("Misbehaving task started...\n");
@@ -53,14 +53,14 @@ void xBadTask(void *params)
 	/*taskENTER_CRITICAL();
 	  taskEXIT_CRITICAL();*/
 
-	pul = __privileged_data_end__ + 1;
+	pul = &__privileged_bss_end__ + 1;
 	ulReadData = *pul;
-	pul = __SRAM_segment_end__ - 1;
+	pul = &__SRAM_segment_end__ - 1;
 	ulReadData = *pul;
 
-	pul = __privileged_functions_end__ + 1;
+	pul = &__privileged_code_end__ + 1;
 	ulReadData = *pul;
-	pul = __FLASH_segment_end__ - 1;
+	pul = &__FLASH_segment_end__ - 1;
 	ulReadData = *pul;
 	printf("Misbehaving task writing LEDs...\n");
 	vTaskDelay(150);
@@ -94,9 +94,11 @@ int main()
 	xTaskCreate(xBadTask, (signed char *)"Bad", configMINIMAL_STACK_SIZE + 800, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
 
-	extern void test_cxx();
-	test_cxx();
-	PowerManagement_PowerDown();
+	//extern void func1();
+	//func1();
+	//extern void test_cxx();
+	//test_cxx();
+	//PowerManagement_PowerDown();
 
 	printf("Starting scheduler.\n");
 

@@ -113,6 +113,12 @@ variable.  Note this is not saved as part of the task context as context
 switches can only occur when uxCriticalNesting is zero. */
 static unsigned portBASE_TYPE uxCriticalNesting = 0xaaaaaaaa;
 
+/* Address symbols defined by linker: */
+extern unsigned long __FLASH_segment_start__, __FLASH_segment_end__;
+extern unsigned long __SRAM_segment_start__, __SRAM_segment_end__;
+extern unsigned long __privileged_code_start__, __privileged_code_end__;
+extern unsigned long __privileged_bss_start__, __privileged_bss_end__;
+
 /*
  * Setup the timer to generate the tick interrupts.
  */
@@ -445,46 +451,40 @@ static void prvSetupTimerInterrupt( void )
 
 static void prvSetupMPU( void )
 {
-extern unsigned long __privileged_functions_end__[];
-extern unsigned long __FLASH_segment_start__[];
-extern unsigned long __FLASH_segment_end__[];
-extern unsigned long __privileged_data_start__[];
-extern unsigned long __privileged_data_end__[];
-
 	/* Check the expected MPU is present. */
 	if( *portMPU_TYPE == portEXPECTED_MPU_TYPE_VALUE )
 	{
 		/* First setup the entire flash for unprivileged read only access. */
-        *portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) __FLASH_segment_start__ ) | /* Base address. */
+        *portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) &__FLASH_segment_start__ ) | /* Base address. */
 										( portMPU_REGION_VALID ) |
 										( portUNPRIVILEGED_FLASH_REGION ); 
 
 		*portMPU_REGION_ATTRIBUTE =		( portMPU_REGION_READ_ONLY ) |
 										( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-										( prvGetMPURegionSizeSetting( ( unsigned long ) __FLASH_segment_end__ - ( unsigned long ) __FLASH_segment_start__ ) ) |
+										( prvGetMPURegionSizeSetting( ( unsigned long ) &__FLASH_segment_end__ - ( unsigned long ) &__FLASH_segment_start__ ) ) |
 										( portMPU_REGION_ENABLE );
 
 		/* Setup the first 16K for privileged only access (even though less 
 		than 10K is actually being used).  This is where the kernel code is
 		placed. */
-        *portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) __FLASH_segment_start__ ) | /* Base address. */
+        *portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) &__privileged_code_start__ ) | /* Base address. */
 										( portMPU_REGION_VALID ) |
 										( portPRIVILEGED_FLASH_REGION );
 
 		*portMPU_REGION_ATTRIBUTE =		( portMPU_REGION_PRIVILEGED_READ_ONLY ) |
 										( portMPU_REGION_CACHEABLE_BUFFERABLE ) | 
-										( prvGetMPURegionSizeSetting( ( unsigned long ) __privileged_functions_end__ - ( unsigned long ) __FLASH_segment_start__ ) ) | 
+										( prvGetMPURegionSizeSetting( ( unsigned long ) &__privileged_code_end__ - ( unsigned long ) &__privileged_code_start__ ) ) | 
 										( portMPU_REGION_ENABLE );
 
 		/* Setup the privileged data RAM region.  This is where the kernel data
 		is placed. */
-		*portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) __privileged_data_start__ ) | /* Base address. */
+		*portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) &__privileged_bss_start__ ) | /* Base address. */
 										( portMPU_REGION_VALID ) |
 										( portPRIVILEGED_RAM_REGION );
 
 		*portMPU_REGION_ATTRIBUTE =		( portMPU_REGION_PRIVILEGED_READ_WRITE ) |
 										( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-										prvGetMPURegionSizeSetting( ( unsigned long ) __privileged_data_end__ - ( unsigned long ) __privileged_data_start__ ) |
+										prvGetMPURegionSizeSetting( ( unsigned long ) &__privileged_bss_end__ - ( unsigned long ) &__privileged_bss_start__ ) |
 										( portMPU_REGION_ENABLE );
 
 		/* By default allow everything to access the general peripherals.  The
@@ -550,10 +550,6 @@ static portBASE_TYPE prvRaisePrivilege( void )
 
 void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, const struct xMEMORY_REGION * const xRegions, portSTACK_TYPE *pxBottomOfStack, unsigned short usStackDepth )
 {
-extern unsigned long __SRAM_segment_start__[];
-extern unsigned long __SRAM_segment_end__[];
-extern unsigned long __privileged_data_start__[];
-extern unsigned long __privileged_data_end__[];
 long lIndex;
 unsigned long ul;
 
@@ -561,27 +557,27 @@ unsigned long ul;
 	{
 		/* No MPU regions are specified so allow access to all RAM. */
         xMPUSettings->xRegion[ 0 ].ulRegionBaseAddress =	
-				( ( unsigned long ) __SRAM_segment_start__ ) | /* Base address. */
+				( ( unsigned long ) &__SRAM_segment_start__ ) | /* Base address. */
 				( portMPU_REGION_VALID ) |
 				( portSTACK_REGION );
 
 		xMPUSettings->xRegion[ 0 ].ulRegionAttribute =	
 				( portMPU_REGION_READ_WRITE ) | 
 				( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-				( prvGetMPURegionSizeSetting( ( unsigned long ) __SRAM_segment_end__ - ( unsigned long ) __SRAM_segment_start__ ) ) |
+				( prvGetMPURegionSizeSetting( ( unsigned long ) &__SRAM_segment_end__ - ( unsigned long ) &__SRAM_segment_start__ ) ) |
 				( portMPU_REGION_ENABLE );
 
 		/* Re-instate the privileged only RAM region as xRegion[ 0 ] will have
 		just removed the privileged only parameters. */
 		xMPUSettings->xRegion[ 1 ].ulRegionBaseAddress =	
-				( ( unsigned long ) __privileged_data_start__ ) | /* Base address. */
+				( ( unsigned long ) &__privileged_bss_start__ ) | /* Base address. */
 				( portMPU_REGION_VALID ) |
 				( portSTACK_REGION + 1 );
 
 		xMPUSettings->xRegion[ 1 ].ulRegionAttribute =		
 				( portMPU_REGION_PRIVILEGED_READ_WRITE ) |
 				( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
-				prvGetMPURegionSizeSetting( ( unsigned long ) __privileged_data_end__ - ( unsigned long ) __privileged_data_start__ ) |
+				prvGetMPURegionSizeSetting( ( unsigned long ) &__privileged_bss_end__ - ( unsigned long ) &__privileged_bss_start__ ) |
 				( portMPU_REGION_ENABLE );
 				
 		/* Invalidate all other regions. */

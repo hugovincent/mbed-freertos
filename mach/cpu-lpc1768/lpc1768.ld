@@ -1,4 +1,4 @@
-/* Memory Definitions */
+/* Memory Definitions: */
 MEMORY
 {
 	Flash  (rx)  : ORIGIN = 0x00000000, LENGTH = 512k
@@ -8,10 +8,13 @@ MEMORY
 	CanRam (rw)  : ORIGIN = 0x40038000, LENGTH = 2k
 }
 
-Stack_Size_Total = 768;
+/* Stack sizes: */
+C_Stack_Size = 768;
+Stack_Size_Total = C_Stack_Size;  /*FIXME other stacks? */
 
 INCLUDE "mach/arm_common.ld"
 
+/* Special-purpose RAM sections: */
 SECTIONS
 {
 	/* C data can be defined as being in special purpose RAMs using

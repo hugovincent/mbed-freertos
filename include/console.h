@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-void Console_Init();
+void Console_EarlyInit();
+void Console_LateInit();
 
 // SingleMode pauses the scheduler, disables IRQs and FIQs, and switches the
 // console to a unbuffered, blocking, debug version safe to use during

@@ -48,7 +48,7 @@ for line in sh('cat mach/cpu-' + target + '/' + target + '.ld | grep " (r.*) *:"
 
 # Parse stack allocations from linker output
 if target == 'lpc1768':
-	line = sh('grep "Stack_Size_Total" %s.map' % "RTOSDemo.elg".split('.')[0]).strip().split('\n')[0]
+	line = sh('grep "C_Stack_Size" %s.map' % "RTOSDemo.elg".split('.')[0]).strip().split('\n')[0]
 	total_stack = int(line.split()[-1], 16)
 else:
 	total_stack = 0

@@ -3,11 +3,13 @@
 
 void HardFault_Handler()
 {
+#if 0
 	unsigned int hfsr = SCB->HFSR;
 
 	bool debugevt = hfsr & (0x1<<31);		// Debug event not handled.
 	bool forced   = hfsr & (0x1<<30);		// Configurable fault escalated because not enabled.
 	bool vecttbl  = hfsr & (0x1<<1);		// Vector table read exception. Instruction addr in PC.
+#endif
 
 	// FIXME
 	while (1);
@@ -16,6 +18,7 @@ void HardFault_Handler()
 
 void BusFault_Handler()
 {
+#if 0
 	unsigned int cfsr = SCB->CFSR;
 
 	bool bfarValid    = cfsr & (0x1<<15);
@@ -26,6 +29,7 @@ void BusFault_Handler()
 	bool ibusErr      = cfsr & (0x1<<8); 	// instruction bus error flag caused by prefetch
 
 	unsigned int busFaultAddr = bfarValid ? SCB->BFAR : 0;
+#endif
 
 	// FIXME
 	while (1);
@@ -34,6 +38,7 @@ void BusFault_Handler()
 
 void UsageFault_Handler()
 {
+#if 0
 	unsigned int cfsr = SCB->CFSR;
 
 	bool divByZero    = cfsr & (0x1<<25);	// only when DIV_0_TRP enabled
@@ -42,6 +47,7 @@ void UsageFault_Handler()
 	bool invPc        = cfsr & (0x1<<18);	// attempt to load invalid addr into PC
 	bool invState     = cfsr & (0x1<<17);	// invalid combination of EPSR for reasons other than undefined instruction
 	bool undefinedStr = cfsr & (0x1<<16);	// undefined instruction
+#endif
 
 	// FIXME
 	while (1);

@@ -85,9 +85,10 @@ COMMON_FLAGS += \
 		-I kernel/include \
 		-I kernel/port/$(PORT_DIR) \
 		-Wall -Wimplicit -Wpointer-arith -Wcast-align \
-		-Wswitch -Wreturn-type -Wshadow -Wunused \
+		-Wswitch -Wreturn-type -Wshadow -Wunused -Wstrict-aliasing \
 		-fexceptions -fsection-anchors -fomit-frame-pointer \
 		-ffunction-sections -fdata-sections \
+		-fstrict-aliasing -mlong-calls \
 		-mfloat-abi=soft -mtp=soft -mabi=aapcs
 
 CFLAGS = $(COMMON_FLAGS) \
@@ -104,8 +105,7 @@ LINKER_FLAGS= \
 		-T$(LDSCRIPT) $(EXTRA_LDFLAGS) \
 		-Wl,--gc-sections -Wl,-O3 \
 		-Wl,-Map=$(BINNAME).map \
-		-mabi=aapcs -static \
-		-nostartfiles -nodefaultlibs \
+		-mabi=aapcs -static -nodefaultlibs \
 		-Wl,--start-group -lgcc -lc -lm -lsupc++ -Wl,--end-group
 
 ASM_FLAGS= \
@@ -281,7 +281,7 @@ lib/romfs.c: lib/romfs_data.h
 .PHONY: disasm clean install
 disasm :
 	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
-	@$(TOOLPRE)-objdump -D $(BINNAME).elf > $(BINNAME)-disassembled.s
+	@$(TOOLPRE)-objdump -d $(BINNAME).elf > $(BINNAME)-disassembled.s
 
 clean:
 	@echo "  [Cleaning...          ]"

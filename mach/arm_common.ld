@@ -8,6 +8,12 @@ OUTPUT_FORMAT( "elf32-littlearm", "elf32-bigarm", "elf32-littlearm" )
 OUTPUT_ARCH( arm )
 ENTRY( vectors )
 
+/* C-accessible symbols for memory address ranges: */
+__FLASH_segment_start__ = ORIGIN( Flash );
+__FLASH_segment_end__   = ORIGIN( Flash) + LENGTH( Flash );
+__SRAM_segment_start__  = ORIGIN( Ram );
+__SRAM_segment_end__    = ORIGIN( Ram ) + LENGTH( Ram );
+
 SECTIONS
 {
 	/* ------------------------- START OF ROM CODE ------------------------- */
@@ -17,16 +23,16 @@ SECTIONS
 	__text_start__ = . ;
 	.text : AT ( 0x0 )
 	{
-		__privileged_functions_start__ = .;
+		__privileged_code_start__ = .;
 
 		__vectors_start__ = . ;
 		KEEP(*( .vectors ))
 		__vectors_end__ = .;
 
-		*(privileged_functions .privileged_functions)
+		*( .privileged_code )
 
 		/* Align to nearest power of two */
-		prvFLen_ = . - __privileged_functions_start__;
+		prvFLen_ = . - __privileged_code_start__;
 		prvFLen2_ = prvFLen_ - 1;
 		prvFLen2_ |= prvFLen2_ >> 1;
 		prvFLen2_ |= prvFLen2_ >> 2;
@@ -35,7 +41,7 @@ SECTIONS
 		prvFLen2_ |= prvFLen2_ >> 16;
 		. = ALIGN(MAX(prvFLen2_ + 1, 32));			/* Min MPU size is 32 bytes */
 
-		__privileged_functions_end__ = .;
+		__privileged_code_end__ = .;
 
 		*( .text .text.* )
 		*( .gnu.linkonce.t.* )
@@ -76,6 +82,7 @@ SECTIONS
 	__exidx_end = . ;
 
 	__text_end__ = . ;
+	_etext = .;
 
 	/* -------------------------- END OF ROM CODE -------------------------- */
 
@@ -85,12 +92,12 @@ SECTIONS
 		. = ALIGN(8);
 		__bss_start__ = . ;
 
-		__privileged_data_start__ = .;
+		__privileged_bss_start__ = .;
 
 		KEEP(*crt0.o( privileged_bss .privileged_bss ))
 		KEEP(*( privileged_bss .privileged_bss ))
 
-		prvDLen_ = . - __privileged_data_start__;
+		prvDLen_ = . - __privileged_bss_start__;
 		prvDLen2_ = prvDLen_ - 1;
 		prvDLen2_ |= prvDLen2_ >> 1;
 		prvDLen2_ |= prvDLen2_ >> 2;
@@ -99,7 +106,7 @@ SECTIONS
 		prvDLen2_ |= prvDLen2_ >> 16;
 		. = ALIGN(MAX(prvDLen2_ + 1, 32));
 
-		__privileged_data_end__ = .;
+		__privileged_bss_end__ = .;
 
 		*(.shbss)
 		*(.bss .bss.* .gnu.linkonce.b.*)
@@ -114,23 +121,24 @@ SECTIONS
 	.data : AT ( __text_end__ )
 	{
 		. = ALIGN(8);
-		__data_start__ = . ;
+		__data_start = . ;
 		SORT(CONSTRUCTORS)
 		*( .data .data.* )
 		*( .gnu.linkonce.d* )
 		. = ALIGN(8);
 		__data_end__ = . ;
+		_edata = .;
 	} > Ram
 
 	/* Heap starts here and grows up in memory */
 	. = ALIGN(8);
-	__start_of_heap__ = . ;
+	__heap_start__ = . ;
 
 	/* Stack starts at top of memory and grows downward. __stack_min__ is used by the
 	 * malloc implementation to ensure heap never collides with stack (assuming stack
 	 * never grows beyond Stack_Size_Total in length) */
-	__top_of_stack__ = ALIGN(ORIGIN(Ram) + LENGTH(Ram), 8);
-	__stack_min__ = ALIGN(__top_of_stack__ - Stack_Size_Total, 8);
+	__stacks_top__ = ALIGN(ORIGIN(Ram) + LENGTH(Ram), 8);
+	__stacks_min__ = ALIGN(__stacks_top__ - Stack_Size_Total, 8);
 
 	/* -------------------------- DEBUG STUFF (not in binary) -------------- */
 	/* Stabs debugging sections.  */
@@ -170,10 +178,4 @@ SECTIONS
 	.debug_pubtypes 0 : { *(.debug_pubtypes) }
 	.debug_ranges   0 : { *(.debug_ranges) }
 }
-
-/* Needed for FreeRTOS CM3 port: */
-__FLASH_segment_start__ = ORIGIN( Flash );
-__FLASH_segment_end__   = ORIGIN( Flash) + LENGTH( Flash );
-__SRAM_segment_start__  = ORIGIN( Ram );
-__SRAM_segment_end__    = ORIGIN( Ram ) + LENGTH( Ram );
 

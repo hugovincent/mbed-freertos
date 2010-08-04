@@ -14,7 +14,7 @@ void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr)
 	/* Initialize on first call */
 	if (heap_end == NULL)
 	{
-		heap_end = (void *)&__start_of_heap__;
+		heap_end = (void *)&__heap_start__;
 	}
 
 	prev_heap_end = heap_end;
@@ -23,7 +23,7 @@ void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr)
 	next_heap_end = (void *)((((unsigned int)heap_end + incr) + 7) & ~7);  
 
 	/* Check if this allocation would collide with the heap */
-	if (next_heap_end > (void *)&__stack_min__)
+	if (next_heap_end > (void *)&__stacks_min__)
 	{
 		ptr->_errno = ENOMEM;
 		ret = NULL;

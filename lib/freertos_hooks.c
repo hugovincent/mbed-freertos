@@ -43,9 +43,9 @@ __attribute__ ((weak)) size_t xPortGetFreeHeapSize(void)
 	
 	/* Initialize on first call */
 	if (heap_end == 0)
-		heap_end = (void *)&__start_of_heap__;
+		heap_end = (void *)&__heap_start__;
 
-	return &__stack_min__ - (unsigned int *)heap_end;
+	return &__stacks_min__ - (unsigned int *)heap_end;
 }
 
 __attribute__ ((weak)) void vPortInitialiseBlocks(void)
