@@ -1,4 +1,4 @@
-Last Update: 2 August 2010.
+Last Update: 4 August 2010.
 
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
@@ -9,6 +9,7 @@ BUGS:
 [2] Refactor UART code to support all 4 UARTs.
 [2] Optimize UART code (maybe a ring buffer would be better?).
 [3] Fix/finish the uSTL integration.
+[2] Exception handlers on ARM7 are currently broken.
 [f] Test/fix ethernet & webserver code. Integrate local FS with webserver instead of 
     uIP's built in httpd-fs stuff.
 

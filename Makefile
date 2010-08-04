@@ -71,7 +71,7 @@ endif
 #------------------------------------------------------------------------------
 # Compiler, Assembler and Linker Options:
 
-DEBUG=-DNDEBUG=1 -g
+DEBUG=-DNDEBUG=1 -gdwarf-2
 OPTIM=-O2
 LDSCRIPT=mach/cpu-$(TARGET)/$(TARGET).ld
 ODIR=.buildtmp

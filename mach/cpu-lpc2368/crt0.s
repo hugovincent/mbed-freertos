@@ -45,26 +45,13 @@
 .equ F_Bit,              0x40            @ when F bit is set, FIQ is disabled
 
 @  ----------------------------------------------------------------------------
-@  Stack configuration definitions (sizes in bytes)
-
-.equ UND_Stack_Size,     0x00000010
-.equ SVC_Stack_Size,     0x00000200
-.equ ABT_Stack_Size,     0x00000010
-.equ FIQ_Stack_Size,     0x00000000
-.equ IRQ_Stack_Size,     0x00000100
-.equ USR_Stack_Size,     0x00000000
-
-.global Stack_Size_Total
-.equ Stack_Size_Total,   (UND_Stack_Size + SVC_Stack_Size + ABT_Stack_Size + FIQ_Stack_Size + IRQ_Stack_Size + USR_Stack_Size)
-
-@  ----------------------------------------------------------------------------
 @  Exception vectors (mapped to 0x0 by linker script)
 @      Note: absolute addressing mode must be used.
 
 .section .vectors, "ax"
 .arm
-.global Vectors
-Vectors:        LDR     pc, Reset_Addr
+.global vectors
+vectors:        LDR     pc, Reset_Addr
                 LDR     pc, Undef_Addr
                 LDR     pc, SWI_Addr
                 LDR     pc, PAbt_Addr
@@ -87,32 +74,25 @@ SWI_Handler:    B       vPortYieldProcessor
 @  Reset Handler: setup stacks, copy/initialise data, and jump to C main.
 
 Reset_Handler:
-                LDR     R0, =__top_of_stack__
-
                 @  Enter Undefined Instruction Mode and set its Stack Pointer
                 MSR     CPSR_c, #Mode_UND | I_Bit | F_Bit
-                MOV     SP, R0
-                SUB     R0, R0, #UND_Stack_Size
+                LDR     SP, =__irq_stack_top__
 
                 @  Enter Abort Mode and set its Stack Pointer
                 MSR     CPSR_c, #Mode_ABT | I_Bit | F_Bit
-                MOV     SP, R0
-                SUB     R0, R0, #ABT_Stack_Size
+                LDR     SP, =__abt_stack_top__
 
                 @  Enter FIQ Mode and set its Stack Pointer
                 MSR     CPSR_c, #Mode_FIQ | I_Bit | F_Bit
-                MOV     SP, R0
-                SUB     R0, R0, #FIQ_Stack_Size
+                LDR     SP, =__fiq_stack_top__
 
                 @  Enter IRQ Mode and set its Stack Pointer
                 MSR     CPSR_c, #Mode_IRQ | I_Bit | F_Bit
-                MOV     SP, R0
-                SUB     R0, R0, #IRQ_Stack_Size
+                LDR     SP, =__irq_stack_top__
 
                 @  Enter Supervisor Mode and set its Stack Pointer
                 MSR     CPSR_c, #Mode_SVC | I_Bit | F_Bit
-                MOV     SP, R0
-                SUB     SL, SP, #SVC_Stack_Size
+                LDR     SP, =__svc_stack_top__
 
 @  For FreeRTOS, leave in Supervisor Mode with Interrupts disabled.
 @  We don't use User Mode with FreeRTOS so leave it's stack uninitialised.
@@ -120,7 +100,7 @@ Reset_Handler:
 @  ----------------------------------------------------------------------------
 @  Relocate .data section (Copy from ROM to RAM)
                 LDR     R1, =__text_end__
-                LDR     R2, =__data_start__
+                LDR     R2, =__data_start
                 LDR     R3, =__data_end__
                 CMP     R2, R3
                 BEQ     DataIsEmpty
@@ -181,7 +161,7 @@ PAbt_Handler:
 
                 @ cleanup & restoration follows:
                                                 @ restored full context, sp first
-                LDR     SP, =(__top_of_stack__ - UND_Stack_Size)
+                LDR     SP, =__abt_stack_top__
                                                 @ sp uses abort stack (which is top of stack
                                                 @ minus undefined stack length)
                 POP     {R0-R12,LR}             @ r0-r12 and lr using restored stack pointer
@@ -209,7 +189,7 @@ DAbt_Handler:
                 LDREQ   R1, [R0]                @ no A-state, load 32-bit instr: r1 = [pc](dabt)
                 LDR     SP, =(SavedRegs + 13*4)
                 STMIA   SP, {R0-R4}
-                LDR     SP, =(__top_of_stack__ - UND_Stack_Size)
+                LDR     SP, =__abt_stack_top__
                 POP     {R0-R12,LR}
                 LDR     R0, =Exception_DataAbort
                 BX      R0
@@ -236,7 +216,7 @@ Undef_Handler:
                 LDREQ   R1, [R0]
                 LDR     SP, =(SavedRegs + 13*4)
                 STMIA   SP, {R0-R4}
-                LDR     SP, =__top_of_stack__
+                LDR     SP, =__und_stack_top__
                 POP     {R0-R12,LR}
                 LDR     R0, =Exception_UndefinedInstruction
                 BX      R0
