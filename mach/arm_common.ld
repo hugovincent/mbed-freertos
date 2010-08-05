@@ -1,7 +1,6 @@
-/* Based on scripts found in the LPC yahoo-group and the Keil examples.
- * modified by Martin Thomas, Kaiserslautern, Germany
- * Also based on GNU toolchain linker script arm-none-eabie/lib/ldscripts/armelf.x
- * modified by Hugo Vincent <http://hugovincent.com>
+/* Based on GNU toolchain standard linker script (arm-none-eabi/lib/ldscripts/armelf.x)
+ *
+ * Hugo Vincent, 4 August 2010.
  */
 
 OUTPUT_FORMAT( "elf32-littlearm", "elf32-bigarm", "elf32-littlearm" )
@@ -10,145 +9,162 @@ ENTRY( vectors )
 
 /* C-accessible symbols for memory address ranges: */
 __FLASH_segment_start__ = ORIGIN( Flash );
-__FLASH_segment_end__   = ORIGIN( Flash) + LENGTH( Flash );
+__FLASH_segment_end__   = ORIGIN( Flash ) + LENGTH( Flash );
 __SRAM_segment_start__  = ORIGIN( Ram );
 __SRAM_segment_end__    = ORIGIN( Ram ) + LENGTH( Ram );
 
+/* Stacks (full descending) at top of RAM, grows downward:
+ *
+ * __stack_min__ is used by the malloc implementation to ensure heap never collides
+ * with stack (assuming stack never grows beyond Stack_Size_Total in length) */
+__stacks_top__ = __SRAM_segment_end__;
+__stacks_min__ = __SRAM_segment_end__ - Stack_Size_Total;
+
 SECTIONS
 {
-	/* ------------------------- START OF ROM CODE ------------------------- */
-
 	/* first section is .text which is used for code */
-	/* Read-only sections, merged into text segment: */
-	__text_start__ = . ;
-	.text : AT ( 0x0 )
+	.text :
 	{
-		__privileged_code_start__ = .;
+		__text_start__ = . ;
+		__privileged_code_start__ = . ;
 
-		__vectors_start__ = . ;
-		KEEP(*( .vectors ))
-		__vectors_end__ = .;
+		KEEP( *( .vectors ) )
 
 		*( .privileged_code )
 
-		/* Align to nearest power of two */
-		prvFLen_ = . - __privileged_code_start__;
-		prvFLen2_ = prvFLen_ - 1;
-		prvFLen2_ |= prvFLen2_ >> 1;
-		prvFLen2_ |= prvFLen2_ >> 2;
-		prvFLen2_ |= prvFLen2_ >> 4;
-		prvFLen2_ |= prvFLen2_ >> 8;
-		prvFLen2_ |= prvFLen2_ >> 16;
-		. = ALIGN(MAX(prvFLen2_ + 1, 32));			/* Min MPU size is 32 bytes */
+		/* Privileged code section has to be power-of-two sized. */
+		priv_code_len  = . - __privileged_code_start__ - 1 ;
+		priv_code_len |= priv_code_len >>  1 ;
+		priv_code_len |= priv_code_len >>  2 ;
+		priv_code_len |= priv_code_len >>  4 ;
+		priv_code_len |= priv_code_len >>  8 ;
+		priv_code_len |= priv_code_len >> 16 ;
+		. = ALIGN( MAX( priv_code_len + 1, 32 ) ) ;
 
 		__privileged_code_end__ = .;
 
-		*( .text .text.* )
-		*( .gnu.linkonce.t.* )
-		*( .glue_7 .glue_7t )
-		*( .gcc_except_table )
-		*( .rodata .rodata* )
-		*( .gnu.linkonce.r.* )
-	} > Flash
+		*( .text .text.* .gnu.linkonce.t.* )
+		*( .plt )
+		*( .gnu.warning )
+		*( .glue_7t ) *( .glue_7 ) *( .vfp11_veneer )
 
-	/* .ctors .dtors and are used for c++ constructors/destructors */
-	.ctors :
-	{
-		__ctors_start__ = . ;
-		KEEP(*(SORT( .ctors.* )))
-		KEEP(*( .ctors ))
-		__ctors_end__ = . ;
-	} > Flash
-	.dtors :
-	{
-		__dtors_start__ = . ;
-		KEEP(*(SORT( .dtors.* )))
-		KEEP(*( .dtors ))
-		__dtors_end__ = . ;
-	} > Flash
+		*( .rodata .rodata.* .gnu.linkonce.r.* )
 
-	/* .ARM.exidx and .ARM.extab are used for exception handling */
-	.ARM.extab :
-	{
-		*( .ARM.extab* )
-		*( .gnu.linkonce.armextab.* )
-	} > Flash
+		*(.ARM.extab* .gnu.linkonce.armextab.*)
+		*(.gcc_except_table)
+		*(.eh_frame_hdr)
+		*(.eh_frame)
+
+		. = ALIGN( 4 ) ;
+		KEEP( *( .init ) )
+
+		. = ALIGN( 4 ) ;
+		__preinit_array_start = . ;
+		KEEP( *( .preinit_array ) )
+		__preinit_array_end = . ;
+
+		. = ALIGN( 4 ) ;
+		__init_array_start = . ;
+		KEEP( *( SORT( .init_array.* ) ) )
+		KEEP( *( .init_array ) )
+		__init_array_end = . ;
+
+		. = ALIGN( 4 ) ;
+		KEEP( *crtbegin.o( .ctors ) )
+		KEEP( *( EXCLUDE_FILE( *crtend.o ) .ctors ) )
+		KEEP( *( SORT( .ctors.* ) ) )
+		KEEP( *crtend.o( .ctors ) )
+
+		. = ALIGN( 4 ) ;
+		KEEP( *( .fini ) )
+
+		. = ALIGN( 4 ) ;
+		__fini_array_start = . ;
+		KEEP( *( .fini_array ) )
+		KEEP( *( SORT( .fini_array.* ) ) )
+		__fini_array_end = . ;
+
+		KEEP( *crtbegin.o( .dtors ) )
+		KEEP( *( EXCLUDE_FILE( *crtend.o ) .dtors ) )
+		KEEP( *( SORT( .dtors.* ) ) )
+		KEEP( *crtend.o( .dtors ) )
+
+	} >Flash
+
+	/* .ARM.exidx is used for exception handling. Also it's sorted so there
+	 * are some section & alignment schenanigans here... */
 	__exidx_start = . ;
 	.ARM.exidx :
 	{
-		*( .ARM.exidx* )
-		*( .gnu.linkonce.armexidx.* )
-	} > Flash
+		*( .ARM.exidx* .gnu.linkonce.armexidx.* )
+	} >Flash
 	__exidx_end = . ;
-
-	__text_end__ = . ;
-	_etext = .;
-
-	/* -------------------------- END OF ROM CODE -------------------------- */
-
-	/* .bss section -- used for uninitialized data */
-	.bss (NOLOAD) :
+	.text.align :
 	{
-		. = ALIGN(8);
-		__bss_start__ = . ;
-
-		__privileged_bss_start__ = .;
-
-		KEEP(*crt0.o( privileged_bss .privileged_bss ))
-		KEEP(*( privileged_bss .privileged_bss ))
-
-		prvDLen_ = . - __privileged_bss_start__;
-		prvDLen2_ = prvDLen_ - 1;
-		prvDLen2_ |= prvDLen2_ >> 1;
-		prvDLen2_ |= prvDLen2_ >> 2;
-		prvDLen2_ |= prvDLen2_ >> 4;
-		prvDLen2_ |= prvDLen2_ >> 8;
-		prvDLen2_ |= prvDLen2_ >> 16;
-		. = ALIGN(MAX(prvDLen2_ + 1, 32));
-
-		__privileged_bss_end__ = .;
-
-		*(.shbss)
-		*(.bss .bss.* .gnu.linkonce.b.*)
-		*( .gnu.linkonce.b* )
-		*( COMMON )
-		. = ALIGN(8);
-		*(.ram.b .bss.ram)
-		__bss_end__ = . ;
-	} > Ram
+		. = ALIGN( 8 ) ;
+	} >Flash
+	__text_end__ = . ;
 
 	/* .data section -- used for initialized data */
-	.data : AT ( __text_end__ )
+	.data :
 	{
-		. = ALIGN(8);
-		__data_start = . ;
-		SORT(CONSTRUCTORS)
-		*( .data .data.* )
-		*( .gnu.linkonce.d* )
-		. = ALIGN(8);
+		__data_start__ = . ;
+		KEEP( *( .jcr ) )
+		*( .got.plt ) *( .got )
+		*( .shdata )
+		*( .data .data.* .gnu.linkonce.d.* )
+		*( .ram )
+		. = ALIGN( 8 ) ;
 		__data_end__ = . ;
-		_edata = .;
-	} > Ram
+	} >Ram AT>Flash
+
+	/* .bss section -- used for uninitialized data */
+	.bss :
+	{
+		__bss_start__ = . ;
+
+		. = ALIGN( 32 ) ;
+		__privileged_bss_start__ = . ;
+
+		*crt0.o( .privileged_bss )
+		*( .privileged_bss )
+
+		/* Privileged bss section has to be power-of-two sized. */
+		priv_bss_len  = . - __privileged_bss_start__  - 1 ;
+		priv_bss_len |= priv_bss_len >>  1 ;
+		priv_bss_len |= priv_bss_len >>  2 ;
+		priv_bss_len |= priv_bss_len >>  4 ;
+		priv_bss_len |= priv_bss_len >>  8 ;
+		priv_bss_len |= priv_bss_len >> 16 ;
+		. = ALIGN( MAX( priv_bss_len + 1, 32 ) ) ;
+
+		__privileged_bss_end__ = . ;
+
+		*( .shbss )
+		*( .bss .bss.* .gnu.linkonce.b.* )
+		*( COMMON )
+		*( .ram.b )
+		. = ALIGN( 8 ) ;
+		__bss_end__ = . ;
+	} >Ram AT>Flash
 
 	/* Heap starts here and grows up in memory */
-	. = ALIGN(8);
+	. = ALIGN( 8 ) ;
 	__heap_start__ = . ;
+	.heap :
+	{
+		*( .heap )
+	} >Ram
+	.stack __stacks_min__ :
+	{
+		*( .stack )
+	} >Ram
 
-	/* Stack starts at top of memory and grows downward. __stack_min__ is used by the
-	 * malloc implementation to ensure heap never collides with stack (assuming stack
-	 * never grows beyond Stack_Size_Total in length) */
-	__stacks_top__ = ALIGN(ORIGIN(Ram) + LENGTH(Ram), 8);
-	__stacks_min__ = ALIGN(__stacks_top__ - Stack_Size_Total, 8);
+
+	.stab          0 (NOLOAD) : { *(.stab) }
+	.stabstr       0 (NOLOAD) : { *(.stabstr) }
 
 	/* -------------------------- DEBUG STUFF (not in binary) -------------- */
-	/* Stabs debugging sections.  */
-	.stab          0 : { *(.stab) }
-	.stabstr       0 : { *(.stabstr) }
-	.stab.excl     0 : { *(.stab.excl) }
-	.stab.exclstr  0 : { *(.stab.exclstr) }
-	.stab.index    0 : { *(.stab.index) }
-	.stab.indexstr 0 : { *(.stab.indexstr) }
-	.comment       0 : { *(.comment) }
 	/* DWARF debug sections.
 	   Symbols in the DWARF debugging sections are relative to the beginning
 	   of the section so we begin them at 0.  */
@@ -177,5 +193,9 @@ SECTIONS
 	/* DWARF 3 */
 	.debug_pubtypes 0 : { *(.debug_pubtypes) }
 	.debug_ranges   0 : { *(.debug_ranges) }
+
+	.note.gnu.arm.ident 0 : { KEEP( *( .note.gnu.arm.ident ) ) }
+	.ARM.attributes     0 : { KEEP( *( .ARM.attributes ) ) KEEP( *( .gnu.attributes ) ) }
+	/DISCARD/             : { *( .note.GNU-stack ) }
 }
 

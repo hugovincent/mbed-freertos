@@ -31,7 +31,7 @@ void Boot_Init()
 
 	// Libc-provided function to initialize global structures e.g.
 	// calling constructors on global C++ objects
-	//__libc_init_array();
+	__libc_init_array();
 
 	OS_Init();
 	Console_LateInit();

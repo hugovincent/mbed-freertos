@@ -17,9 +17,9 @@ extern void SysTick_Handler();
 extern void UnhandledIRQ_Handler();
 
 // Symbols defined by the linker:
-extern unsigned int _etext, __stacks_top__,
-	   __data_start, _edata,
-	   __bss_start__, __bss_end__;
+extern unsigned int __text_end__, __stacks_top__,
+					__data_start__, __data_end__,
+					__bss_start__,  __bss_end__;
 
 
 /*****************************************************************************/
@@ -55,9 +55,9 @@ void (* __ram_vectors[VECTORS_LEN])(void)
 __attribute__ ((noreturn)) void Reset_Handler(void)
 {
 	// Copy the data segment initializers from flash to RAM
-	unsigned int *src  = &_etext;
-	unsigned int *dest = &__data_start;
-	while (dest < &_edata)
+	unsigned int *src  = &__text_end__;
+	unsigned int *dest = &__data_start__;
+	while (dest < &__data_end__)
 		*(dest++) = *(src++);
 
 	// Zero fill the bss segment

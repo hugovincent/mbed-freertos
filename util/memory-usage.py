@@ -22,7 +22,7 @@ for line in sh('arm-none-eabi-objdump -t %s' % sys.argv[2]).strip().split('\n'):
 
 	# Handle lines without an attribute
 	offs = 0
-	if len(parse) == 6:
+	if len(parse) == 6 or len(parse) == 7:
 		offs = 1
 	# Handle non-symbol lines
 	elif len(parse) < 5:
@@ -64,7 +64,7 @@ for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[2]).strip().split('\n'):
 		if parse[6] == 'RW':
 			total_ram = int(parse[5], 16)
 			total_init_ram = int(parse[4], 16)
-		elif parse[6] == 'R' and parse[7] == 'E':
+		elif (parse[6] == 'R' and parse[7] == 'E') or (parse[6] == 'RWE'):
 			total_text = int(parse[5], 16)
 
 #------------------------------------------------------------------------------
