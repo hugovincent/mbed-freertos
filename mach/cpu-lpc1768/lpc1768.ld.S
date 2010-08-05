@@ -12,7 +12,10 @@ MEMORY
 C_Stack_Size = 768;
 Stack_Size_Total = C_Stack_Size;  /*FIXME other stacks? */
 
-INCLUDE "mach/arm_common.ld"
+/* Define that we have and want to use an MPU */
+#define HAVE_MPU
+
+#include "util/arm_common.ld.S"
 
 /* Special-purpose RAM sections: */
 SECTIONS

@@ -29,7 +29,8 @@ TOOLPRE=util/arm-none-eabi
 # Stuff specific to LPC2368 target:
 ifeq ($(TARGET), lpc2368)
 CPUFLAGS= \
-		-mcpu=arm7tdmi-s
+		-mcpu=arm7tdmi-s \
+		-mthumb-interwork
 COMMON_FLAGS= \
 		-DTARGET_LPC23xx \
 		-DPLAT_NAME="\"LPC2368\"" \
@@ -75,8 +76,8 @@ endif
 
 DEBUG=-DNDEBUG=1 -gdwarf-2
 OPTIM=-O2
-LDSCRIPT=mach/cpu-$(TARGET)/$(TARGET).ld
 ODIR=.buildtmp
+LDSCRIPT=$(ODIR)/mach/cpu-$(TARGET)/$(TARGET).ld.S
 
 COMMON_FLAGS += \
 		$(CPUFLAGS) \
@@ -107,7 +108,9 @@ LINKER_FLAGS= \
 		-T$(LDSCRIPT) $(EXTRA_LDFLAGS) \
 		-Wl,--gc-sections -Wl,-O3 \
 		-Wl,-Map=$(BINNAME).map \
-		-mabi=aapcs -static -nodefaultlibs \
+		-mabi=aapcs -static -nodefaultlibs
+
+LIBS = \
 		-Wl,--start-group -lgcc -lc -lm -lsupc++ -Wl,--end-group
 
 ASM_FLAGS= \
@@ -224,29 +227,34 @@ all: $(BINNAME).bin
 
 # Binary suitable for installation on mbed
 $(BINNAME).bin : $(BINNAME).elf
-	@echo "  [Converting to binary ] $(BINNAME).bin"
+	@echo "  [Converting to binary    ] $(BINNAME).bin"
 	@$(TOOLPRE)-objcopy $(BINNAME).elf -O binary $(BINNAME).bin
 	@python util/memory-usage.py $(TARGET) $(BINNAME).elf
 	@echo
 
 # ELF file (intermediate linking product, also used for various checks)
-$(BINNAME).elf : $(OBJS)
-	@echo "  [Linking...           ] $@"
-	@$(TOOLPRE)-gcc $(OBJS) -o $@ $(LINKER_FLAGS)
+$(BINNAME).elf : $(OBJS) $(LDSCRIPT)
+	@echo "  [Linking...              ] $@"
+	@$(TOOLPRE)-gcc $(LINKER_FLAGS) $(OBJS) $(LIBS) -o $@
 
 # C/C++ Code:
 $(C_OBJS) : $(ODIR)/%.o : %.c $(ODIR)/exists
-	@echo "  [Compiling  (C)  ] $<"
+	@echo "  [Compiling  (C)          ] $<"
 	@$(TOOLPRE)-gcc -c $(CFLAGS) $< -o $@
 
 $(CXX_OBJS) : $(ODIR)/%.o : %.cpp $(ODIR)/exists
-	@echo "  [Compiling  (C++)] $<"
+	@echo "  [Compiling (C++)         ] $<"
 	@$(TOOLPRE)-g++ -c $(CXXFLAGS) $< -o $@
 
 # ARM Assembler Code:
 $(ASM_OBJS) : $(ODIR)/%.o : %.s $(ODIR)/exists
-	@echo "  [Assembling (asm)] $<"
+	@echo "  [Assembling (asm)        ] $<"
 	@$(TOOLPRE)-gcc -c $(ASM_FLAGS) $< -o $@
+
+# Linker script preprocessing
+$(LDSCRIPT) : mach/cpu-$(TARGET)/$(TARGET).ld.S util/arm_common.ld.S util/arm_common_macros.ld.h
+	@echo "  [Preprocessing ld script ] $<"
+	@$(TOOLPRE)-cpp -P -I. $< $@
 
 # This target ensures the temporary build product directories exist
 $(ODIR)/exists:
@@ -264,7 +272,7 @@ example_tasks/webserver/http-strings.c: util/uip_makestrings
 	@pushd example_tasks/webserver > /dev/null && ../../util/uip_makestrings && popd > /dev/null
 
 example_tasks/webserver/httpd-fsdata.c: util/uip_makefsdata example_tasks/webserver/httpd-fs/*.html
-	@echo "  [Making uIP httpd-fs ]"
+	@echo "  [Making uIP httpd-fs     ]"
 	@pushd example_tasks/webserver > /dev/null && ../../util/uip_makefsdata && popd > /dev/null
 
 example_tasks/webserver/httpd-fs.c: example_tasks/webserver/httpd-fsdata.c
@@ -272,7 +280,7 @@ example_tasks/webserver/httpd.c: example_tasks/webserver/http-strings.c
 
 # RomFS script build rules
 lib/romfs_data.h: util/build_romfs.py romfs/*
-	@echo "  [Packaging RomFS data]"
+	@echo "  [Packaging RomFS data    ]"
 	@python util/build_romfs.py lib/romfs_data.h romfs/
 
 lib/romfs.c: lib/romfs_data.h
@@ -282,22 +290,22 @@ lib/romfs.c: lib/romfs_data.h
 
 .PHONY: disasm clean install
 disasm :
-	@echo "  [Disassembling binary ] $(BINNAME)-disassembled.s"
+	@echo "  [Disassembling binary    ] $(BINNAME)-disassembled.s"
 	@$(TOOLPRE)-objdump -d $(BINNAME).elf > $(BINNAME)-disassembled.s
 
 clean:
-	@echo "  [Cleaning...          ]"
+	@echo "  [Cleaning...             ]"
 	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map example_tasks/webserver/http-strings.* example_tasks/webserver/httpd-fsdata.c
 
 install: $(BINNAME).bin
 ifeq ($(PROG_TYPE), mbed)
-	@echo "  [Installing to mbed...]"
+	@echo "  [Installing to mbed...   ]"
 	@cp $(BINNAME).bin $(INSTALL_PATH)
-	@echo "  [Done.                ]"
+	@echo "  [Done.                   ]"
 else ifeq ($(PROG_TYPE), serial_isp)
-	@echo "  [Installing by ISP... ]"
+	@echo "  [Installing by ISP...    ]"
 	@./util/lpc21isp/lpc21isp -wipe -bin $(BINNAME).bin $(ISP_OPT)
-	@echo "  [Done.                ]"
+	@echo "  [Done.                   ]"
 endif
 
 #------------------------------------------------------------------------------
@@ -310,11 +318,11 @@ DEPS_CXX       = $(patsubst %.cpp,$(ODIR)/%.d, $(CXX_SOURCE))
 dep : $(DEPS_C) $(DEPS_CXX)
 
 $(DEPS_C) : $(ODIR)/%.d : %.c $(ODIR)/exists
-	@echo "  [Finding dependencies ] $<"
+	@echo "  [Finding dependencies    ] $<"
 	@$(TOOLPRE)-gcc -MM $(CFLAGS) -MT $(patsubst %.c,$(ODIR)/%.o, $<) $< -MF $@
 
 $(DEPS_CXX) : $(ODIR)/%.d : %.cpp $(ODIR)/exists
-	@echo "  [Finding dependencies ] $<"
+	@echo "  [Finding dependencies    ] $<"
 	@$(TOOLPRE)-g++ -MM $(CXXFLAGS) -MT $(patsubst %.cpp,$(ODIR)/%.o, $<) $< -MF $@
 
 -include $(shell find . -name "*.d")

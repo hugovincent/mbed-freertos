@@ -17,14 +17,17 @@ FIQ_Stack_Size = 16;
 IRQ_Stack_Size = 256;
 Stack_Size_Total = UND_Stack_Size + SVC_Stack_Size + ABT_Stack_Size + FIQ_Stack_Size + IRQ_Stack_Size;
 
-INCLUDE "mach/arm_common.ld"
-
 /* Stack tops for each mode: */
 __und_stack_top__ = __stacks_top__;
 __abt_stack_top__ = __und_stack_top__ - UND_Stack_Size ; 
 __fiq_stack_top__ = __abt_stack_top__ - ABT_Stack_Size ;
 __irq_stack_top__ = __fiq_stack_top__ - FIQ_Stack_Size ;
 __svc_stack_top__ = __irq_stack_top__ - IRQ_Stack_Size ;
+
+/* This device has no MPU */
+#undef HAVE_MPU
+
+#include "util/arm_common.ld.S"
 
 /* Special-purpose RAM sections: */
 SECTIONS

@@ -40,7 +40,7 @@ for line in sh('arm-none-eabi-objdump -t %s' % sys.argv[2]).strip().split('\n'):
 
 # Parse RAM/flash capacities from linker-script
 memories = {}
-for line in sh('cat mach/cpu-' + target + '/' + target + '.ld | grep " (r.*) *:"').strip().split('\n'):
+for line in sh('cat .buildtmp/mach/cpu-' + target + '/' + target + '.ld.S | grep " (r.*) *:"').strip().split('\n'):
 	memory = line.strip().split()
 	# Parse 'k' suffixes FIXME
 	memsize = 1024 * int(memory[-1][:-1])

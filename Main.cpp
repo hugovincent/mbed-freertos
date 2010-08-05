@@ -66,7 +66,7 @@ void xBadTask(void *params)
 int main()
 {
 	// Start the standard demo tasks.
-	//vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
+	vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
 	vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
 	vCreateBlockTimeTasks();
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
