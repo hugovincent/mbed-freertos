@@ -17,7 +17,7 @@ extern void SysTick_Handler();
 extern void UnhandledIRQ_Handler();
 
 // Symbols defined by the linker:
-extern unsigned int __text_end__, __stacks_top__,
+extern unsigned int __data_init_start__, __stacks_top__,
 					__data_start__, __data_end__,
 					__bss_start__,  __bss_end__;
 
@@ -49,13 +49,12 @@ void (* const vectors[])(void)
 #define VECTORS_LEN			(VECTORS_LEN_CORE + VECTORS_LEN_LPC17XX)
 
 // Vector table in RAM (after relocation):
-void (* __ram_vectors[VECTORS_LEN])(void)
-		__attribute__ ((aligned(0x100), section(".privileged_bss")));
+void (* __ram_vectors[VECTORS_LEN])(void) __attribute__ ((section(".ram_vectors")));
 
 __attribute__ ((noreturn)) void Reset_Handler(void)
 {
 	// Copy the data segment initializers from flash to RAM
-	unsigned int *src  = &__text_end__;
+	unsigned int *src  = &__data_init_start__;
 	unsigned int *dest = &__data_start__;
 	while (dest < &__data_end__)
 		*(dest++) = *(src++);
@@ -74,6 +73,12 @@ __attribute__ ((noreturn)) void Reset_Handler(void)
 
 	// Perform the relocation
 	SCB->VTOR = (unsigned int)__ram_vectors;
+
+	// Enable Bus and Usage faults (MPU faults enabled when MPU is inited)
+	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk;
+
+	// Enable div-by-0 and unaligned access faults
+	SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk | SCB_CCR_UNALIGN_TRP_Msk;
 
 	// Boot the system: hardware initialisation etc., eventually calls main()
 	Boot_Init();

@@ -14,7 +14,7 @@
 void vApplicationIdleHook()
 {
 #ifdef CORE_HAS_MPU
-	Mpu_Idle();
+	MPUManager_Idle();
 #endif
 	PowerManagement_Idle();
 }
@@ -23,7 +23,7 @@ void vApplicationIdleHook()
 #if configUSE_MALLOC_FAILED_HOOK == 1
 __attribute__ ((noreturn)) void vApplicationMallocFailedHook()
 {
-	printf("[FreeRTOS] Fatal Error: memory allocation failed!\n");
+	puts("\n[FreeRTOS] Fatal Error: memory allocation failed!\n\nHalting.");
 	PowerManagement_PowerDown(); // Wait for WDT to reset.
 }
 #endif
@@ -31,7 +31,7 @@ __attribute__ ((noreturn)) void vApplicationMallocFailedHook()
 #if configCHECK_FOR_STACK_OVERFLOW > 0
 __attribute__ ((noreturn)) void vApplicationStackOverflowHook( xTaskHandle *pxTask, signed portCHAR *pcTaskName )
 {
-	printf("[FreeRTOS] Fatal Error: task \"%s\" had a stack overflow!\n", pcTaskName);
+	printf("\n[FreeRTOS] Fatal Error: task \"%s\" had a stack overflow!\n\nHalting.\n", pcTaskName);
 	PowerManagement_PowerDown(); // Wait for WDT to reset.
 }
 #endif
@@ -53,8 +53,8 @@ __attribute__ ((weak)) void vPortInitialiseBlocks(void)
 	// Nothing needed here.
 }
 
-#if (defined(TARGET_LPC23xx) || (TARGET_LPC17xx))
 #if configGENERATE_RUN_TIME_STATS == 1
+#if (defined(TARGET_LPC23xx) || (TARGET_LPC17xx))
 /* FIXME this was written for LPC2368 - check it works here too */
 /* This uses Timer 1 to record task run-time statistics. Allows FreeRTOS
  * to generate a nice, tabular `top`-style CPU-usage listing. 
@@ -76,8 +76,8 @@ void vConfigureTimerForRunTimeStats( void )
 	LPC_TIM1->CTCR = 0x0;
 	LPC_TIM1->TCR = 0x1<<0;
 }
-#endif
 #else
 #error "Target not supported"
+#endif
 #endif
 

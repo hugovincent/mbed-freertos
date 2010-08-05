@@ -1,5 +1,53 @@
+#include <stdio.h>
 #include <stdbool.h>
 #include "cmsis.h"
+#include "console.h"
+#include "debug_support.h"
+#include "power_management.h"
+#include "mpu_manager.h"
+
+enum ExceptionType
+{
+	DataAbort = 0,
+	PrefetchAbort,
+	UndefinedInstruction
+};
+
+/* Print as much info as we can about the processor state pre-exception. */
+static __attribute__ ((noreturn)) void __print_info(enum ExceptionType type)
+{
+	// pc is the actual address, and pc_ptr is the actually opcode at that address
+	switch (type)
+	{
+		case DataAbort:
+			printf("\n[FreeRTOS] Fatal Error: Data Abort at pc : ");
+			//printf("[<%08x>] -> 0x%08x\n", SavedRegs.pc, SavedRegs.pc_ptr);
+			break;
+
+		case PrefetchAbort:
+			printf("\n[FreeRTOS] Fatal Error: Prefetch Abort at pc : ");
+			//printf("[<%08x>]\n", SavedRegs.pc);
+			break;
+
+		case UndefinedInstruction:
+			printf("\n[FreeRTOS] Fatal Error: Undefined Instruction ");
+			//printf("0x%08x at pc : [<%08x>]\n", SavedRegs.pc_ptr, SavedRegs.pc);
+			break;
+	}
+
+	puts("\nProcesor State:");
+	//Debug_PrintSavedRegisterState(&SavedRegs);
+
+	puts("\nBacktrace:");
+	//Debug_PrintBacktrace((unsigned int *)SavedRegs.r[11], 0); // r11 is the frame pointer
+
+	// FIXME some FreeRTOS-specific thread information should go here?
+
+	puts("\nHalting.\n");
+
+	// Put processor core into sleep mode to conserve power.
+	PowerManagement_PowerDown();
+}
 
 void HardFault_Handler()
 {
@@ -12,7 +60,9 @@ void HardFault_Handler()
 #endif
 
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("hard fault");
+	PowerManagement_PowerDown();
 }
 
 
@@ -32,7 +82,9 @@ void BusFault_Handler()
 #endif
 
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("bus fault");
+	PowerManagement_PowerDown();
 }
 
 
@@ -50,55 +102,96 @@ void UsageFault_Handler()
 #endif
 
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("usage fault");
+	PowerManagement_PowerDown();
 }
 
 
 void NMI_Handler()
 {
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("nmi");
+	PowerManagement_PowerDown();
 }
 
 
 void SVC_Handler()
 {
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("svc");
+	PowerManagement_PowerDown();
 }
 
 
 void DebugMon_Handler()
 {
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("debugmon");
+	PowerManagement_PowerDown();
 }
 
 
 void PendSV_Handler()
 {
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("pendsv");
+	PowerManagement_PowerDown();
 }
 
 
 void SysTick_Handler()
 {
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("systick");
+	PowerManagement_PowerDown();
 }
 
 
 void MemManage_Handler()
 {
-	// FIXME
-	while (1);
+	// Get the exception stack (bit 2 of the LR determines which stack it's in)
+	unsigned int exc_return = (unsigned int)__builtin_return_address(0);
+	unsigned int *exc_stack;
+	if (exc_return & (0x1<<2))
+		exc_stack = (unsigned int *)__get_PSP();
+	else
+		exc_stack = (unsigned int *)__get_MSP();
+
+	unsigned int pc = exc_stack[6];
+
+	unsigned int cfsr = SCB->CFSR;
+	bool mmarValid   = cfsr & (0x1<<7); // fault address valid
+#if 0
+	bool mstkErr     = cfsr & (0x1<<4);	// stacking from excpetion caused access violation
+	bool munstkErr   = cfsr & (0x1<<3);	// as above but unstacking from exception
+	bool dataAccViol = cfsr & (0x1<<1);	// data access violation. return PC points to instruction and loads addr in MMAR
+	bool instAccViol = cfsr & (0x1<<0);	// instruction access violation. return PC points to instruction (no MMAR)
+#endif
+
+	const unsigned int mpuFaultAddr = mmarValid ? SCB->MMFAR : 0;
+
+	if (!MPUManager_HandleFault(pc, mpuFaultAddr))
+	{
+		Console_SingleMode();
+		puts("\n[FreeRTOS] Fatal Error: Unhandled Access Violation.");
+		printf("\tpc : [<%08x>]  bad_access : [<%08x>]\n", pc, mpuFaultAddr);
+		puts("\nHalting.");
+		PowerManagement_PowerDown();
+	}
 }
 
 void UnhandledIRQ_Handler()
 {
 	// FIXME
-	while (1);
+	Console_SingleMode();
+	puts("unhandled IRQ");
+	PowerManagement_PowerDown();
 }
 
 // FIXME

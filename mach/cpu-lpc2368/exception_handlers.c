@@ -9,8 +9,6 @@
 #include "debug_support.h"
 #include "power_management.h"
 
-#include "FreeRTOS.h"
-
 /* This global struct is filled out with register state by the assembler
  * component of the exception handlers (in hardware/cpu-X/crt0.s).
  */

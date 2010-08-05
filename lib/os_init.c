@@ -56,7 +56,7 @@ void Boot_Init()
 void OS_Init()
 {
 #ifdef CORE_HAS_MPU
-	MpuManager_Init();
+	MPUManager_Init();
 #endif
 	DeviceManager_Init();
 	RomFS_Init();

@@ -39,7 +39,8 @@ FEATURES:
   is shown. Shows a stack backtrace and processor state information.
 * One UART is used as the console, which is used for operating system messages,
   debug output, and standard IO (printf et. al.).
-* POSIX APIs for processes and sockets _(coming soon)_.
+* POSIX APIs for threads, timers, sockets etc. _(coming soon)_. We're aiming
+  for full POSIX 1003.13 Profile 52 support eventually.
 * Read/write FAT filesystem support _(coming soon)_.
 
 INSTALATION:

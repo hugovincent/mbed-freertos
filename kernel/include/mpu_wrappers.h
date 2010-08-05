@@ -86,7 +86,6 @@ only for ports that are using the MPU. */
 		/* Ensure API functions go in the privileged execution section. */
 		#define PRIVILEGED_FUNCTION __attribute__((section(".privileged_code")))
 		#define PRIVILEGED_DATA __attribute__((section(".privileged_bss")))
-        //#define PRIVILEGED_DATA
 
 	#endif /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE */
 

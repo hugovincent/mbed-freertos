@@ -1,4 +1,4 @@
-Last Update: 4 August 2010.
+Last Update: 5 August 2010.
 
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
@@ -28,9 +28,12 @@ ADDITIONS:
 [1] Standardized, kernel-mediated interrupt API for drivers.
 [1] Standardized user-process-level signal-based interrupt abstraction.
 [1] Standardized DMA api.
+[1] Writes to console stdout should be prefixed with task name.
 [2] Configuration management system.
+[2] Interactive shell over serial console.
 [2] Add gdb-stubs for remote debug over serial port.
 [2] Add symbol table so backtrace etc can show symbols instead of addresses.
+[3] Idle-load based dynamic frequency scaling.
 [3] New stack backtrace for modern, non-APCS-frame-pointer-using binary code.
 [3] Integrate FatFS filesystem support.
 [3] Integrate PicoC for scripting. 

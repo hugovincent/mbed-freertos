@@ -38,41 +38,27 @@
 #ifdef CORE_HAS_MPU
 void xBadTask(void *params)
 {
-	extern unsigned long __privileged_bss_end__;
-	extern unsigned long __privileged_code_end__;
-	extern unsigned long __SRAM_segment_end__;
-	extern unsigned long __FLASH_segment_end__;
-	volatile unsigned long *pul;
-	volatile unsigned long ulReadData;
-	printf("Misbehaving task started...\n");
+	// The privileged bit is set when this function is started, so it initially
+	// runs in privileged mode. We first turn on an LED (which requires
+	// privileges), lower our privileges to user mode, and again try to access
+	// the LED. LED access happens through raw access to the registers, rather
+	// than through the GPIO driver, because the driver might be privileged.
+	
+	printf("Bad task: started in privileged mode. Turning LED on...\n");
+	LPC_GPIO1->FIOSET = ( 1UL << 23UL );
 	vTaskDelay(150);
 
+	// Now switch to user mode and try again
 	portSWITCH_TO_USER_MODE();
-	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
+	printf("Bad task: switched to user mode. Turning LED off...\n");
+	LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
 
-	/*taskENTER_CRITICAL();
-	  taskEXIT_CRITICAL();*/
-
-	pul = &__privileged_bss_end__ + 1;
-	ulReadData = *pul;
-	pul = &__SRAM_segment_end__ - 1;
-	ulReadData = *pul;
-
-	pul = &__privileged_code_end__ + 1;
-	ulReadData = *pul;
-	pul = &__FLASH_segment_end__ - 1;
-	ulReadData = *pul;
-	printf("Misbehaving task writing LEDs...\n");
-	vTaskDelay(150);
-	//volatile int v = LPC_UART0->DLM;
-	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
-
-	printf("Misbehaving task finished...\n");
+	printf("Bad task: finished.\n");
 
 	for (;;)
 	{
 		vTaskDelay(1000);
-		printf("Alive\n");
+		printf("Bad task: still alive\n");
 	}
 }
 #endif
@@ -80,22 +66,18 @@ void xBadTask(void *params)
 int main()
 {
 	// Start the standard demo tasks.
-	vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
+	//vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
 	vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
 	vCreateBlockTimeTasks();
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
-	/*
-	vStartWebserverTask();
-	*/
+	//vStartWebserverTask();
 
 #ifdef CORE_HAS_MPU
-	xTaskCreate(xBadTask, (signed char *)"Bad", configMINIMAL_STACK_SIZE + 800, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
+	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 800,
+			(void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
-
-	extern void test_cxx();
-	test_cxx();
 
 	printf("Starting scheduler.\n");
 

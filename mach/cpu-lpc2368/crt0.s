@@ -100,7 +100,7 @@ Reset_Handler:
 @  ----------------------------------------------------------------------------
 @  Relocate .data section (Copy from ROM to RAM)
                 LDR     R1, =__text_end__
-                LDR     R2, =__data_start
+                LDR     R2, =__data_start__
                 LDR     R3, =__data_end__
                 CMP     R2, R3
                 BEQ     DataIsEmpty

@@ -23,9 +23,6 @@ void Board_EarlyInit( void )
 
 #if defined(TARGET_LPC17xx)
 
-	// MPU fault setup (SHCSR_MEMFAULTENA gets set by kernel when MPU is inited)
-	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk;
-
 	// Set system call and system timer tick interrupts (priorities for these are set by kernel)
 	NVIC_SetVector(SVCall_IRQn, (unsigned int)vPortSVCHandler);
 	NVIC_SetVector(PendSV_IRQn, (unsigned int)xPortPendSVHandler);

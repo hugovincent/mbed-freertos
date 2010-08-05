@@ -5,64 +5,67 @@
 #include "queue.h"
 #include "mpu_manager.h"
 
-static void MPUFault_Handler(void);
-
-static xQueueHandle xKillQueue;
-
-typedef struct 
+struct MPU_TaskKiller_t
 {
 	xTaskHandle handle;
-} taskKiller_t;
+};
 
+static xQueueHandle xKillQueue;
 #define KILL_QUEUE_LEN	(3)
 
-void Mpu_Idle(void)
+
+void MPUManager_Idle(void)
 {	
-	taskKiller_t task;
+	struct MPU_TaskKiller_t task;
 	if (xQueueReceive(xKillQueue, &task, 0))
 	{
 		xTaskHandle handle = task.handle;
 		if (handle)
 		{
 			// Do some reporting etc here
+			printf("[FreeRTOS] Killed task %d due to MPU protection violation.\n",
+					(int)handle);
 			vTaskDelete(handle);
 		}
 	}
 }
 
-void MpuManager_Init(void)
+
+void MPUManager_Init(void)
 {
-	xKillQueue = xQueueCreate(KILL_QUEUE_LEN, sizeof(taskKiller_t));
-	NVIC_SetVector(MemoryManagement_IRQn, (unsigned int)MPUFault_Handler);
+	xKillQueue = xQueueCreate(KILL_QUEUE_LEN, sizeof(struct MPU_TaskKiller_t));
 }
 
 
-static inline void mpuFaultCleanup(void)
+bool MPUManager_HandleFault(uint32_t pc, uint32_t faultAddr) PRIVILEGED_FUNCTION
 {
-	signed portBASE_TYPE yield;
-	taskKiller_t task;
-	xTaskHandle handle = xTaskGetCurrentTaskHandleFromISR();
-	//vTaskSuspendFromISR(handle);
-	vTaskSuspend(handle);
-	task.handle = handle;
-	xQueueSendFromISR(xKillQueue, &task, &yield);
-	if (yield)
-		portYIELD_WITHIN_API();
+	// FIXME check it was application code (not 
+	// ISR or library code) that faulted:
+	bool will_handle = true;
+
+	if (will_handle)
+	{
+		puts("Access Violation. (attempting to handle).");
+		printf("\tpc : [<%08x>]  bad_access : [<%08x>]\n", pc, faultAddr);
+
+		// Get task handle
+		xTaskHandle handle = xTaskGetCurrentTaskHandle();
+		puts("got task handle");
+		
+		// Suspend task
+		vTaskSuspend(handle);
+		puts("suspended task");
+
+		// Add task to kill queue
+		struct MPU_TaskKiller_t task = {
+			.handle = handle,
+		};
+		signed portBASE_TYPE yield;
+		xQueueSendFromISR(xKillQueue, &task, &yield);
+		puts("added to kill queue");
+		if (yield)
+			portYIELD_WITHIN_API();
+	}
+	return will_handle;
 }
-
-
-void MPUFault_Handler(void)
-{
-#if 0
-	unsigned int cfsr = SCB->CFSR;
-	bool mmarValid = cfsr & CFSR_MMARVALID ? true : false,
-		mstkErr = cfsr & CFSR_MSTKERR ? true : false, // stacking from excpetion caused access violation
-		munstkErr = cfsr & CFSR_MUNSTKERR ? true : false, // as above but unstacking from exception
-		dataAccViol = cfsr & CFSR_DACCVIOL ? true : false, // data access violation. return PC points to instruction and loads addr in MMAR
-		instAccViol = cfsr & CFSR_IACCVIOL ? true : false; //instruction access violation. return PC points to instruction (no MMAR)
-	unsigned int mpuFaultAddr = mmarValid ? SCB->MMFAR : 0;
-#endif
-	mpuFaultCleanup();
-}
-
 

@@ -105,26 +105,15 @@ SECTIONS
 	} >Flash
 	__text_end__ = . ;
 
-	/* .data section -- used for initialized data */
-	.data :
-	{
-		__data_start__ = . ;
-		KEEP( *( .jcr ) )
-		*( .got.plt ) *( .got )
-		*( .shdata )
-		*( .data .data.* .gnu.linkonce.d.* )
-		*( .ram )
-		. = ALIGN( 8 ) ;
-		__data_end__ = . ;
-	} >Ram AT>Flash
-
 	/* .bss section -- used for uninitialized data */
 	.bss :
 	{
 		__bss_start__ = . ;
 
-		. = ALIGN( 32 ) ;
 		__privileged_bss_start__ = . ;
+
+		/* RAM Vectors should be at the very start of SRAM */
+		*crt0.o( .ram_vectors )
 
 		*crt0.o( .privileged_bss )
 		*( .privileged_bss )
@@ -148,6 +137,20 @@ SECTIONS
 		__bss_end__ = . ;
 	} >Ram AT>Flash
 
+	/* .data section -- used for initialized data */
+	.data :
+	{
+		__data_start__ = . ;
+		KEEP( *( .jcr ) )
+		*( .got.plt ) *( .got )
+		*( .shdata )
+		*( .data .data.* .gnu.linkonce.d.* )
+		*( .ram )
+		. = ALIGN( 8 ) ;
+		__data_end__ = . ;
+	} >Ram AT>Flash
+	__data_init_start__ = LOADADDR( .data ) ;
+
 	/* Heap starts here and grows up in memory */
 	. = ALIGN( 8 ) ;
 	__heap_start__ = . ;
@@ -161,38 +164,38 @@ SECTIONS
 	} >Ram
 
 
-	.stab          0 (NOLOAD) : { *(.stab) }
-	.stabstr       0 (NOLOAD) : { *(.stabstr) }
+	.stab    0 (NOLOAD) : { *(.stab) }
+	.stabstr 0 (NOLOAD) : { *(.stabstr) }
 
 	/* -------------------------- DEBUG STUFF (not in binary) -------------- */
 	/* DWARF debug sections.
 	   Symbols in the DWARF debugging sections are relative to the beginning
 	   of the section so we begin them at 0.  */
 	/* DWARF 1 */
-	.debug          0 : { *(.debug) }
-	.line           0 : { *(.line) }
+	.debug           0 : { *(.debug) }
+	.line            0 : { *(.line) }
 	/* GNU DWARF 1 extensions */
-	.debug_srcinfo  0 : { *(.debug_srcinfo) }
-	.debug_sfnames  0 : { *(.debug_sfnames) }
+	.debug_srcinfo   0 : { *(.debug_srcinfo) }
+	.debug_sfnames   0 : { *(.debug_sfnames) }
 	/* DWARF 1.1 and DWARF 2 */
-	.debug_aranges  0 : { *(.debug_aranges) }
-	.debug_pubnames 0 : { *(.debug_pubnames) }
+	.debug_aranges   0 : { *(.debug_aranges) }
+	.debug_pubnames  0 : { *(.debug_pubnames) }
 	/* DWARF 2 */
-	.debug_info     0 : { *(.debug_info .gnu.linkonce.wi.*) }
-	.debug_abbrev   0 : { *(.debug_abbrev) }
-	.debug_line     0 : { *(.debug_line) }
-	.debug_frame    0 : { *(.debug_frame) }
-	.debug_str      0 : { *(.debug_str) }
-	.debug_loc      0 : { *(.debug_loc) }
-	.debug_macinfo  0 : { *(.debug_macinfo) }
+	.debug_info      0 : { *(.debug_info .gnu.linkonce.wi.*) }
+	.debug_abbrev    0 : { *(.debug_abbrev) }
+	.debug_line      0 : { *(.debug_line) }
+	.debug_frame     0 : { *(.debug_frame) }
+	.debug_str       0 : { *(.debug_str) }
+	.debug_loc       0 : { *(.debug_loc) }
+	.debug_macinfo   0 : { *(.debug_macinfo) }
 	/* SGI/MIPS DWARF 2 extensions */
 	.debug_weaknames 0 : { *(.debug_weaknames) }
 	.debug_funcnames 0 : { *(.debug_funcnames) }
 	.debug_typenames 0 : { *(.debug_typenames) }
 	.debug_varnames  0 : { *(.debug_varnames) }
 	/* DWARF 3 */
-	.debug_pubtypes 0 : { *(.debug_pubtypes) }
-	.debug_ranges   0 : { *(.debug_ranges) }
+	.debug_pubtypes  0 : { *(.debug_pubtypes) }
+	.debug_ranges    0 : { *(.debug_ranges) }
 
 	.note.gnu.arm.ident 0 : { KEEP( *( .note.gnu.arm.ident ) ) }
 	.ARM.attributes     0 : { KEEP( *( .ARM.attributes ) ) KEEP( *( .gnu.attributes ) ) }

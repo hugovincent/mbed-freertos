@@ -1,11 +1,10 @@
 #include <FreeRTOS.h>
-#include "drivers/gpio.h"
 //#include <string>
 
 class CxxTest {
 public:
-	CxxTest() : have_initted(true) { printf("in the constructor\n"); }
-	~CxxTest() { have_initted = false; printf("destructing\n"); }
+	CxxTest() : have_initted(true) { /*printf("in the constructor\n");*/ }
+	~CxxTest() { /*have_initted = false; printf("in the destructor\n");*/ }
 
 	int someMethod();
 private:
@@ -20,9 +19,9 @@ int CxxTest::someMethod() {
 	*t = "Hello world";
 	delete t;
 */
-	GPIO_PinWrite(1, 18, have_initted);
 	if (have_initted)
-		printf("turned on LED 1\n");
+		printf("in someMethod() - initted correctly\n");
+
 	return 0;
 }
 
