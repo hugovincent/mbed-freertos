@@ -55,7 +55,6 @@ __attribute__ ((weak)) void vPortInitialiseBlocks(void)
 
 #if configGENERATE_RUN_TIME_STATS == 1
 #if (defined(TARGET_LPC23xx) || (TARGET_LPC17xx))
-/* FIXME this was written for LPC2368 - check it works here too */
 /* This uses Timer 1 to record task run-time statistics. Allows FreeRTOS
  * to generate a nice, tabular `top`-style CPU-usage listing. 
  */

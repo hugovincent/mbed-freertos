@@ -10,6 +10,7 @@ BUGS:
 [2] Optimize UART code (maybe a ring buffer would be better?).
 [3] Fix/finish the uSTL integration.
 [2] Exception handlers on ARM7 are currently broken.
+[3] Check and fix new stack backtrace code based on libgcc _Unwind.
 [f] Test/fix ethernet & webserver code. Integrate local FS with webserver instead of 
     uIP's built in httpd-fs stuff.
 
@@ -34,7 +35,6 @@ ADDITIONS:
 [2] Add gdb-stubs for remote debug over serial port.
 [2] Add symbol table so backtrace etc can show symbols instead of addresses.
 [3] Idle-load based dynamic frequency scaling.
-[3] New stack backtrace for modern, non-APCS-frame-pointer-using binary code.
 [3] Integrate FatFS filesystem support.
 [3] Integrate PicoC for scripting. 
 [f] Integrate some nice DSP libraries.
@@ -45,11 +45,11 @@ DRIVERS:
 	[d] SPI master.
 	[d] ADC.
 	[1] PWM.
+	[2] SD/MMC Controller.
 	[3] USB device with CDC virtual serial port.
 	[3] DAC.
 	[3] 1-Wire master.
 	[f] CAN.
-	[f] SD/MMC Controller.
 	[f] USB host/OTG.
 	[f] Other uses of USB device besides CDC virtual serial.
 	[f] Generalised SSP besides SPI.

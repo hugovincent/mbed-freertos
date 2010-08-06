@@ -6,52 +6,63 @@ FreeRTOS/OS - A FreeRTOS distribution for ARM devices
 This is a real-time operating system for very small devices built around an ARM
 microcontroller (with typically at least 16 kB of RAM and 64 kB of flash).
 
-It consists of the realtime kernel from FreeRTOS (www.freertos.org) version 6.0.4,
-and a set of additions for hardware abstraction and C/C++ support. It aims to
-support an almost full set of POSIX APIs (excluding those that are not applicable
-or not useful on small systems) and support a variety of devices and filesystems,
-as well as networking, with a lightweight, extensible driver model.
-
-A core aim of this project is to provide a canonical distribution of FreeRTOS
-with a clean, maintained build system, a fully functional standard C library,
-and with well defined, portable ways of doing hardware abstraction, peripheral
-access, filesystem access, and so on. The FreeRTOS project just provides a kernel
-along with a large number of example/demo implementations, most of which are
-incompatible with each other.
+A core aim of this project is to provide a canonical _distribution_ of FreeRTOS, 
+in the sense that Linux distributions are much more than just the kernel. As such,
+we include a clean, consistent build system, a fully functional standard C library
+with well defined, portable ways of doing hardware abstraction, peripheral access,
+filesystem access, and so on.
 
 FEATURES:
 ---------
 
+* Support for the ARM Cortex M3 and ARM7TDMI; currently the NXP LPC1768 and
+  LPC2368 ports are working.
+* Hard-realtime preemptive multitasking kernel (FreeRTOS v6.0.4).
+* Supports protected memory on Cortex M3s that have an MPU (memory protection
+  unit -- included in the LPC17xx series). Tasks that access memory they do no
+  have permission to access are cleanly terminated and debug information is 
+  printed to the console.
+* Provides exception handlers. Bugs in application code that generate an ARM hardware
+  exception or fault (attempt to access non-existent memory, undefined instruction
+  etc) are trapped and debug output is shown. Shows a stack backtrace and processor
+  state information. In addition, the kernel attempts to recover from such faults
+  by cleanly terminating the responsible task. Similarly for tasks that overflow their
+  application stack.
 * Complete C library support (including malloc, standard file IO etc).
-* C++ support, including lightweight STL (with uSTL).
-* Ethernet networking using uIP, including a web server.
-* Support for power management.
+* C++ support, including lightweight STL (uSTL.sf.net), and exception handling.
+* Ethernet networking with the lightweight uIP TCP/IP stack, including a web server.
+* Support for power management (processor is aggressively idled when possible, 
+  _coming soon:_ dynamic frequency scaling).
+* Well integrated GNU toolchain and build system. 
 * Build system lists total flash and RAM, and provides an estimate for
   available heap space for dynamically allocated (malloc'd) memory.
 * A UNIX-like filesystem hierarchy. Devices can be accessed via their /dev/
-  nodes. Filesystems (depending on target hardware) can be added to segments
-  of the filesystem hierarchy such as /flash or /sd_card. A read-only in-flash
-  filesystem is supported on all targets.
-* mbed (mbed.org) target supports semihosted local filesystem, accessible via
-  the mbed USB interface. 
-* Exception handlers. Bugs that generate and ARM hardware exception (prefetch
-  abort, data abort, undefined instruction etc) are trapped and debug output
-  is shown. Shows a stack backtrace and processor state information.
+  nodes. Filesystems (depending on target hardware) can be added to the root
+  filesystem hierarchy, for example /flash or /sd_card.
+  	* A read-only filesystem resident in on-chip flash is supported on all targets.
+	* mbed (mbed.org) target supports semihosted local filesystem, accessible via
+	  the mbed USB interface. Should also work with semihosting-compatible debuggers.
+	* Read/write FAT filesystem on SD/microSD cards _(coming soon)_.
 * One UART is used as the console, which is used for operating system messages,
   debug output, and standard IO (printf et. al.).
 * POSIX APIs for threads, timers, sockets etc. _(coming soon)_. We're aiming
   for full POSIX 1003.13 Profile 52 support eventually.
-* Read/write FAT filesystem support _(coming soon)_.
+* Device drivers for many on-chip and common off-chip peripherals.
 
 INSTALATION:
 ------------
 
-1. Download and install a suitable arm-none-eabi GNU toolchain, such as the
+1. Download and install a compatible arm-none-eabi GNU toolchain, such as the
    toolchain at http://github.com/hugovincent/arm-eabi-toolchain.
 2. Edit the configuration options at the top of the Makefile.
 3. Run `make`.
 4. Program the generated binary image to your hardware. The Makefile provides
-   a `make install` target to install to mbed boards.
+   a `make install` target to install to suppoted boards.
+
+USE:
+----
+
+To be written.
 
 NOTES:
 ------
@@ -60,11 +71,10 @@ Tested with the Codesourcery 2010q1-188 arm-non-eabi toolchain, built from
 source with http://github.com/hugovincent/arm-eabi-toolchain (on Mac OS X 10.6).
 You will probably have problems with an official Codesourcery toolchain as a
 number of compiler and C library options had to be changed to suit this project.
+It is strongly recommended to use this customized toolchain. 
 
 This has currently only been tested with mbed (www.mbed.org) hardware, some
-version of which use the NXP LPC2368, and some the LPC1768. The LPC2368 has had
-the most testing and is the most stable.
-
+versions of which use the NXP LPC2368, and some the LPC1768.
 
 COPYING:
 --------
