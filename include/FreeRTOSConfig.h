@@ -52,6 +52,7 @@ extern "C" {
 #define configUSE_16_BIT_TICKS					0
 #define configIDLE_SHOULD_YIELD					1
 #define configUSE_MUTEXES						1
+#define configIDLE_STACK_SIZE					( 800 )
 
 
 #if defined(TARGET_LPC17xx)
@@ -90,6 +91,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskSuspend         			1
 #define INCLUDE_vTaskDelayUntil					1
 #define INCLUDE_vTaskDelay						1
+#define INCLUDE_pcTaskGetName					1
 #define INCLUDE_xTaskGetCurrentTaskHandle		1
 #define INCLUDE_uxTaskGetStackHighWaterMark		1
 #define INCLUDE_xTaskGetSchedulerState			1

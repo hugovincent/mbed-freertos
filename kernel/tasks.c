@@ -38,7 +38,11 @@ task.h is included from an application file. */
 /*
  * Macro to define the amount of stack available to the idle task.
  */
+#ifdef configIDLE_STACK_SIZE
+#define tskIDLE_STACK_SIZE	configIDLE_STACK_SIZE
+#else
 #define tskIDLE_STACK_SIZE	configMINIMAL_STACK_SIZE
+#endif
 
 /*
  * Task control block.  A task control block (TCB) is allocated to each task,
@@ -868,6 +872,40 @@ tskTCB * pxNewTCB;
 		}
 	}
 
+	void vTaskSuspendFromISR( xTaskHandle pxTaskToSuspend )
+	{
+	tskTCB *pxTCB;
+
+		/* Ensure a yield is performed if the current task is being
+		suspended. */
+		if( pxTaskToSuspend == pxCurrentTCB )
+		{
+			pxTaskToSuspend = NULL;
+		}
+
+		/* If null is passed in here then we are suspending ourselves. */
+		pxTCB = prvGetTCBFromHandle( pxTaskToSuspend );
+
+		traceTASK_SUSPEND( pxTCB );
+
+		/* Remove task from the ready/delayed list and place in the	suspended list. */
+		vListRemove( &( pxTCB->xGenericListItem ) );
+
+		/* Is the task waiting on an event also? */
+		if( pxTCB->xEventListItem.pvContainer )
+		{
+			vListRemove( &( pxTCB->xEventListItem ) );
+		}
+
+		vListInsertEnd( ( xList * ) &xSuspendedTaskList, &( pxTCB->xGenericListItem ) );
+
+		/* We may have just suspended the current task. */
+		if( ( void * ) pxTaskToSuspend == NULL )
+		{
+			portYIELD_WITHIN_API();
+		}
+	}
+
 #endif
 /*-----------------------------------------------------------*/
 
@@ -1312,6 +1350,17 @@ unsigned portBASE_TYPE uxTaskGetNumberOfTasks( void )
 	}
 
 #endif
+/*----------------------------------------------------------*/
+
+#if ( INCLUDE_pcTaskGetName == 1 )
+
+	const signed portCHAR * const pcTaskGetName( xTaskHandle xTask )
+	{
+		tskTCB * pxTCB = prvGetTCBFromHandle( xTask );
+		return pxTCB->pcTaskName;
+	}
+#endif
+
 
 
 
@@ -2141,6 +2190,18 @@ tskTCB *pxNewTCB;
 #if ( INCLUDE_xTaskGetCurrentTaskHandle == 1 )
 
 	xTaskHandle xTaskGetCurrentTaskHandle( void )
+	{
+	xTaskHandle xReturn;
+
+		/* A critical section is not required as this is not called from
+		an interrupt and the current TCB will always be the same for any
+		individual execution thread. */
+		xReturn = pxCurrentTCB;
+
+		return xReturn;
+	}
+
+	xTaskHandle xTaskGetCurrentTaskHandleFromISR( void )
 	{
 	xTaskHandle xReturn;
 

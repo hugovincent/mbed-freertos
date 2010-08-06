@@ -75,7 +75,7 @@ int main()
 	//vStartWebserverTask();
 
 #ifdef CORE_HAS_MPU
-	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 800,
+	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 100,
 			(void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
 

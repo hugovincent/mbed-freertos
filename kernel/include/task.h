@@ -651,6 +651,9 @@ void vTaskPrioritySet( xTaskHandle pxTask, unsigned portBASE_TYPE uxNewPriority 
  */
 void vTaskSuspend( xTaskHandle pxTaskToSuspend ) PRIVILEGED_FUNCTION;
 
+/** ISR-safe version of vTaskSuspend(). */
+void vTaskSuspendFromISR( xTaskHandle pxTaskToSuspend ) PRIVILEGED_FUNCTION;
+
 /**
  * task. h
  * <pre>void vTaskResume( xTaskHandle pxTaskToResume );</pre>
@@ -1096,6 +1099,13 @@ pdTASK_HOOK_CODE xTaskGetApplicationTaskTag( xTaskHandle xTask ) PRIVILEGED_FUNC
  */
 portBASE_TYPE xTaskCallApplicationTaskHook( xTaskHandle xTask, void *pvParameter ) PRIVILEGED_FUNCTION;
 
+/** 
+ * task.h
+ * <pre>const signed portCHAR * const pcTaskGetName( xTaskHandle xTask );</pre>
+ *
+ * Returns the name of the task xTask.
+ */
+const signed portCHAR * const pcTaskGetName( xTaskHandle xTask ) PRIVILEGED_FUNCTION;
 
 /*-----------------------------------------------------------
  * SCHEDULER INTERNALS AVAILABLE FOR PORTING PURPOSES
@@ -1180,6 +1190,9 @@ void vTaskSwitchContext( void ) PRIVILEGED_FUNCTION;
  * Return the handle of the calling task.
  */
 xTaskHandle xTaskGetCurrentTaskHandle( void ) PRIVILEGED_FUNCTION;
+
+/** ISR-safe version of xTaskGetCurrentTaskHandle(). */
+xTaskHandle xTaskGetCurrentTaskHandleFromISR( void ) PRIVILEGED_FUNCTION;
 
 /*
  * Capture the current time status for future reference.

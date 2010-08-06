@@ -188,6 +188,7 @@ portBASE_TYPE MPU_xTaskCallApplicationTaskHook( xTaskHandle xTask, void *pvParam
 unsigned portBASE_TYPE MPU_uxTaskGetStackHighWaterMark( xTaskHandle xTask );
 xTaskHandle MPU_xTaskGetCurrentTaskHandle( void );
 portBASE_TYPE MPU_xTaskGetSchedulerState( void );
+const signed portCHAR * const MPU_pcTaskGetName( xTaskHandle xTask );
 xQueueHandle MPU_xQueueCreate( unsigned portBASE_TYPE uxQueueLength, unsigned portBASE_TYPE uxItemSize );
 signed portBASE_TYPE MPU_xQueueGenericSend( xQueueHandle xQueue, const void * const pvItemToQueue, portTickType xTicksToWait, portBASE_TYPE xCopyPosition );
 unsigned portBASE_TYPE MPU_uxQueueMessagesWaiting( const xQueueHandle pxQueue );
@@ -910,6 +911,18 @@ portBASE_TYPE xRunningPrivileged = prvRaisePrivilege();
     portBASE_TYPE xRunningPrivileged = prvRaisePrivilege();
 
 		xReturn = xTaskGetSchedulerState();
+        portRESET_PRIVILEGE( xRunningPrivileged );
+		return xReturn;
+	}
+#endif
+/*-----------------------------------------------------------*/
+
+#if ( INCLUDE_pcTaskGetName == 1 )
+	const signed portCHAR * const MPU_pcTaskGetName( xTaskHandle xTask )
+	{
+    portBASE_TYPE xRunningPrivileged = prvRaisePrivilege();
+	const signed portCHAR * const xReturn = pcTaskGetName( xTask );
+
         portRESET_PRIVILEGE( xRunningPrivileged );
 		return xReturn;
 	}

@@ -55,6 +55,7 @@ only for ports that are using the MPU. */
 		#define uxTaskGetStackHighWaterMark		MPU_uxTaskGetStackHighWaterMark
 		#define xTaskGetCurrentTaskHandle		MPU_xTaskGetCurrentTaskHandle
 		#define xTaskGetSchedulerState			MPU_xTaskGetSchedulerState
+		#define pcTaskGetName					MPU_pcTaskGetName
 
 		#define xQueueCreate					MPU_xQueueCreate
 		#define xQueueCreateMutex				MPU_xQueueCreateMutex

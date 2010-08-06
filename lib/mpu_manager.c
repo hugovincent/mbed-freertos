@@ -8,6 +8,9 @@
 struct MPU_TaskKiller_t
 {
 	xTaskHandle handle;
+	unsigned int pc;
+	unsigned int faultAddr;
+	// FIXME mode stuff could be captured too
 };
 
 static xQueueHandle xKillQueue;
@@ -15,17 +18,21 @@ static xQueueHandle xKillQueue;
 
 
 void MPUManager_Idle(void)
-{	
+{
 	struct MPU_TaskKiller_t task;
 	if (xQueueReceive(xKillQueue, &task, 0))
 	{
 		xTaskHandle handle = task.handle;
 		if (handle)
 		{
-			// Do some reporting etc here
-			printf("[FreeRTOS] Killed task %d due to MPU protection violation.\n",
-					(int)handle);
 			vTaskDelete(handle);
+
+			// Do some reporting etc here
+			const signed char * const name = pcTaskGetName(handle);
+
+			printf("[FreeRTOS] Killed task \"%s\" due to MPU protection violation.\n", name);
+			printf("\tpc : [<%08x>]  bad_access : [<%08x>]\n", (unsigned int)task.pc,
+				(unsigned int)task.faultAddr);
 		}
 	}
 }
@@ -39,30 +46,26 @@ void MPUManager_Init(void)
 
 bool MPUManager_HandleFault(uint32_t pc, uint32_t faultAddr) PRIVILEGED_FUNCTION
 {
-	// FIXME check it was application code (not 
+	// FIXME check it was application code (not
 	// ISR or library code) that faulted:
 	bool will_handle = true;
 
 	if (will_handle)
 	{
-		puts("Access Violation. (attempting to handle).");
-		printf("\tpc : [<%08x>]  bad_access : [<%08x>]\n", pc, faultAddr);
-
 		// Get task handle
-		xTaskHandle handle = xTaskGetCurrentTaskHandle();
-		puts("got task handle");
-		
+		xTaskHandle handle = xTaskGetCurrentTaskHandleFromISR();
+
 		// Suspend task
-		vTaskSuspend(handle);
-		puts("suspended task");
+		vTaskSuspendFromISR(handle);
 
 		// Add task to kill queue
 		struct MPU_TaskKiller_t task = {
 			.handle = handle,
+			.pc = pc,
+			.faultAddr = faultAddr,
 		};
 		signed portBASE_TYPE yield;
 		xQueueSendFromISR(xKillQueue, &task, &yield);
-		puts("added to kill queue");
 		if (yield)
 			portYIELD_WITHIN_API();
 	}
