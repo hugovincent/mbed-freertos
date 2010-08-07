@@ -1,8 +1,10 @@
 #!/usr/bin/perl
 
+chdir("apps/webserver/");
+
 open(OUTPUT, "> httpd-fsdata.c");
 
-chdir("../../example_tasks/webserver/httpd-fs");
+chdir("httpd-fs");
 
 opendir(DIR, ".");
 @files =  grep { !/^\./ && !/(CVS|~)/ } readdir(DIR);

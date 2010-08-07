@@ -51,6 +51,8 @@
 #include "httpd-cgi.h"
 #include "httpd-fs.h"
 
+#include "drivers/gpio.h"
+
 #include <stdio.h>
 #include <string.h>
 
@@ -235,13 +237,12 @@ PT_THREAD(rtos_stats(struct httpd_state *s, char *ptr))
 
 char *pcStatus[ 3 ];
 unsigned long ulString;
-extern unsigned long uxGpioGet( unsigned long uxLED );
 
 static unsigned short generate_io_state( void *arg )
 {
 	for( ulString = 0; ulString < 3; ulString++ )
 	{
-		if( uxGpioGet( ulString + 5 ) )
+		if( GPIO_PinRead(0,  ulString + 5 ) )
 		{
 			pcStatus[ ulString ] = "checked";
 		}

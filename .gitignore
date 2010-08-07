@@ -6,6 +6,6 @@
 util/arm-none-eabi-*
 .buildtmp/**
 lib/romfs_data.h
-example_tasks/webserver/http-strings.c
-example_tasks/webserver/http-strings.h
-example_tasks/webserver/httpd-fsdata.c
+apps/webserver/http-strings.c
+apps/webserver/http-strings.h
+apps/webserver/httpd-fsdata.c

@@ -49,6 +49,7 @@ extern "C" {
 #define configMAX_PRIORITIES					( ( unsigned portBASE_TYPE ) 5 )
 #define configMINIMAL_STACK_SIZE				( 120 )
 #define configUSE_TRACE_FACILITY				0
+#define configUSE_CO_ROUTINES					0
 #define configUSE_16_BIT_TICKS					0
 #define configIDLE_SHOULD_YIELD					1
 #define configUSE_MUTEXES						1
@@ -77,9 +78,28 @@ extern "C" {
 #define configGENERATE_RUN_TIME_STATS			1
 #define configUSE_MALLOC_FAILED_HOOK			1
 
-/* Co-routine definitions. */
-#define configUSE_CO_ROUTINES					0
-#define configMAX_CO_ROUTINE_PRIORITIES			2
+/* MAC address configuration. 
+ * For my mbed it is 00:02:f7:f0:33:eb. You should set this to your MAC address. */
+#define configMAC_ADDR0		0x00
+#define configMAC_ADDR1		0x02
+#define configMAC_ADDR2		0xf7
+#define configMAC_ADDR3		0xf0
+#define configMAC_ADDR4		0x33
+#define configMAC_ADDR5		0xeb
+
+/* IP address configuration. */
+#define configIP_ADDR0		192
+#define configIP_ADDR1		168
+#define configIP_ADDR2		2
+#define configIP_ADDR3		5
+
+/* Netmask configuration. */
+#define configNET_MASK0		255
+#define configNET_MASK1		255
+#define configNET_MASK2		255
+#define configNET_MASK3		0
+
+#define configEMAC_INTERRUPT_PRIORITY       5
 
 /* Set the following definitions to 1 to include the API function, or zero
 to exclude the API function. */

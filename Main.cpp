@@ -67,12 +67,12 @@ int main()
 {
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
-	vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
+	/*vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
 	vCreateBlockTimeTasks();
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
 	vStartQueuePeekTasks();
-	vStartDynamicPriorityTasks();
-	//vStartWebserverTask();
+	vStartDynamicPriorityTasks();*/
+	vStartWebserverTask();
 
 #ifdef CORE_HAS_MPU
 	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 100,
@@ -115,6 +115,7 @@ extern "C" void vApplicationTickHook()
 
 		// Has an error been found in any task?
 		int allGood = 1;
+#if 0
 		if( xAreBlockingQueuesStillRunning() != pdTRUE )
 		{
 			printf("ERROR - BLOCKQ\n");
@@ -144,6 +145,7 @@ extern "C" void vApplicationTickHook()
 			printf("ERROR - DYNAMIC\n");
 			allGood = 0;
 		}
+#endif
 		if (allGood == 1)
 		{
 			printf("All Good.\n");

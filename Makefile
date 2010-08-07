@@ -110,12 +110,16 @@ LINKER_FLAGS= \
 		-Wl,-Map=$(BINNAME).map \
 		-mabi=aapcs -static -nodefaultlibs
 
+EXTRA_CLEAN=$(BINNAME).map $(BINNAME)-disassembled.s
+
 LIBS = \
 		-Wl,--start-group -lgcc -lc -lm -lsupc++ -Wl,--end-group
 
 ASM_FLAGS= \
 		$(CPUFLAGS) \
 		-x assembler-with-cpp
+
+all: $(BINNAME).bin
 
 #------------------------------------------------------------------------------
 # Source Code:
@@ -142,14 +146,17 @@ CXX_SOURCE+= \
 
 # C/C++ library and operating system calls
 include lib/clibrary.mk
-#include lib/uip/uip.mk
 #include lib/ustl/ustl.mk
+include lib/uip/uip.mk
 
 # Peripheral device drivers
 include drivers/drivers.mk
 
 # Example Tasks
 include example_tasks/example_tasks.mk
+
+# Applicatinos
+include apps/apps.mk
 
 # Tests
 CXX_SOURCE+= \
@@ -166,8 +173,6 @@ CXX_OBJS   = $(patsubst %.cpp,$(ODIR)/%.o, $(CXX_SOURCE))
 ASM_OBJS   = $(patsubst %.s,$(ODIR)/%.o, $(ASM_SOURCE))
 
 OBJS       = $(C_OBJS) $(CXX_OBJS) $(ASM_OBJS)
-
-all: $(BINNAME).bin
 
 # Binary suitable for installation on mbed
 $(BINNAME).bin : $(BINNAME).elf
@@ -206,21 +211,9 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/drivers/emac $(ODIR)/drivers/wdt
 	@mkdir -p $(ODIR)/mach/board-mbed $(ODIR)/mach/cpu-$(TARGET)
 	@mkdir -p $(ODIR)/kernel $(ODIR)/mach/cpu-common $(ODIR)/kernel/port/$(PORT_DIR)
-	@mkdir -p $(ODIR)/example_tasks $(ODIR)/example_tasks/webserver $(ODIR)/lib/uip
+	@mkdir -p $(ODIR)/example_tasks $(ODIR)/apps/webserver $(ODIR)/lib/uip
 	@mkdir -p $(ODIR)/lib/ustl $(ODIR)/tests $(ODIR)/lib/syscalls
 	@touch $(ODIR)/exists
-
-# UIP script build rules
-example_tasks/webserver/http-strings.c: util/uip_makestrings
-	@echo "  [Making uIP http-strings ]"
-	@pushd example_tasks/webserver > /dev/null && ../../util/uip_makestrings && popd > /dev/null
-
-example_tasks/webserver/httpd-fsdata.c: util/uip_makefsdata example_tasks/webserver/httpd-fs/*.html
-	@echo "  [Making uIP httpd-fs     ]"
-	@pushd example_tasks/webserver > /dev/null && ../../util/uip_makefsdata && popd > /dev/null
-
-example_tasks/webserver/httpd-fs.c: example_tasks/webserver/httpd-fsdata.c
-example_tasks/webserver/httpd.c: example_tasks/webserver/http-strings.c
 
 # RomFS script build rules
 lib/romfs_data.h: util/build_romfs.py romfs/*
@@ -239,7 +232,8 @@ disasm :
 
 clean:
 	@echo "  [Cleaning...             ]"
-	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin $(BINNAME)-disassembled.s $(BINNAME).map example_tasks/webserver/http-strings.* example_tasks/webserver/httpd-fsdata.c
+	@rm -rf $(ODIR) $(BINNAME).elf $(BINNAME).bin
+	@rm -rf $(EXTRA_CLEAN)
 
 install: $(BINNAME).bin
 ifeq ($(PROG_TYPE), mbed)

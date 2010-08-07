@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 
+chdir("apps/webserver/");
+
 sub stringify {
 	my $name = shift(@_);
 	open(OUTPUTC, "> $name.c");

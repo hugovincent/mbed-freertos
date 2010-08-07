@@ -23,17 +23,14 @@ static inline LPC_GPIO_TypeDef *block(int which)
 
 void GPIO_Init()
 {
-	// Enable GPIO peripheral power
+	// Enable GPIO peripheral power for GPIO0 and GPIO1
 	LPC_SC->PCONP |= 0x00008000;
 
 	// We have four LEDs on P1.18, P1.20, P1,21, and P1,23.
 	LPC_GPIO1->FIODIR |= (0x1 << 18) | (0x1 << 20) | (0x1 << 21) | (0x1 << 23);
 
-	// For now, disable ethernet (cut power to oscillator, hold in reset)
-	// FIXME
-	LPC_GPIO1->FIODIR |= (0x1 << 27) | (0x1 << 28);
-	LPC_GPIO1->FIOCLR |= (0x1 << 27);
-	LPC_GPIO1->FIOSET |= (0x1 << 28);
+	// And two ethernet LEDs on P0.4 and P0.5
+	LPC_GPIO0->FIODIR |= (0x1 << 4) | (0x1 << 5);
 }
 
 void GPIO_Write(int which, unsigned int set_bitmap, unsigned int clear_bitmap)

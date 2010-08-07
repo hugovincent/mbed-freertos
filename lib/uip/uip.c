@@ -1,4 +1,4 @@
-#define DEBUG_PRINTF(...) /*printf(__VA_ARGS__)*/
+#define DEBUG_PRINTF(...) printf(__VA_ARGS__)
 
 /**
  * \defgroup uip The uIP TCP/IP stack
@@ -239,8 +239,7 @@ struct uip_stats uip_stat;
 
 #if UIP_LOGGING == 1
 #include <stdio.h>
-void uip_log(char *msg);
-#define UIP_LOG(m) uip_log(m)
+#define UIP_LOG(m) puts(m)
 #else
 #define UIP_LOG(m)
 #endif /* UIP_LOGGING == 1 */
