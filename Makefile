@@ -141,71 +141,15 @@ CXX_SOURCE+= \
 		Main.cpp \
 
 # C/C++ library and operating system calls
-C_SOURCE+= \
-		lib/syscalls/chmod.c \
-		lib/syscalls/close.c \
-		lib/syscalls/environ.c \
-		lib/syscalls/execve.c \
-		lib/syscalls/exit.c \
-		lib/syscalls/fstat.c \
-		lib/syscalls/fsync.c \
-		lib/syscalls/getpid.c \
-		lib/syscalls/gettimeofday.c \
-		lib/syscalls/isatty.c \
-		lib/syscalls/ioctl.c \
-		lib/syscalls/kill.c \
-		lib/syscalls/link.c \
-		lib/syscalls/lseek.c \
-		lib/syscalls/mkdir.c \
-		lib/syscalls/mkfifo.c \
-		lib/syscalls/open.c \
-		lib/syscalls/read.c \
-		lib/syscalls/reent.c \
-		lib/syscalls/rename.c \
-		lib/syscalls/sbrk.c \
-		lib/syscalls/stat.c \
-		lib/syscalls/syscalls_util.c \
-		lib/syscalls/system.c \
-		lib/syscalls/times.c \
-		lib/syscalls/unlink.c \
-		lib/syscalls/wait.c \
-		lib/syscalls/write.c
-CXX_SOURCE+= \
-		lib/min_c++.cpp
+include lib/clibrary.mk
 #include lib/ustl/ustl.mk
+#include lib/uip/uip.mk
 
 # Peripheral device drivers
-C_SOURCE+= \
-		drivers/uart/uart.c \
-		drivers/uart/uart_fractional_baud.c \
-		drivers/gpio/gpio.c \
-		drivers/emac/emac.c \
-		drivers/wdt/wdt.c
+include drivers/drivers.mk
 
 # Example Tasks
-C_SOURCE+= \
-		example_tasks/BlockQ.c \
-		example_tasks/blocktim.c \
-		example_tasks/flash.c \
-		example_tasks/integer.c \
-		example_tasks/GenQTest.c \
-		example_tasks/QPeek.c \
-		example_tasks/dynamic.c
-
-## Webserver Task
-#C_SOURCE+= \
-#		example_tasks/webserver/uIP_Task.c \
-#		example_tasks/webserver/httpd.c \
-#		example_tasks/webserver/httpd-cgi.c \
-#		example_tasks/webserver/httpd-fs.c \
-#		example_tasks/webserver/http-strings.c
-
-## uIP Networking Library
-#C_SOURCE+= \
-#		lib/uip/uip_arp.c \
-#		lib/uip/psock.c \
-#		lib/uip/timer.c \
-#		lib/uip/uip.c
+include example_tasks/example_tasks.mk
 
 # Tests
 CXX_SOURCE+= \
