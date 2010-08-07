@@ -6,7 +6,7 @@
 #ifndef UCTRALGO_H_0D1AEDFA74B09791489FE25B1EC644B0
 #define UCTRALGO_H_0D1AEDFA74B09791489FE25B1EC644B0
 
-namespace ustl {
+namespace std {
 
 /// Copy copies elements from the range [first, last) to the range
 /// [result, result + (last - first)). That is, it performs the assignments
@@ -465,6 +465,6 @@ inline void stable_sort (Container& ctr, Compare comp)
     stable_sort (ctr.begin(), ctr.end(), comp);
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

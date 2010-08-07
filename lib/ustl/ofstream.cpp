@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 
@@ -166,4 +166,4 @@ ifstream& ifstream::seekg (off_t p, seekdir d)
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std

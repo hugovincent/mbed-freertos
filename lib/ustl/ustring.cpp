@@ -9,7 +9,7 @@
 #include "ualgo.h"
 #include <stdio.h>	// for vsnprintf (in string::format)
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 
@@ -234,7 +234,7 @@ void string::replace (iterator first, iterator last, const_pointer i1, const_poi
 /// Returns the offset of the first occurence of \p c after \p pos.
 uoff_t string::find (const_reference c, uoff_t pos) const
 {
-    const_iterator found = ::ustl::find (iat(pos), end(), c);
+    const_iterator found = ::std::find (iat(pos), end(), c);
     return (found < end() ? distance(begin(),found) : npos);
 }
 
@@ -249,7 +249,7 @@ uoff_t string::find (const string& s, uoff_t pos) const
     while (lastPos-- && s[lastPos] != endchar) ;
     const size_type skip = endi - lastPos;
     const_iterator i = iat(pos) + endi;
-    for (; i < end() && (i = ::ustl::find (i, end(), endchar)) < end(); i += skip)
+    for (; i < end() && (i = ::std::find (i, end(), endchar)) < end(); i += skip)
 	if (memcmp (i - endi, s.c_str(), s.size()) == 0)
 	    return (distance (begin(), i) - endi);
     return (npos);
@@ -356,10 +356,10 @@ void string::read (istream& is)
     char szbuf [8];
     is >> szbuf[0];
     size_t szsz (Utf8SequenceBytes (szbuf[0]) - 1), n = 0;
-    if (!is.verify_remaining ("read", "ustl::string", szsz)) return;
+    if (!is.verify_remaining ("read", "std::string", szsz)) return;
     is.read (szbuf + 1, szsz);
     n = *utf8in(szbuf);
-    if (!is.verify_remaining ("read", "ustl::string", n)) return;
+    if (!is.verify_remaining ("read", "std::string", n)) return;
     resize (n);
     is.read (data(), size());
 }
@@ -375,7 +375,7 @@ void string::write (ostream& os) const
     *szout = sz;
     size_t szsz = distance (szbuf, szout.base());
 
-    if (!os.verify_remaining ("write", "ustl::string", szsz + sz)) return;
+    if (!os.verify_remaining ("write", "std::string", szsz + sz)) return;
     os.write (szbuf, szsz);
     os.write (cdata(), sz);
 }
@@ -392,4 +392,4 @@ void string::write (ostream& os) const
 
 string::size_type string::minimumFreeCapacity (void) const throw() { return (1); }
 
-} // namespace ustl
+} // namespace std

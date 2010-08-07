@@ -16,7 +16,7 @@
 #include "uiterator.h"
 #include "ulimits.h"
 
-namespace ustl {
+namespace std {
 
 /// \class auto_ptr umemory.h ustl.h
 /// \ingroup MemoryManagement
@@ -190,6 +190,6 @@ ForwardIterator uninitialized_fill_n (ForwardIterator first, size_t n, const T& 
     return (first);
 }
     
-} // namespace ustl
+} // namespace std
 
 #endif

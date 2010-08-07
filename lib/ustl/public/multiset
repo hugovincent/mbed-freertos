@@ -9,7 +9,7 @@
 #include "uvector.h"
 #include "ualgo.h"
 
-namespace ustl {
+namespace std {
 
 /// \class multiset umultiset.h ustl.h
 /// \ingroup AssociativeContainers
@@ -96,6 +96,6 @@ void multiset<T>::erase (const_reference v)
     erase (epr.first, epr.second);
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

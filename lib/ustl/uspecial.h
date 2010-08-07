@@ -18,7 +18,7 @@
 #include "sistream.h"
 #include <ctype.h>
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 // Alogrithm specializations not in use by the library code.
@@ -245,7 +245,7 @@ template <typename T> inline const T* const& ptr4grain (const T* const& p) { ret
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 // This is here because there really is no other place to put it.
 #if SIZE_OF_BOOL != SIZE_OF_CHAR

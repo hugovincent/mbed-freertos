@@ -6,7 +6,7 @@
 #ifndef UFUNCTION_H_221ABA8551801799263C927234C085F3
 #define UFUNCTION_H_221ABA8551801799263C927234C085F3
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 // Standard functors
@@ -460,6 +460,6 @@ DEREFERENCER_T(const_deref2_t,	const T, 	FUNCTOR_BINARY_BASE(const T*),	DEREF_BI
 
 #endif
 
-} // namespace ustl
+} // namespace std
 
 #endif

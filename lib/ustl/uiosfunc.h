@@ -8,7 +8,7 @@
 
 #include "sostream.h"
 
-namespace ustl {
+namespace std {
 
 class ios : public ios_base {
 public:
@@ -88,9 +88,9 @@ public:
     };
 };
 
-} // namespace ustl
+} // namespace std
 
-CAST_STREAMABLE(ustl::ios::fmtflags, uint32_t)
-NUMERIC_LIMITS(ustl::ios::fmtflags, ustl::ios::boolalpha, ustl::ios::floatfield, false, true, true)
+CAST_STREAMABLE(std::ios::fmtflags, uint32_t)
+NUMERIC_LIMITS(std::ios::fmtflags, std::ios::boolalpha, std::ios::floatfield, false, true, true)
 
 #endif

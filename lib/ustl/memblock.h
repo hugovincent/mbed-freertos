@@ -8,7 +8,7 @@
 
 #include "memlink.h"
 
-namespace ustl {
+namespace std {
 
 /// \class memblock memblock.h ustl.h
 /// \ingroup MemoryManagement
@@ -34,7 +34,7 @@ public:
     inline const memblock&	operator= (const cmemlink& l)	{ assign (l); return (*this); }
     inline const memblock&	operator= (const memlink& l)	{ assign (l); return (*this); }
     inline const memblock&	operator= (const memblock& l)	{ assign (l); return (*this); }
-    inline void			swap (memblock& l)		{ memlink::swap (l); ::ustl::swap (m_Capacity, l.m_Capacity); }
+    inline void			swap (memblock& l)		{ memlink::swap (l); ::std::swap (m_Capacity, l.m_Capacity); }
     void			assign (const void* p, size_type n);
     void			reserve (size_type newSize, bool bExact = true);
     void			resize (size_type newSize, bool bExact = true);
@@ -56,6 +56,6 @@ private:
     size_type			m_Capacity;	///< Number of bytes allocated by Resize.
 };
 
-} // namespace ustl
+} // namespace std
 
 #endif

@@ -142,8 +142,8 @@ CXX_SOURCE+= \
 
 # C/C++ library and operating system calls
 include lib/clibrary.mk
-#include lib/ustl/ustl.mk
 #include lib/uip/uip.mk
+#include lib/ustl/ustl.mk
 
 # Peripheral device drivers
 include drivers/drivers.mk

@@ -9,7 +9,7 @@
 
 #include "ualgo.h"
 
-namespace ustl {
+namespace std {
 
 // Generic version for implementing fill_nX_fast on non-i386 architectures.
 template <typename T> static inline void stosv (T*& p, size_t n, T v)
@@ -292,4 +292,4 @@ size_t popcount (uint64_t v)
 // Used in uspecial to print printable characters
 const char _FmtPrtChr[2][8]={"'%c'","%d"};
 
-} // namespace ustl
+} // namespace std

@@ -8,7 +8,7 @@
 
 #include "ualgobase.h"
 
-namespace ustl {
+namespace std {
 
 /// \brief Returns true if the given range is a heap under \p comp.
 /// A heap is a sequentially encoded binary tree where for every node
@@ -137,6 +137,6 @@ private:
     Comp		m_c;	///< Comparison functor by value.
 };
 
-} // namespace ustl
+} // namespace std
 
 #endif

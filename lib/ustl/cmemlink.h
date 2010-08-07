@@ -6,10 +6,10 @@
 #ifndef CMEMLINK_H_7CFAB32C5C6732ED29B34EF00EA40A12
 #define CMEMLINK_H_7CFAB32C5C6732ED29B34EF00EA40A12
 
-#include "ualgobase.h"
+#include <algobase>
 
 /// The ustl namespace contains all ustl classes and algorithms.
-namespace ustl {
+namespace std {
 
 class istream;
 class ostream;
@@ -61,7 +61,7 @@ public:
     virtual void	unlink (void) throw();
     inline rcself_t	operator= (const cmemlink& l)	{ link (l); return (*this); }
     bool		operator== (const cmemlink& l) const;
-    inline void		swap (cmemlink& l)		{ ::ustl::swap (m_Data, l.m_Data); ::ustl::swap (m_Size, l.m_Size); }
+    inline void		swap (cmemlink& l)		{ ::std::swap (m_Data, l.m_Data); ::std::swap (m_Size, l.m_Size); }
     inline size_type	size (void) const		{ return (m_Size); }
     inline size_type	max_size (void) const		{ return (size()); }
     inline size_type	readable_size (void) const	{ return (size()); }
@@ -95,6 +95,6 @@ inline void cmemlink::relink (const void* p, size_type n)
 /// Use with cmemlink-derived classes to link to a static array
 #define static_link(v)	link (VectorBlock(v))
 
-} // namespace ustl
+} // namespace std
 
 #endif

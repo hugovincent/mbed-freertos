@@ -10,7 +10,7 @@
 #include "sostream.h"
 #include "fstream.h"
 
-namespace ustl {
+namespace std {
 
 /// \class ofstream fdostream.h ustl.h
 /// \ingroup DeviceStreams
@@ -73,6 +73,6 @@ private:
 extern ofstream cout, cerr;
 extern ifstream cin;
 
-} // namespace ustl
+} // namespace std
 
 #endif

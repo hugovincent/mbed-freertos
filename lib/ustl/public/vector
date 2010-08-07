@@ -9,7 +9,7 @@
 #include "memblock.h"
 #include "umemory.h"
 
-namespace ustl {
+namespace std {
 
 /// \class vector uvector.h ustl.h
 /// \ingroup Sequences
@@ -34,8 +34,8 @@ public:
     typedef memblock::size_type		size_type;
     typedef memblock::written_size_type	written_size_type;
     typedef memblock::difference_type	difference_type;
-    typedef ::ustl::reverse_iterator<iterator>	reverse_iterator;
-    typedef ::ustl::reverse_iterator<const_iterator>	const_reverse_iterator;
+    typedef ::std::reverse_iterator<iterator>	reverse_iterator;
+    typedef ::std::reverse_iterator<const_iterator>	const_reverse_iterator;
 public:
     inline			vector (void);
     inline explicit		vector (size_type n);
@@ -152,7 +152,7 @@ vector<T>::vector (size_type n, const T& v)
 : m_Data ()
 {
     resize (n);
-    ::ustl::fill (begin(), end(), v);
+    ::std::fill (begin(), end(), v);
 }
 
 /// Copies \p v.
@@ -161,7 +161,7 @@ vector<T>::vector (const vector<T>& v)
 : m_Data ()
 {
     resize (v.size());
-    ::ustl::copy (v.begin(), v.end(), begin());
+    ::std::copy (v.begin(), v.end(), begin());
 }
 
 /// Copies range [\p i1, \p i2]
@@ -170,7 +170,7 @@ vector<T>::vector (const_iterator i1, const_iterator i2)
 : m_Data ()
 {
     resize (distance (i1, i2));
-    ::ustl::copy (i1, i2, begin());
+    ::std::copy (i1, i2, begin());
 }
 
 /// Destructor
@@ -186,7 +186,7 @@ inline void vector<T>::assign (const_iterator i1, const_iterator i2)
 {
     assert (i1 <= i2);
     resize (distance (i1, i2));
-    ::ustl::copy (i1, i2, begin());
+    ::std::copy (i1, i2, begin());
 }
 
 /// Copies \p n elements with value \p v.
@@ -194,7 +194,7 @@ template <typename T>
 inline void vector<T>::assign (size_type n, const T& v)
 {
     resize (n);
-    ::ustl::fill (begin(), end(), v);
+    ::std::fill (begin(), end(), v);
 }
 
 /// Copies contents of \p v.
@@ -219,7 +219,7 @@ template <typename T>
 inline typename vector<T>::iterator vector<T>::insert (iterator ip, size_type n, const T& v)
 {
     ip = insert_space (ip, n);
-    ::ustl::fill (ip, ip + n, v);
+    ::std::fill (ip, ip + n, v);
     return (ip);
 }
 
@@ -237,7 +237,7 @@ inline typename vector<T>::iterator vector<T>::insert (iterator ip, const_iterat
 {
     assert (i1 <= i2);
     ip = insert_space (ip, distance (i1, i2));
-    ::ustl::copy (i1, i2, ip);
+    ::std::copy (i1, i2, ip);
     return (ip);
 }
 
@@ -267,6 +267,6 @@ inline void vector<T>::push_back (const T& v)
 /// Use with vector classes to allocate and link to stack space. \p n is in elements.
 #define typed_alloca_link(m,T,n)	(m).link ((T*) alloca ((n) * sizeof(T)), (n))
 
-} // namespace ustl
+} // namespace std
 
 #endif

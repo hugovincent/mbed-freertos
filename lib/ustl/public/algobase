@@ -6,10 +6,10 @@
 #ifndef UALGOBASE_H_683A0BE77546133C4CE0E3622CFAA2EB
 #define UALGOBASE_H_683A0BE77546133C4CE0E3622CFAA2EB
 
-#include "uutility.h"
+#include <utility>
 #include <string.h>
 
-namespace ustl {
+namespace std {
 
 /// Assigns the contents of a to b and the contents of b to a.
 /// This is used as a primitive operation by many other algorithms. 
@@ -316,6 +316,6 @@ FILL_N_ALIAS_FUNC(int32_t, uint32_t, int32_t)
 
 extern const char _FmtPrtChr[2][8];
 
-} // namespace ustl
+} // namespace std
 
 #endif

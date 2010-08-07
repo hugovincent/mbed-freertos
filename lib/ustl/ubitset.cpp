@@ -5,7 +5,7 @@
 
 #include "ubitset.h"
 
-namespace ustl {
+namespace std {
 
 /// Copies bits from \p v of size \p n into \p buf as MSB "1011001..." LSB
 /// If \p buf is too small, MSB bits will be truncated.
@@ -31,4 +31,4 @@ void convert_from_bitstring (const string& buf, bitset_value_type* v, size_t n)
     }
 }
 
-} // namespace ustl
+} // namespace std

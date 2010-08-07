@@ -3,7 +3,7 @@
 // Copyright (c) 2005-2009 by Mike Sharov <msharov@users.sourceforge.net>
 // This file is free software, distributed under the MIT License.
 
-#include "fstream.h"
+#include "fstream"
 #include "uexception.h"
 #include "uutility.h"
 #include <fcntl.h>
@@ -11,7 +11,7 @@
 #include <errno.h>
 #include <sys/stat.h>
 
-namespace ustl {
+namespace std {
 
 /// Default constructor.
 fstream::fstream (void)
@@ -258,4 +258,4 @@ void fstream::set_nonblock (bool v)
     fcntl (FCNTLID (F_SETFL), curf);
 }
 
-} // namespace ustl
+} // namespace std

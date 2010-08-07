@@ -9,7 +9,7 @@
 #include "ulimits.h"
 #include <stdlib.h>
 
-namespace ustl {
+namespace std {
 
 class ostringstream;
 class istream;
@@ -45,8 +45,8 @@ private:
     uint32_t		m_SymbolsSize;		///< Size of m_Symbols.
 };
 
-} // namespace ustl
+} // namespace std
 
-ALIGNOF(ustl::CBacktrace, sizeof(void*))
+ALIGNOF(std::CBacktrace, sizeof(void*))
 
 #endif

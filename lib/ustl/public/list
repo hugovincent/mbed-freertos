@@ -9,7 +9,7 @@
 #include "uvector.h"
 #include "uctralgo.h"
 
-namespace ustl {
+namespace std {
 
 /// \class list ulist.h ustl.h
 /// \ingroup Sequences
@@ -39,9 +39,9 @@ public:
     inline void			pop_front (void)		{ erase (begin()); }
     inline const_reference	front (void) const		{ return (*begin()); }
     inline reference		front (void)			{ return (*begin()); }
-    inline void			remove (const T& v)		{ ::ustl::remove (*this, v); }
-    inline void			unique (void)			{ ::ustl::unique (*this); }
-    inline void			sort (void)			{ ::ustl::sort (*this); }
+    inline void			remove (const T& v)		{ ::std::remove (*this, v); }
+    inline void			unique (void)			{ ::std::unique (*this); }
+    inline void			sort (void)			{ ::std::sort (*this); }
     void			merge (list<T>& l);
     void			splice (iterator ip, list<T>& l, iterator first = NULL, iterator last = NULL);
 };
@@ -51,7 +51,7 @@ template <typename T>
 void list<T>::merge (list& l)
 {
     insert_space (begin(), l.size());
-    ::ustl::merge (iat(l.size()), end(), l.begin(), l.end(), begin());
+    ::std::merge (iat(l.size()), end(), l.begin(), l.end(), begin());
 }
 
 /// Moves the range [first, last) from \p l to this list at \p ip.
@@ -68,6 +68,6 @@ void list<T>::splice (iterator ip, list<T>& l, iterator first, iterator last)
 
 #define deque list ///< list has all the functionality provided by deque
 
-} // namespace ustl
+} // namespace std
 
 #endif

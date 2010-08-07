@@ -6,14 +6,14 @@
 #ifndef UALGO_H_711AB4214D417A51166694D47A662D6E
 #define UALGO_H_711AB4214D417A51166694D47A662D6E
 
-#include "upair.h"
-#include "ualgobase.h"
-#include "ufunction.h"
-#include "upredalgo.h"
-#include "umemory.h"
+#include <pair>
+#include <algobase>
+#include <function>
+#include "../inc/upredalgo.h"
+#include <memory>
 #include <stdlib.h>	// for rand()
 
-namespace ustl {
+namespace std {
 
 /// Swaps corresponding elements of [first, last) and [result,)
 /// \ingroup SwapAlgorithms
@@ -662,6 +662,6 @@ inline RandomAccessIterator partial_sort_copy (InputIterator first, InputIterato
     return (partial_sort_copy (first, last, result_first, result_last, less<value_type>()));
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

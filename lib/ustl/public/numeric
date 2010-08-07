@@ -6,7 +6,7 @@
 #ifndef UNUMERIC_H_6C99D6F6363832C644A6FFF336E84E18
 #define UNUMERIC_H_6C99D6F6363832C644A6FFF336E84E18
 
-namespace ustl {
+namespace std {
 
 /// Returns the sum of all elements in [first, last) added to \p init.
 /// \ingroup NumericAlgorithms
@@ -149,6 +149,6 @@ inline T power (T x, unsigned n, BinaryOperation op)
     return (result);
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

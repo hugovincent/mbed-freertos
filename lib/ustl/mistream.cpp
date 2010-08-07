@@ -8,7 +8,7 @@
 #include "ustring.h"
 #include "ualgo.h"
 
-namespace ustl {
+namespace std {
 
 //--------------------------------------------------------------------
 
@@ -118,4 +118,4 @@ void ostream::erase (iterator start, size_type s)
 
 //--------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std

@@ -6,7 +6,7 @@
 #ifndef UQUEUE_H_27F01FDB0D59B75277E0E5C41ABC6B5B
 #define UQUEUE_H_27F01FDB0D59B75277E0E5C41ABC6B5B
 
-namespace ustl {
+namespace std {
 
 /// \class queue uqueue.h ustl.h
 /// \ingroup Sequences
@@ -64,6 +64,6 @@ inline void queue<T>::pop (void)
 	m_Storage.resize (m_Front = 0);
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

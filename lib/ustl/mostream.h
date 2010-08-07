@@ -14,7 +14,7 @@
     #include "typeinfo.h"
 #endif
 
-namespace ustl {
+namespace std {
 
 class istream;
 class string;
@@ -267,7 +267,7 @@ inline void ostream::iwrite (const T& v)
 inline void ostream::swap (ostream& os)
 {
     memlink::swap (os);
-    ::ustl::swap (m_Pos, os.m_Pos);
+    ::std::swap (m_Pos, os.m_Pos);
 }
 
 //----------------------------------------------------------------------
@@ -288,6 +288,6 @@ inline ostream& operator<< (ostream& os, const T& v) {
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 #endif

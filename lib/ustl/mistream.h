@@ -15,7 +15,7 @@
     #include "typeinfo.h"
 #endif
 
-namespace ustl {
+namespace std {
 
 class ostream;
 class memlink;
@@ -271,7 +271,7 @@ inline void istream::iread (T& v)
 inline void istream::swap (istream& is)
 {
     cmemlink::swap (is);
-    ::ustl::swap (m_Pos, is.m_Pos);
+    ::std::swap (m_Pos, is.m_Pos);
 }
 
 /// Reads \p n bytes into \p buffer.
@@ -319,6 +319,6 @@ inline utf8istream_iterator utf8in (istream& is)
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 #endif

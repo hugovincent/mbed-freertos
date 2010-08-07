@@ -8,7 +8,7 @@
 #ifndef TYPET_H_70B4C9693A05E0B405B225F356DE5450
 #define TYPET_H_70B4C9693A05E0B405B225F356DE5450
 
-namespace ustl {
+namespace std {
 /// Template metaprogramming tools
 namespace tm {
 
@@ -63,8 +63,8 @@ struct Conversion<void, void> { enum { exists = true, exists2Way = true, sameTyp
 /// SuperSubclass<T,U>::value is true when U is derived from T, or when U is T
 template <typename T, typename U>
 struct SuperSubclass {
-    enum { value = (::ustl::tm::Conversion<const volatile U*, const volatile T*>::exists &&
-		    !::ustl::tm::Conversion<const volatile T*, const volatile void*>::sameType) };
+    enum { value = (::std::tm::Conversion<const volatile U*, const volatile T*>::exists &&
+		    !::std::tm::Conversion<const volatile T*, const volatile void*>::sameType) };
     enum { dontUseWithIncompleteTypes = sizeof(T)==sizeof(U) };	// Dummy enum to make sure that both classes are fully defined.
 };
 template <>
@@ -84,15 +84,15 @@ struct SuperSubclass<T, void> {
 template <typename T, typename U>
 struct SuperSubclassStrict {
     enum { value = SuperSubclass<T,U>::value &&
-		    !::ustl::tm::Conversion<const volatile T*, const volatile U*>::sameType };
+		    !::std::tm::Conversion<const volatile T*, const volatile U*>::sameType };
 };
 
 // static assert support
 template <bool> struct CompileTimeError;
 template <> struct CompileTimeError<true> {};
-#define static_assert(cond,msg)	{ ::ustl::tm::CompileTimeError<!!(cond)> ERROR_##msg; (void) ERROR_##msg; }
+#define static_assert(cond,msg)	{ ::std::tm::CompileTimeError<!!(cond)> ERROR_##msg; (void) ERROR_##msg; }
 
 } // namespace tm
-} // namespace ustl
+} // namespace std
 
 #endif

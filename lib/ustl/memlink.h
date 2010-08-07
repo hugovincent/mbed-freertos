@@ -7,9 +7,9 @@
 #define MEMLINK_H_798D25827C8E322D2D7E734B169FF5FC
 
 #include "cmemlink.h"
-#include "ualgo.h"
+#include <algo>
 
-namespace ustl {
+namespace std {
 
 /// \class memlink memlink.h ustl.h
 /// \ingroup MemoryManagement
@@ -97,6 +97,6 @@ inline void memlink::erase (iterator start, size_type n)
 /// Use with memlink-derived classes to allocate and link to stack space.
 #define alloca_link(m,n)	(m).link (alloca (n), (n))
 
-} // namespace ustl
+} // namespace std
 
 #endif

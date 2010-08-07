@@ -10,7 +10,7 @@
 
 #include "typelist.h"
 
-namespace ustl {
+namespace std {
 namespace tm {
 namespace {
 
@@ -246,6 +246,6 @@ public:
 };
 
 } // namespace tm
-} // namespace ustl
+} // namespace std
 
 #endif

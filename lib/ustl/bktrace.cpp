@@ -13,7 +13,7 @@
     static inline char** backtrace_symbols (void* const*, int)	{ return (NULL); }
 #endif
 
-namespace ustl {
+namespace std {
 
 /// Default constructor. The backtrace is obtained here.
 CBacktrace::CBacktrace (void) throw()
@@ -138,4 +138,4 @@ size_t CBacktrace::stream_size (void) const
 		   m_SymbolsSize));
 }
 
-} // namespace ustl
+} // namespace std

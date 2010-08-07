@@ -11,7 +11,7 @@
 #ifndef STRMSIZE_H_052FF16B2D8A608761BF10333D065073
 #define STRMSIZE_H_052FF16B2D8A608761BF10333D065073
 
-namespace ustl {
+namespace std {
 
 /// For partial specialization of stream_size_of for objects
 template <typename T> struct object_stream_size {
@@ -28,7 +28,7 @@ inline streamsize stream_size_of (const T& v) {
     return (stream_sizer_t()(v));
 }
 
-} // namespace ustl
+} // namespace std
 
 //
 // Extra overloads in this macro are needed because it is the one used for
@@ -41,7 +41,7 @@ inline streamsize stream_size_of (const T& v) {
 //
 /// Declares that T is to be written as is into binary streams.
 #define INTEGRAL_STREAMABLE(T)	\
-    namespace ustl {		\
+    namespace std {		\
 	inline istream& operator>> (istream& is, T& v)		{ is.iread(v);  return (is); }	\
 	inline ostream& operator<< (ostream& os, const T& v)	{ os.iwrite(v); return (os); }	\
 	inline ostream& operator<< (ostream& os, T& v)		{ os.iwrite(v); return (os); }	\
@@ -56,7 +56,7 @@ inline streamsize stream_size_of (const T& v) {
 
 /// Declares that T is to be cast into TSUB for streaming.
 #define CAST_STREAMABLE(T,TSUB)	\
-    namespace ustl {		\
+    namespace std {		\
 	inline istream& operator>> (istream& is, T& v)		{ TSUB sv; is >> sv; v = (T)(sv); return (is); }	\
 	inline ostream& operator<< (ostream& os, const T& v)	{ os << TSUB(v); return (os); }				\
 	template <> inline streamsize stream_size_of (const T& v)	{ return (stream_size_of (TSUB(v))); }			\
@@ -71,7 +71,7 @@ inline streamsize stream_size_of (const T& v) {
 
 /// Specifies that \p T is printed by using it as an index into \p Names string array.
 #define LOOKUP_TEXT_STREAMABLE(T,Names,nNames)	\
-    namespace ustl {		\
+    namespace std {		\
 	inline ostringstream& operator<< (ostringstream& os, const T& v)	\
 	{				\
 	    os << Names[min(uoff_t(v),uoff_t(nNames-1))];	\

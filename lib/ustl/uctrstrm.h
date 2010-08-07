@@ -18,7 +18,7 @@
 #include "uiosfunc.h"
 #include "typeinfo.h"
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 // Macros for easily declaring a container streamable.
@@ -176,6 +176,6 @@ ostringstream& container_text_write (ostringstream& os, const Container& v)
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 #endif

@@ -19,7 +19,7 @@
 
 #include "uiterator.h"
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 
@@ -210,6 +210,6 @@ inline utf8in_iterator<Iterator> utf8in (Iterator i)
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 #endif

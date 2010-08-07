@@ -10,9 +10,9 @@
 #include "utf8.h"
 #include <stdarg.h>	// for va_list, va_start, and va_end (in string::format)
 
-namespace ustl {
+namespace std {
 
-/// \class string ustring.h ustl.h
+/// \class string string ustl.h
 /// \ingroup Sequences
 ///
 /// \brief STL basic_string&lt;char&gt; equivalent.
@@ -52,8 +52,8 @@ public:
     typedef const_pointer	const_iterator;
     typedef value_type&		reference;
     typedef value_type		const_reference;
-    typedef ::ustl::reverse_iterator<iterator>		reverse_iterator;
-    typedef ::ustl::reverse_iterator<const_iterator>	const_reverse_iterator;
+    typedef ::std::reverse_iterator<iterator>		reverse_iterator;
+    typedef ::std::reverse_iterator<const_iterator>	const_reverse_iterator;
     typedef utf8in_iterator<const_iterator>		utf8_iterator;
     static const uoff_t npos = static_cast<uoff_t>(-1);	///< Value that means the end of string.
 public:
@@ -260,9 +260,9 @@ inline hashvalue_t hash_value (const char* v)
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 // Specialization for stream alignment
-ALIGNOF (ustl::string, alignof (string::value_type()))
+ALIGNOF (std::string, alignof (string::value_type()))
 
 #endif

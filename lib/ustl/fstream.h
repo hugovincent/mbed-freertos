@@ -6,12 +6,12 @@
 #ifndef FSTREAM_H_056E10F70EAD416443E3B36A2D6B5FA3
 #define FSTREAM_H_056E10F70EAD416443E3B36A2D6B5FA3
 
-#include "uios.h"
-#include "ustring.h"
+#include "ios"
+#include "string"
 
 struct stat;
 
-namespace ustl {
+namespace std {
 
 /// \class fstream fstream.h ustl.h
 /// \ingroup DeviceStreams
@@ -70,6 +70,6 @@ private:
 #define IOCTLID(r)	"ioctl("#r")", r
 #define FCNTLID(r)	"fcntl("#r")", r
 
-} // namespace ustl
+} // namespace std
 
 #endif

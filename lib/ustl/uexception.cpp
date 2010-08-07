@@ -14,7 +14,7 @@
     #include <cxxabi.h>
 #endif
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ void exception::text_write (ostringstream& os) const
 
 /// Initializes the empty object. \p nBytes is the size of the attempted allocation.
 bad_alloc::bad_alloc (size_t nBytes) throw()
-: ustl::exception(),
+: std::exception(),
   m_nBytesRequested (nBytes)
 {
     set_format (xfmt_BadAlloc);
@@ -79,21 +79,21 @@ void bad_alloc::info (string& msgbuf, const char* fmt) const throw()
 /// Reads the exception from stream \p is.
 void bad_alloc::read (istream& is)
 {
-    ustl::exception::read (is);
+    std::exception::read (is);
     is >> m_nBytesRequested;
 }
 
 /// Writes the exception into stream \p os.
 void bad_alloc::write (ostream& os) const
 {
-    ustl::exception::write (os);
+    std::exception::write (os);
     os << m_nBytesRequested;
 }
 
 /// Returns the size of the written exception.
 size_t bad_alloc::stream_size (void) const
 {
-    return (ustl::exception::stream_size() + stream_size_of(m_nBytesRequested));
+    return (std::exception::stream_size() + stream_size_of(m_nBytesRequested));
 }
 
 //----------------------------------------------------------------------
@@ -273,4 +273,4 @@ size_t stream_bounds_exception::stream_size (void) const
 	    stream_size_of(m_Remaining));
 }
 
-} // namespace ustl
+} // namespace std

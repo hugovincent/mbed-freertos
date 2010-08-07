@@ -9,7 +9,7 @@
 #include "uvector.h"
 #include "ufunction.h"
 
-namespace ustl {
+namespace std {
 
 /// \class map umap.h ustl.h
 /// \ingroup AssociativeContainers
@@ -155,6 +155,6 @@ inline void map<K,V>::erase (const_key_ref k)
 	erase (ip);
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

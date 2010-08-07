@@ -6,7 +6,7 @@
 #ifndef UPREDALGO_H_2CB058AE0807A01A2F6A51BA5D5820A5
 #define UPREDALGO_H_2CB058AE0807A01A2F6A51BA5D5820A5
 
-namespace ustl {
+namespace std {
 
 /// Copy_if copies elements from the range [first, last) to the range
 /// [result, result + (last - first)) if pred(*i) returns true.
@@ -582,6 +582,6 @@ inline ForwardIterator partition (ForwardIterator first, ForwardIterator last, P
     return (stable_partition (first, last, pred));
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

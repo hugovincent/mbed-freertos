@@ -8,7 +8,7 @@
 
 #include "utypes.h"
 
-namespace ustl {
+namespace std {
 
 #define __limits_digits(T)	(sizeof(T)*8)
 #define __limits_digits10(T)	(sizeof(T)*8*643/2136+1)
@@ -83,7 +83,7 @@ _NUMERIC_LIMITS (unsigned long long,	0,	ULLONG_MAX,	false,	true,	true);
 
 /// Macro for defining numeric_limits specializations
 #define NUMERIC_LIMITS(type, minVal, maxVal, bSigned, bInteger, bIntegral)	\
-namespace ustl { _NUMERIC_LIMITS (type, minVal, maxVal, bSigned, bInteger, bIntegral); }
+namespace std { _NUMERIC_LIMITS (type, minVal, maxVal, bSigned, bInteger, bIntegral); }
 
 /// \brief Returns the recommended stream alignment for type \p T. Override with ALIGNOF.
 /// Because this is occasionally called with a null value, do not access the argument!
@@ -96,9 +96,9 @@ inline size_t alignof (const T&)
 }
 
 #define ALIGNOF(type,grain)	\
-namespace ustl {		\
+namespace std {		\
     template <> inline size_t alignof (const type&) { return (grain); } }
 
-} // namespace ustl
+} // namespace std
 
 #endif

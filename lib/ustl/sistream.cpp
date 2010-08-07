@@ -7,7 +7,7 @@
 #include "sostream.h"
 #include "ustring.h"
 
-namespace ustl {
+namespace std {
 
 #define DEFAULT_DELIMITERS	" \t\n\r;:,.?"
 const char ios_base::c_DefaultDelimiters [istringstream::c_MaxDelimiters] = DEFAULT_DELIMITERS;
@@ -213,4 +213,4 @@ istringstream& istringstream::ignore (size_type n, char delim)
     return (*this);
 }
 
-} // namespace ustl
+} // namespace std

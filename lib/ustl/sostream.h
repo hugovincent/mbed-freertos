@@ -9,7 +9,7 @@
 #include "ustring.h"
 #include "mostream.h"
 
-namespace ustl {
+namespace std {
 
 class string;
 
@@ -156,6 +156,6 @@ OSTRSTREAM_CAST_OPERATOR (char,			uint8_t)
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 #endif

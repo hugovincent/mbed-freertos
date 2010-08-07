@@ -9,7 +9,7 @@
 #include "uvector.h"
 #include "ufunction.h"
 
-namespace ustl {
+namespace std {
 
 /// \class multimap umultimap.h ustl.h
 /// \ingroup AssociativeContainers
@@ -111,6 +111,6 @@ void multimap<K,V>::insert (const_iterator i1, const_iterator i2)
 	insert (*i1);
 }
 
-} // namespace ustl
+} // namespace std
 
 #endif

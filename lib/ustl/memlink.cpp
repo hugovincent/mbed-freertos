@@ -6,7 +6,7 @@
 #include "mistream.h"
 #include "ustdxept.h"
 
-namespace ustl {
+namespace std {
 
 /// Reads the object from stream \p s
 void memlink::read (istream& is)
@@ -49,4 +49,4 @@ void memlink::fill (iterator start, const void* p, size_type elSize, size_type e
 	start = copy_n (const_iterator(p), elSize, start);
 }
 
-} // namespace ustl
+} // namespace std

@@ -9,7 +9,7 @@
 #include "ustring.h"
 #include "ufunction.h"
 
-namespace ustl {
+namespace std {
 
 typedef uint32_t	bitset_value_type;
 
@@ -124,6 +124,6 @@ private:
     value_type		m_Bits [s_nWords];
 };
 
-} // namespace ustl
+} // namespace std
 
 #endif

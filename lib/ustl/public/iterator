@@ -11,7 +11,7 @@
 
 #include "utypes.h"
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 
@@ -261,6 +261,6 @@ inline typename Container2::iterator ibyi (typename Container1::iterator idx, Co
 
 //----------------------------------------------------------------------
 
-} // namespace ustl
+} // namespace std
 
 #endif

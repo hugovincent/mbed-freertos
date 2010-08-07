@@ -12,7 +12,7 @@
 #define EOF (-1)
 #endif
 
-namespace ustl {
+namespace std {
 
 /// \class istringstream sistream.h ustl.h
 /// \ingroup TextStreams
@@ -148,6 +148,6 @@ ISTRSTREAM_CAST_OPERATOR (unsigned long long, long long)
 #endif
 #undef ISTRSTREAM_CAST_OPERATOR
 
-} // namespace ustl
+} // namespace std
 
 #endif

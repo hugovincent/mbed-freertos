@@ -11,7 +11,7 @@
 #include "metamac.h"
 #include "typet.h"
 
-namespace ustl {
+namespace std {
 namespace tm {
 
 /// The building block of typelists. Use it throught the Seq templates.
@@ -218,6 +218,6 @@ public:
 
 } // namespace tl
 } // namespace tm
-} // namespace ustl
+} // namespace std
 
 #endif

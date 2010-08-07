@@ -8,7 +8,7 @@
 
 #include "utypes.h"
 
-namespace ustl {
+namespace std {
 
 class file_exception;
 
@@ -98,6 +98,6 @@ private:
     uint16_t		m_Exceptions;	///< Exception flags, using ios::iostate_bits.
 };
 
-} // namespace ustl
+} // namespace std
 
 #endif

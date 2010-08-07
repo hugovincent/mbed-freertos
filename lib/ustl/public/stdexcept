@@ -9,7 +9,7 @@
 #include "uexception.h"
 #include "ustring.h"
 
-namespace ustl {
+namespace std {
 
 enum { 
     xfmt_ErrorMessage = 2,
@@ -135,6 +135,6 @@ public:
     inline virtual const char*	name (void) const throw() { return ("underflow error"); }
 };
 
-} // namespace ustl
+} // namespace std
 
 #endif

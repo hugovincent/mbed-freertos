@@ -11,7 +11,7 @@
     #include <exception>
     #include <new>
 #else
-	namespace ustl {
+	namespace std {
 		class ostringstream;
 		class istream;
 		class ostream;
@@ -40,7 +40,7 @@ bool uncaught_exception() throw();
 } // namespace std
 #endif
 
-namespace ustl {
+namespace std {
 
 class string;
 
@@ -193,6 +193,6 @@ protected:
 
 const char* demangle_type_name (char* buf, size_t bufSize, size_t* pdmSize = NULL);
 
-} // namespace ustl
+} // namespace std
 
 #endif

@@ -9,12 +9,12 @@
 #ifndef UUTILITY_H_6A58BD296269A82A4AAAA4FD19FDB3AC
 #define UUTILITY_H_6A58BD296269A82A4AAAA4FD19FDB3AC
 
-#include "utypes.h"
+#include "types.h"
 #include "traits.h"
-#include "ulimits.h"
+#include "limits.h"
 #include <assert.h>
 
-namespace ustl {
+namespace std {
 
 #ifdef __GNUC__
     /// Returns the number of elements in a static vector
@@ -22,7 +22,7 @@ namespace ustl {
 #else
     // Old compilers will not be able to evaluate *v on an empty vector.
     // The tradeoff here is that VectorSize will not be able to measure arrays of local structs.
-    #define VectorSize(v)	(sizeof(v) / ustl::size_of_elements(1, v))
+    #define VectorSize(v)	(sizeof(v) / std::size_of_elements(1, v))
 #endif
 
 /// Expands into a ptr,size expression for the given static vector; useful as link arguments.
@@ -390,6 +390,6 @@ namespace simd {
     inline void reset_mmx (void) {}
 #endif
 } // namespace simd
-} // namespace ustl
+} // namespace std
 
 #endif

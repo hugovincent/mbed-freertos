@@ -6,9 +6,9 @@
 #include "cmemlink.h"
 #include "ofstream.h"
 #include "strmsize.h"
-#include "ualgo.h"
+#include <algo>
 
-namespace ustl {
+namespace std {
 
 /// \brief Attaches the object to pointer \p p of size \p n.
 ///
@@ -68,4 +68,4 @@ bool cmemlink::operator== (const cmemlink& l) const
 	    (l.m_Data == m_Data || 0 == memcmp (l.m_Data, m_Data, m_Size)));
 }
 
-} // namespace ustl
+} // namespace std

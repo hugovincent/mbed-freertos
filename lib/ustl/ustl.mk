@@ -20,5 +20,5 @@ CXX_SOURCE+= \
 		lib/ustl/ustring.cpp
 
 CXXFLAGS+=\
-		-fvisibility-inlines-hidden -fno-threadsafe-statics -finline-limit=1024
+		-fvisibility-inlines-hidden -fno-threadsafe-statics -finline-limit=1024 -Ilib/ustl/inc
 

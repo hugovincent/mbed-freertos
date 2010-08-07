@@ -10,7 +10,7 @@
 #include "uiosfunc.h"
 #include "uspecial.h"
 
-namespace ustl {
+namespace std {
 
 //----------------------------------------------------------------------
 
@@ -54,4 +54,4 @@ size_t error_message::stream_size (void) const
     return (exception::stream_size() + Align (stream_size_of (m_Arg)));
 }
 
-} // namespace ustl
+} // namespace std
