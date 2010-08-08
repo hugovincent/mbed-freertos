@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "drivers/wdt.h"
 #include "power_management.h"
+#include "drivers/drivers.h"
 
 // Scheduler includes:
 #include "FreeRTOS.h"
@@ -63,6 +64,30 @@ void xBadTask(void *params)
 }
 #endif
 
+void simpleSerialTask(void *p)
+{
+	(void)p;
+	int num = 0;
+	for (;;)
+	{
+		char buff[10];
+		int numWaiting = uart0->numWaiting();
+		if (num != numWaiting)
+		{
+			num = numWaiting;
+			printf("Num in buff: %d\n", num);
+		}
+		if (num > 2)
+		{
+			num = uart0->read(buff, num);
+			buff[num] = '\0';
+			//uart0->write(buff, num);
+			printf("\"%s\"\n", buff);
+		}
+		vTaskDelay(500);
+	}
+}
+
 int main()
 {
 	// Start the standard demo tasks.
@@ -72,12 +97,14 @@ int main()
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();*/
-	vStartWebserverTask();
+	//vStartWebserverTask();
 
 #ifdef CORE_HAS_MPU
 	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 100,
 			(void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
+	xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE + 200,
+			(void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 
 	printf("Starting scheduler.\n");
 
