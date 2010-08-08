@@ -6,7 +6,7 @@
 #include <unwind.h>
 #include <cmsis.h>
 #include "debug_support.h"
-#include "drivers/uart.h"
+#include "FreeRTOS.h"
 
 bool Debug_ValidAddress_RAM(unsigned int *addr)
 {

@@ -7,33 +7,13 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#include "drivers/uart.h"
-
 /* fd, is a user file descriptor. */
 int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)
 {
 	//-------------------------------------------------------------------------
-	// FIXME temporary...
-
-	/* Which output method to use? */
-	signed portBASE_TYPE (*putcharHandler)(signed portCHAR, portTickType blocking)
-		= &uart0PutChar_debug;
-	/*if (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING)
-	{
-		putcharHandler = &uart0PutChar;
-	}*/
-	
-	char *tmp = (char *)buf;
-	while (tmp < ((char *)buf + len))
-	{
-		/* Make line endings behave like normal serial terminals. */
-		if (*tmp == '\n')
-		{
-			(*putcharHandler)('\r', 0);
-		}
-		(*putcharHandler)(*tmp++, 0);
-	}
-	return len;
+	// FIXME temporary...	
+	extern int uart0write(const char *buff, size_t len);
+	return uart0write(buf, len);
 
 	// End FIXME
 	//-------------------------------------------------------------------------

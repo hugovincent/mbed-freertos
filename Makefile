@@ -21,9 +21,9 @@ PROG_TYPE=mbed
 #ISP_OPT=/dev/tty.usbserial-isp 115200 12000
 
 # Set local options here:
-INSTALL_PATH=/Volumes/MBED/
+INSTALL_PATH=/cygdrive/g/
 BINNAME=RTOSDemo
-TOOLPRE=util/arm-none-eabi
+TOOLPRE=arm-none-eabi
 
 #------------------------------------------------------------------------------
 # Stuff specific to LPC2368 target:
@@ -143,11 +143,12 @@ C_SOURCE+= \
 		lib/os_init.c
 CXX_SOURCE+= \
 		Main.cpp \
+		mach/board-mbed/board_drivers.cpp
 
 # C/C++ library and operating system calls
 include lib/clibrary.mk
 #include lib/ustl/ustl.mk
-include lib/uip/uip.mk
+#include lib/uip/uip.mk
 
 # Peripheral device drivers
 include drivers/drivers.mk
@@ -156,7 +157,7 @@ include drivers/drivers.mk
 include example_tasks/example_tasks.mk
 
 # Applicatinos
-include apps/apps.mk
+#include apps/apps.mk
 
 # Tests
 CXX_SOURCE+= \
@@ -208,7 +209,7 @@ $(LDSCRIPT) : mach/cpu-$(TARGET)/$(TARGET).ld.S util/arm_common.ld.S util/arm_co
 # This target ensures the temporary build product directories exist
 $(ODIR)/exists:
 	@mkdir -p $(ODIR)/drivers/uart $(ODIR)/drivers/gpio $(ODIR)/drivers/rtc
-	@mkdir -p $(ODIR)/drivers/emac $(ODIR)/drivers/wdt
+	@mkdir -p $(ODIR)/drivers/emac $(ODIR)/drivers/wdt $(ODIR)/drivers/gpdma
 	@mkdir -p $(ODIR)/mach/board-mbed $(ODIR)/mach/cpu-$(TARGET)
 	@mkdir -p $(ODIR)/kernel $(ODIR)/mach/cpu-common $(ODIR)/kernel/port/$(PORT_DIR)
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/apps/webserver $(ODIR)/lib/uip

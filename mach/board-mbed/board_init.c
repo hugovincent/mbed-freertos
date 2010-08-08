@@ -8,9 +8,9 @@
 #include "semifs.h"
 
 #include "drivers/gpio.h"
-#include "drivers/uart.h"
 #include "drivers/wdt.h"
-#include "drivers/rtc.h"
+#include "FreeRTOS.h"
+
 
 extern void vPortSVCHandler( void );
 extern void xPortPendSVHandler(void);
@@ -36,7 +36,9 @@ void Board_EarlyInit( void )
 
 	// FIXME This is where pinmux configuration should get done
 
-	UART_Init(/* UART: */ 0, /* baud rate: */ 115200, /* buffer size: */ 128);
+	//UART_Init(/* UART: */ 0, /* baud rate: */ 115200, /* buffer size: */ 128);
+	extern void DRIVER_Init(void);
+	DRIVER_Init();
 	WDT_Init(/* timeout in seconds: */ 6);
 }
 
