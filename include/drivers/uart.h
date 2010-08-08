@@ -34,7 +34,7 @@ protected:
 		uint8_t divAddVal, mulVal;
 	} FracBaudLine_t;
 
-	static FracBaudLine_t FractionalBaudTable[72];
+	static const FracBaudLine_t FractionalBaudTable[72];
 	static void FindBaudWithFractional(uint32_t wantedBaud, uint32_t *divisor, uint32_t *fracDiv);
 
 	int _devNum;

@@ -21,9 +21,9 @@ PROG_TYPE=mbed
 #ISP_OPT=/dev/tty.usbserial-isp 115200 12000
 
 # Set local options here:
-INSTALL_PATH=/cygdrive/g/
+INSTALL_PATH=/Volumes/MBED/
 BINNAME=RTOSDemo
-TOOLPRE=arm-none-eabi
+TOOLPRE=util/arm-none-eabi
 
 #------------------------------------------------------------------------------
 # Stuff specific to LPC2368 target:
@@ -148,7 +148,7 @@ CXX_SOURCE+= \
 # C/C++ library and operating system calls
 include lib/clibrary.mk
 #include lib/ustl/ustl.mk
-#include lib/uip/uip.mk
+include lib/uip/uip.mk
 
 # Peripheral device drivers
 include drivers/drivers.mk
@@ -157,7 +157,7 @@ include drivers/drivers.mk
 include example_tasks/example_tasks.mk
 
 # Applicatinos
-#include apps/apps.mk
+include apps/apps.mk
 
 # Tests
 CXX_SOURCE+= \

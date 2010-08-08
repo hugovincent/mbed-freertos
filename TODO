@@ -6,8 +6,6 @@ BUGS:
 [1] fd allocation in SemiFS and RomFS is broken and should be done by device_manager.
 [1] Fix dirent.h and enable dirent-related functions in semifs, add to romfs and device manager.
 [1] Enable _POSIX_TIMERS, _POSIX_MONOTONIC_CLOCK, gettimeofday etc and HAVE_GETDATE in Newlib.
-[2] Refactor UART code to support all 4 UARTs.
-[2] Optimize UART code (maybe a ring buffer would be better?).
 [3] Fix/finish the uSTL integration.
 [2] Exception handlers on ARM7 are currently broken.
 [3] Check and fix new stack backtrace code based on libgcc _Unwind.

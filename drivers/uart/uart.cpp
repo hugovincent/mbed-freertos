@@ -62,7 +62,7 @@ void Uart::init()
 	LPC_SC->PCLKSEL0 &= ~(0x3<<6);
 }
 
-Uart::FracBaudLine_t Uart::FractionalBaudTable[] = 
+const Uart::FracBaudLine_t Uart::FractionalBaudTable[] = 
 {
 	{1.000,0,1}, 
 	{1.067,1,15}, 

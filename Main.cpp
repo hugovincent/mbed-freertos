@@ -97,7 +97,7 @@ int main()
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();*/
-	//vStartWebserverTask();
+	vStartWebserverTask();
 
 #ifdef CORE_HAS_MPU
 	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 100,
