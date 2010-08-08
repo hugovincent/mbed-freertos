@@ -6,7 +6,7 @@ FreeRTOS/OS - A FreeRTOS distribution for ARM devices
 This is a real-time operating system for very small devices built around an ARM
 microcontroller (with typically at least 16 kB of RAM and 64 kB of flash).
 
-A core aim of this project is to provide a canonical _distribution_ of FreeRTOS, 
+A core aim of this project is to provide a ready-to-use _distribution_ of FreeRTOS, 
 in the sense that Linux distributions are much more than just the kernel. As such,
 we include a clean, consistent build system, a fully functional standard C library
 with well defined, portable ways of doing hardware abstraction, peripheral access,
@@ -29,7 +29,7 @@ FEATURES:
   by cleanly terminating the responsible task. Similarly for tasks that overflow their
   application stack.
 * Complete C library support (including malloc, standard file IO etc).
-* C++ support, including lightweight STL (uSTL.sf.net), and exception handling.
+* C++ support, including lightweight STL (www.uSTL.sf.net), and exception handling.
 * Ethernet networking with the lightweight uIP TCP/IP stack, including a web server.
 * Support for power management (processor is aggressively idled when possible, 
   _coming soon:_ dynamic frequency scaling).

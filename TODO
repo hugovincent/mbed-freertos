@@ -1,4 +1,4 @@
-Last Update: 5 August 2010.
+Last Update: 7 August 2010.
 
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
@@ -20,6 +20,7 @@ GENERALIZATIONS:
 [1] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
 [1] Thread-local memory. Finish dynamic reentrancy in syscalls.
 [1] Figure out protected-mode driver access model and syscalls via SVC/SWI?
+[1] Switch over to the lwIP stack instead of uIP.
 [2] RomFS should be FlashFS, with IAP.
 [2] Finish GPIO driver.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
