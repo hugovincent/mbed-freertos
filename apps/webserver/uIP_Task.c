@@ -35,6 +35,7 @@
 #include "httpd.h"
 
 /* Demo includes. */
+#include "debug_support.h"
 #include "drivers/emac/EthDev_LPC17xx.h"
 #include "drivers/emac/EthDev.h"
 #include "drivers/gpio.h"
@@ -63,24 +64,20 @@ static void prvSetMACAddress( void );
 void clock_init( void );
 clock_time_t clock_time( void );
 
-/*-----------------------------------------------------------*/
 
 /* The semaphore used by the ISR to wake the uIP task. */
 xSemaphoreHandle xEMACSemaphore = NULL;
 
-/*-----------------------------------------------------------*/
 
 void clock_init(void)
 {
 	/* This is done when the scheduler starts. */
 }
-/*-----------------------------------------------------------*/
 
 clock_time_t clock_time( void )
 {
 	return xTaskGetTickCount();
 }
-/*-----------------------------------------------------------*/
 
 void vuIP_Task( void *pvParameters )
 {
@@ -90,6 +87,12 @@ struct timer periodic_timer, arp_timer;
 extern void ( vEMAC_ISR_Wrapper )( void );
 
 	( void ) pvParameters;
+
+	/* Initialise the MAC. */
+	while( lEMACInit() != pdPASS )
+    {
+        vTaskDelay( uipINIT_WAIT );
+    }
 
 	/* Initialise the uIP stack. */
 	timer_set( &periodic_timer, configTICK_RATE_HZ / 2 );
@@ -102,16 +105,11 @@ extern void ( vEMAC_ISR_Wrapper )( void );
 	httpd_init();
 
 	printf("Initialized uIP stack and httpd (IP address %d.%d.%d.%d, port 80)\n",
-			configIP_ADDR0, configIP_ADDR1, configIP_ADDR2, configIP_ADDR3);
+			uip_hostaddr[0] & 0xFF, uip_hostaddr[0] >> 8,
+			uip_hostaddr[1] & 0xFF, uip_hostaddr[1] >> 8);
 
 	/* Create the semaphore used to wake the uIP task. */
 	vSemaphoreCreateBinary( xEMACSemaphore );
-
-	/* Initialise the MAC. */
-	while( lEMACInit() != pdPASS )
-    {
-        vTaskDelay( uipINIT_WAIT );
-    }
 
 	portENTER_CRITICAL();
 	{
@@ -129,8 +127,6 @@ extern void ( vEMAC_ISR_Wrapper )( void );
 		prvSetMACAddress();
 	}
 	portEXIT_CRITICAL();
-
-	printf("Initialized ethernet hardware.\n");
 
 	for( ;; )
 	{
@@ -157,7 +153,6 @@ extern void ( vEMAC_ISR_Wrapper )( void );
 			}
 			else if( xHeader->type == htons( UIP_ETHTYPE_ARP ) )
 			{
-				printf("got ARP packet\n");
 				uip_arp_arpin();
 
 				/* If the above function invocation resulted in data that 
@@ -208,22 +203,35 @@ extern void ( vEMAC_ISR_Wrapper )( void );
 		}
 	}
 }
-/*-----------------------------------------------------------*/
 
 static void prvSetMACAddress( void )
 {
 struct uip_eth_addr xAddr;
 
+	/* Extract mbed officially allocated ethernet MAC address
+	 * (code snipped supplied by Simon Ford @ mbed). 
+	 */
+	char uid_string[36];
+	uint32_t args[2];
+	args[0] = (uint32_t)&uid_string;
+	args[1] = 33;
+	SemihostCall(Semihost_USR_UID, &args);
+
 	/* Configure the MAC address in the uIP stack. */
-	xAddr.addr[ 0 ] = configMAC_ADDR0;
-	xAddr.addr[ 1 ] = configMAC_ADDR1;
-	xAddr.addr[ 2 ] = configMAC_ADDR2;
-	xAddr.addr[ 3 ] = configMAC_ADDR3;
-	xAddr.addr[ 4 ] = configMAC_ADDR4;
-	xAddr.addr[ 5 ] = configMAC_ADDR5;
+	int tmp; // (sscanf seems to choke with alignment issues when we assign
+			 // directly within the sscanf call, so we have to do it like this)
+	sscanf(&uid_string[20], "%2x", &tmp); xAddr.addr[0] = tmp;
+	sscanf(&uid_string[22], "%2x", &tmp); xAddr.addr[1] = tmp;
+	sscanf(&uid_string[24], "%2x", &tmp); xAddr.addr[2] = tmp;
+	sscanf(&uid_string[26], "%2x", &tmp); xAddr.addr[3] = tmp;
+	sscanf(&uid_string[28], "%2x", &tmp); xAddr.addr[4] = tmp;
+	sscanf(&uid_string[30], "%2x", &tmp); xAddr.addr[5] = tmp;
 	uip_setethaddr( xAddr );
+
+	printf("Ethernet hardware initialized (mbed MAC address %02x:%02x:%02x:%02x:%02x:%02x).\n", 
+			xAddr.addr[0], xAddr.addr[1], xAddr.addr[2],
+			xAddr.addr[3], xAddr.addr[4], xAddr.addr[5]);
 }
-/*-----------------------------------------------------------*/
 
 void vApplicationProcessFormInput( char *pcInputString )
 {

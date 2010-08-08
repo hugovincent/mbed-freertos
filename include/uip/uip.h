@@ -423,7 +423,7 @@ void uip_setipid(u16_t id);
  }
  \endcode
  */
-extern u8_t uip_buf[UIP_BUFSIZE+2] __attribute__ ((aligned(4)));
+extern u8_t *uip_buf;
 
 /** @} */
 

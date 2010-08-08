@@ -78,20 +78,11 @@ extern "C" {
 #define configGENERATE_RUN_TIME_STATS			1
 #define configUSE_MALLOC_FAILED_HOOK			1
 
-/* MAC address configuration. 
- * For my mbed it is 00:02:f7:f0:33:eb. You should set this to your MAC address. */
-#define configMAC_ADDR0		0x00
-#define configMAC_ADDR1		0x02
-#define configMAC_ADDR2		0xf7
-#define configMAC_ADDR3		0xf0
-#define configMAC_ADDR4		0x33
-#define configMAC_ADDR5		0xeb
-
 /* IP address configuration. */
 #define configIP_ADDR0		192
 #define configIP_ADDR1		168
 #define configIP_ADDR2		2
-#define configIP_ADDR3		5
+#define configIP_ADDR3		54
 
 /* Netmask configuration. */
 #define configNET_MASK0		255

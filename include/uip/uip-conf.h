@@ -89,6 +89,8 @@ typedef uint16_t u16_t;
  */
 typedef unsigned short uip_stats_t;
 
+#define UIP_CONF_EXTERNAL_BUFFER
+
 /**
  * Maximum number of TCP connections.
  *

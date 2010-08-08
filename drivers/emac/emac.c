@@ -26,6 +26,8 @@
 #include "task.h"
 #include "semphr.h"
 
+#include "uip/uip_arp.h"
+
 /* Hardware specific includes. */
 #include "EthDev_LPC17xx.h"
 
@@ -130,9 +132,9 @@ unsigned long ulID1, ulID2;
 	if( ( (ulID1 << 16UL ) | ( ulID2 & 0xFFF0UL ) ) == DP83848C_ID )
 	{
 		/* Set the Ethernet MAC Address registers */
-		LPC_EMAC->SA0 = ( configMAC_ADDR0 << 8 ) | configMAC_ADDR1;
-		LPC_EMAC->SA1 = ( configMAC_ADDR2 << 8 ) | configMAC_ADDR3;
-		LPC_EMAC->SA2 = ( configMAC_ADDR4 << 8 ) | configMAC_ADDR5;
+		LPC_EMAC->SA0 = ( uip_ethaddr.addr[0] << 8 ) | uip_ethaddr.addr[1];
+		LPC_EMAC->SA1 = ( uip_ethaddr.addr[2] << 8 ) | uip_ethaddr.addr[3];
+		LPC_EMAC->SA2 = ( uip_ethaddr.addr[4] << 8 ) | uip_ethaddr.addr[5];
 
 		/* Initialize Tx and Rx DMA Descriptors */
 		prvInitDescriptors();

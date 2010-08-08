@@ -136,7 +136,8 @@ struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
 #endif
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
-u8_t uip_buf[UIP_BUFSIZE + 2] __attribute__ ((aligned(4)));
+u8_t real_uip_buf[UIP_BUFSIZE + 2] __attribute__ ((aligned(4), section(".ethram")));
+u8_t *uip_buf = &real_uip_buf;
 				/* The packet buffer that contains
 					incoming packets. */
 #endif /* UIP_CONF_EXTERNAL_BUFFER */
