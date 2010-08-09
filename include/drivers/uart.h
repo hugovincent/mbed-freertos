@@ -1,47 +1,73 @@
+/* DMA-driven UART driver for LPC17xx (should also work on LPC23xx but untested).
+ *
+ * Rob Turner, August 2010.
+ */
 
-
-#ifndef _H_UART_
-#define _H_UART_
+#ifndef UART_h
+#define UART_h
 
 #include <stdlib.h>
+#include <stdbool.h>
+
 #include <lpc17xx.h>
 #include <drivers/gpdma.h>
 
-class Uart
+#ifdef __cplusplus
+
+class UART
 {
 public:
-	Uart(int deviceNum, size_t txFifoLen, size_t rxFifoLen, Gpdma *txDma = 0, Gpdma *rxDma = 0);
+	UART(int deviceNum, size_t txFifoLen, size_t rxFifoLen, bool useDMA);
+	~UART();
 
-	static void init();
+	void SetBaud(uint32_t baud);
 
-	void setBaud(uint32_t baud);
+	int Read(char * buf, size_t len);
+	int Write(const char * buf, size_t len);
+	int WriteUnbuffered(const char * buf, size_t len);
 
-	int read(char * buf, size_t len);
-	size_t numWaiting() { return _rxDma ? _rxDma->numWaiting() : 0; }
-	int write(const char * buf, size_t len);
-	int writeUnbuffered(const char * buf, size_t len);
-
-	inline DmaM2P<char> * getTxDma() { return _txDma; }
-	inline DmaP2M<char> * getDmaRx() { return _rxDma; }
-
-	inline size_t getTxBuffLen() { return _txDma ? _txDma->getBuffLen() : 0; }
-	inline size_t getRxBuffLen() { return _rxDma ? _rxDma->getBuffLen() : 0; }
+	size_t BytesWaiting() { return m_RxDMA ? m_RxDMA->numWaiting() : 0; }
 
 protected:
 
-	typedef struct {
+	inline size_t GetTxBuffLen() { return m_TxDMA ? m_TxDMA->getBuffLen() : 0; }
+	inline size_t GetRxBuffLen() { return m_RxDMA ? m_RxDMA->getBuffLen() : 0; }
+
+	struct FractionalBaudEntry {
 		float FRest;
 		uint8_t divAddVal, mulVal;
-	} FracBaudLine_t;
+	};
 
-	static const FracBaudLine_t FractionalBaudTable[72];
+	static const FractionalBaudEntry FractionalBaudTable[72];
 	static void FindBaudWithFractional(uint32_t wantedBaud, uint32_t *divisor, uint32_t *fracDiv);
 
-	int _devNum;
-	LPC_UART_TypeDef *_base;
-	DmaP2M<char> *_rxDma;
-	DmaM2P<char> *_txDma;
+	static bool m_HaveInitialized;
+
+	int m_DevNum;
+	LPC_UART_TypeDef *m_Base;
+	DmaP2M<char> *m_RxDMA;
+	DmaM2P<char> *m_TxDMA;
 };
 
-#endif // _H_UART_
+extern "C" {
+
+#else // ifdef __cplusplus
+
+#include <stdbool.h>
+typedef struct UART UART;
+
+#endif // ifdef __cplusplus
+
+UART *UART_Init(int which, int txBufSize, int rxBufSize, bool useDma);
+void UART_Deinit(UART *uart);
+void UART_SetBaud(UART *uart, int baud);
+int UART_Read(UART *uart, char *buf, size_t len);
+int UART_Write(UART *uart, const char *buf, size_t len);
+int UART_WriteUnbuffered(UART *uart, const char *buf, size_t len);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // ifdef __cpluspls
+
+#endif // UART_h
 

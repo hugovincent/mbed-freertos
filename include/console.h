@@ -1,6 +1,8 @@
 #ifndef Console_h_
 #define Console_h_
 
+#include "drivers/uart.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -13,6 +15,8 @@ void Console_LateInit();
 // exception recovery etc.
 void Console_SingleMode();
 void Console_NormalMode();
+
+extern UART *uart0;
 
 #ifdef __cplusplus
 } // extern "C"

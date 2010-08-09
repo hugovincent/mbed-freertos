@@ -15,54 +15,61 @@
 #define UART_FCR_DMA		(1UL<<3)
 #define UART_LSR_TEMT		(0x40)
 
-Uart::Uart(int deviceNum, size_t txFifoLen, size_t rxFifoLen, Gpdma *txDma, Gpdma *rxDma)
-	: _devNum(deviceNum), _base(0), _rxDma(0), _txDma(0)
+bool UART::m_HaveInitialized;
+
+UART::UART(int deviceNum, size_t txFifoLen, size_t rxFifoLen, bool useDMA)
+	: m_DevNum(deviceNum), m_Base(0), m_RxDMA(0), m_TxDMA(0)
 {
+	if (!m_HaveInitialized)
+	{
+		LPC_SC->PCLKSEL0 &= ~(0x3<<6);
+		m_HaveInitialized = true;
+	}
+
 	// The remaining PINCON regs need to be set! There might be a better way of configuring this
-	switch (_devNum)
+	switch (m_DevNum)
 	{
 	case 0: 
 		LPC_SC->PCONP |= 0x1<<3;
 		LPC_PINCON->PINSEL0 |= 0x00000050;
-		_base = (LPC_UART_TypeDef*)LPC_UART0_BASE; 
+		m_Base = (LPC_UART_TypeDef*)LPC_UART0_BASE; 
 		break;
 	case 1: 
 		LPC_SC->PCONP |= 0x1<<4;
 		//LPC_PINCON->PINSEL0 |= (1<<) | (1<<);
-		_base = (LPC_UART_TypeDef*)LPC_UART1_BASE; 
+		m_Base = (LPC_UART_TypeDef*)LPC_UART1_BASE; 
 		break;
 	case 2:
 		LPC_SC->PCONP |= 0x1<<24;
 		//LPC_PINCON->PINSEL0 |= (1<<20) | (1<<22);
-		_base = (LPC_UART_TypeDef*)LPC_UART2_BASE; 
+		m_Base = (LPC_UART_TypeDef*)LPC_UART2_BASE; 
 		break;
 	case 3: 
 		LPC_SC->PCONP |= 0x1<<25;
 		//LPC_PINCON->PINSEL0 |= (1<<) | (1<<);
-		_base = (LPC_UART_TypeDef*)LPC_UART3_BASE; 
+		m_Base = (LPC_UART_TypeDef*)LPC_UART3_BASE; 
 		break;
 	default:
-		_devNum = -1;
+		m_DevNum = -1;
 	}
 	
-	if (txDma)
-		_txDma = new DmaM2P<char>(Gpdma::UART0Tx_Mat00, (char*)&(_base->THR), txFifoLen, txDma);
-	if (rxDma)
-		_rxDma = new DmaP2M<char>(Gpdma::UART0Rx_Mat01, (char*)&(_base->RBR), rxFifoLen, rxDma);
+	if (useDMA)
+	{
+		Gpdma::init(); // FIXME
+		Gpdma *dmaTx = Gpdma::getChannel();
+		Gpdma *dmaRx = Gpdma::getChannel();
+		m_TxDMA = new DmaM2P<char>(Gpdma::UART0Tx_Mat00, (char*)&(m_Base->THR), txFifoLen, dmaTx);
+		m_RxDMA = new DmaP2M<char>(Gpdma::UART0Rx_Mat01, (char*)&(m_Base->RBR), rxFifoLen, dmaRx);
+	}
 
 	// Turn on the FIFO's and clear the buffers
-	_base->FCR = UART_FCR_EN | UART_FCR_CLR;// | ((_txDma || _rxDma) ? UART_FCR_DMA : 0);
+	m_Base->FCR = UART_FCR_EN | UART_FCR_CLR;// | ((m_TxDMA || m_RxDMA) ? UART_FCR_DMA : 0);
 
-	if (_rxDma || _txDma)
-		_base->FCR |= UART_FCR_DMA;
+	if (m_RxDMA || m_TxDMA)
+		m_Base->FCR |= UART_FCR_DMA;
 }
 
-void Uart::init()
-{
-	LPC_SC->PCLKSEL0 &= ~(0x3<<6);
-}
-
-const Uart::FracBaudLine_t Uart::FractionalBaudTable[] = 
+const UART::FractionalBaudEntry UART::FractionalBaudTable[] = 
 {
 	{1.000,0,1}, 
 	{1.067,1,15}, 
@@ -138,7 +145,7 @@ const Uart::FracBaudLine_t Uart::FractionalBaudTable[] =
 	{1.933,14,15}
 };
 
-void Uart::FindBaudWithFractional(uint32_t wantedBaud, uint32_t *divisor, uint32_t *fracDiv)
+void UART::FindBaudWithFractional(uint32_t wantedBaud, uint32_t *divisor, uint32_t *fracDiv)
 {
 	float FRest = 1.5;
 	int divAddVal = 0, mulVal = 1;
@@ -169,60 +176,60 @@ void Uart::FindBaudWithFractional(uint32_t wantedBaud, uint32_t *divisor, uint32
 	*fracDiv = (divAddVal & 0x0F) | ((mulVal & 0x0F) << 4);
 }
 
-void Uart::setBaud(uint32_t baud)
+void UART::SetBaud(uint32_t baud)
 {
 	uint32_t ulDivisor, ulFracDiv;
 
 	// Setup a fractional baud rate
 	FindBaudWithFractional(baud, &ulDivisor, &ulFracDiv);
-	_base->FDR = ulFracDiv;
+	m_Base->FDR = ulFracDiv;
 
 	// Set the DLAB bit so we can access the divisor
-	_base->LCR = UART_LCR_DLAB;
+	m_Base->LCR = UART_LCR_DLAB;
 
 	// Setup the divisor
-	_base->DLL = (unsigned char)(ulDivisor & (uint32_t)0xff);
+	m_Base->DLL = (unsigned char)(ulDivisor & (uint32_t)0xff);
 	ulDivisor >>= 8;
-	_base->DLM = (unsigned char)(ulDivisor & (uint32_t)0xff);
+	m_Base->DLM = (unsigned char)(ulDivisor & (uint32_t)0xff);
 
 	// Setup transmission format and clear the DLAB bit to enable transmission
-	_base->LCR = UART_LCR_NOPAR | UART_LCR_1STOP | UART_LCR_8BITS;
+	m_Base->LCR = UART_LCR_NOPAR | UART_LCR_1STOP | UART_LCR_8BITS;
 
-	if (_rxDma)
-		_rxDma->startReading();
+	if (m_RxDMA)
+		m_RxDMA->startReading();
 }
 
-int Uart::write(const char * buf, size_t len)
+int UART::Write(const char * buf, size_t len)
 {
 	if (len < 1)
 		return 0;
-	if (!_txDma)
-		return writeUnbuffered(buf, len);
+	if (!m_TxDMA)
+		return WriteUnbuffered(buf, len);
 
-	return _txDma->write(buf, len);
+	return m_TxDMA->write(buf, len);
 }
 
-int Uart::writeUnbuffered(const char * buf, size_t len)
+int UART::WriteUnbuffered(const char * buf, size_t len)
 {
 	if (len < 1)
 		return 0;
 	for (size_t i = 0; i < len; i++)
 	{
-		while (!(_base->LSR & (1 << 5)))
+		while (!(m_Base->LSR & (1 << 5)))
 		{ }
-		_base->THR = *buf++;
+		m_Base->THR = *buf++;
 	}
 	return len;
 }
 
 
 
-int Uart::read(char * buf, size_t len)
+int UART::Read(char * buf, size_t len)
 {
 	size_t num;
 	if (len < 1)
 		return 0;
-	if (!_rxDma)
+	if (!m_RxDMA)
 	{
 		for (num = 0; num < len; num++)
 		{
@@ -235,5 +242,39 @@ int Uart::read(char * buf, size_t len)
 		}
 		return num;
 	}
-	return _rxDma->read(buf, len);
+	return m_RxDMA->read(buf, len);
 }
+
+/* ------------------------------------------------------------------------- */
+// C Wrappers:
+
+UART *UART_Init(int which, int txBufSize, int rxBufSize, bool useDma)
+{
+	return new UART(which, txBufSize, rxBufSize, useDma);
+}
+
+void UART_Deinit(UART *uart)
+{
+	delete uart;
+}
+
+void UART_SetBaud(UART *uart, int baud)
+{
+	uart->SetBaud(baud);
+}
+
+int UART_Read(UART *uart, char *buf, size_t len)
+{
+	return uart->Read(buf, len);
+}
+
+int UART_Write(UART *uart, const char *buf, size_t len)
+{
+	return uart->Write(buf, len);
+}
+
+int UART_WriteUnbuffered(UART *uart, const char *buf, size_t len)
+{
+	return uart->WriteUnbuffered(buf, len);
+}
+

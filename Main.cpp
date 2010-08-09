@@ -11,8 +11,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include "drivers/wdt.h"
+#include "drivers/uart.h"
 #include "power_management.h"
-#include "drivers/drivers.h"
+#include "console.h"
 
 // Scheduler includes:
 #include "FreeRTOS.h"
@@ -71,7 +72,7 @@ void simpleSerialTask(void *p)
 	for (;;)
 	{
 		char buff[10];
-		int numWaiting = uart0->numWaiting();
+		int numWaiting = uart0->BytesWaiting();
 		if (num != numWaiting)
 		{
 			num = numWaiting;
@@ -79,7 +80,7 @@ void simpleSerialTask(void *p)
 		}
 		if (num > 2)
 		{
-			num = uart0->read(buff, num);
+			num = uart0->Read(buff, num);
 			buff[num] = '\0';
 			//uart0->write(buff, num);
 			printf("\"%s\"\n", buff);

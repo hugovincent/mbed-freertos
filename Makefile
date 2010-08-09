@@ -142,8 +142,7 @@ C_SOURCE+= \
 		lib/console.c \
 		lib/os_init.c
 CXX_SOURCE+= \
-		Main.cpp \
-		mach/board-mbed/board_drivers.cpp
+		Main.cpp
 
 # C/C++ library and operating system calls
 include lib/clibrary.mk

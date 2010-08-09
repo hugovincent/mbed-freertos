@@ -10,6 +10,8 @@
 #include <lpc17xx.h>
 #include <stdlib.h>
 
+#ifdef __cplusplus
+
 class Gpdma
 {
 public:
@@ -479,6 +481,8 @@ template<typename T> size_t DmaP2M<T>::read(T * buf, size_t len)
 	
 	return len;
 }
+
+#endif // ifdef __cplusplus
 
 #endif // _H_GPDMA_
 

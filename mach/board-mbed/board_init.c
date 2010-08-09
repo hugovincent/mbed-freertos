@@ -4,17 +4,20 @@
  * Hugo Vincent, 2 May 2010.
  */
 
+#include "FreeRTOS.h"
+
 #include "os_init.h"
 #include "semifs.h"
+#include "console.h"
 
 #include "drivers/gpio.h"
 #include "drivers/wdt.h"
-#include "FreeRTOS.h"
-
+#include "drivers/uart.h"
 
 extern void vPortSVCHandler( void );
 extern void xPortPendSVHandler(void);
 extern void xPortSysTickHandler(void);
+
 
 void Board_EarlyInit( void )
 {
@@ -36,9 +39,10 @@ void Board_EarlyInit( void )
 
 	// FIXME This is where pinmux configuration should get done
 
-	//UART_Init(/* UART: */ 0, /* baud rate: */ 115200, /* buffer size: */ 128);
-	extern void DRIVER_Init(void);
-	DRIVER_Init();
+	uart0 = UART_Init(/* which: */ 0, /* Tx buffer size: */ 128, 
+			/* Rx buffer size: */ 128, /* use DMA: */ true);
+	UART_SetBaud(uart0, 115200);
+
 	WDT_Init(/* timeout in seconds: */ 6);
 }
 
