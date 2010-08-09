@@ -131,6 +131,9 @@ extern "C" void vApplicationTickHook()
 		WDT_Feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
+		unsigned long long uptime_usec = ullTaskGetSchedulerUptime();
+		printf("Uptime: %u.%06u seconds\n", (unsigned int)(uptime_usec / 1000000), (unsigned int)(uptime_usec % 1000000));
+
 		int8_t *taskListBuffer = (int8_t *)malloc(40 * uxTaskGetNumberOfTasks());
 		if (taskListBuffer != NULL)
 		{

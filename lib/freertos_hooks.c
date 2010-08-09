@@ -55,25 +55,41 @@ __attribute__ ((weak)) void vPortInitialiseBlocks(void)
 
 #if configGENERATE_RUN_TIME_STATS == 1
 #if (defined(TARGET_LPC23xx) || (TARGET_LPC17xx))
-/* This uses Timer 1 to record task run-time statistics. Allows FreeRTOS
- * to generate a nice, tabular `top`-style CPU-usage listing. 
+/* This uses a timer to measure uptime and task run-time statistics (CPU usage).
+ * Timer counts in microseconds. We use Timer1, but any timer would work.
+ * Assumes SystemCoreClock is runnning at integer-valued MHz.
  */
+#define RUNTIME_TIMER 1
 void vConfigureTimerForRunTimeStats( void )
 {
-	// Power up and feed the timer with a clock.
+	// Power up timer hardware and connect the clock to CCLK
+#if   RUNTIME_TIMER == 0
+#define theTimer LPC_TIM0
+	LPC_SC->PCONP |= 0x1<<1;
+	LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(0x3<<2))) | (0x01<<2);
+#elif RUNTIME_TIMER == 1
+#define theTimer LPC_TIM1
 	LPC_SC->PCONP |= 0x1<<2;
 	LPC_SC->PCLKSEL0 = (LPC_SC->PCLKSEL0 & (~(0x3<<4))) | (0x01<<4);
+#elif RUNTIME_TIMER == 2
+#define theTimer LPC_TIM2
+	LPC_SC->PCONP |= 0x1<<22;
+	LPC_SC->PCLKSEL1 = (LPC_SC->PCLKSEL1 & (~(0x3<<12))) | (0x01<<12);
+#elif RUNTIME_TIMER == 3
+#define theTimer LPC_TIM3
+	LPC_SC->PCONP |= 0x1<<23;
+	LPC_SC->PCLKSEL1 = (LPC_SC->PCLKSEL1 & (~(0x3<<14))) | (0x01<<14);
+#endif
 
-	// Reset Timer 1.
-	LPC_TIM1->TCR = 0x1<<1;
+	// Stop and reset the timer
+	theTimer->TCR = 0x1<<1;
 
-	// Prescale to a frequency that is good enough to get a decent resolution,
-	// but not too fast so as to overflow all the time.
-	LPC_TIM1->PR =  ( SystemCoreClock / 10000UL ) - 1UL;
+	// set the prescaler to get 1 usec ticks
+	theTimer->PR = ( SystemCoreClock / 1000000UL ) - 1UL;
 
-	// Start the counter, counting up.
-	LPC_TIM1->CTCR = 0x0;
-	LPC_TIM1->TCR = 0x1<<0;
+	// Start the timer, counting up.
+	theTimer->CTCR = 0x0;
+	theTimer->TCR = 0x1<<0;
 }
 #else
 #error "Target not supported"

@@ -14,13 +14,15 @@ BUGS:
 
 GENERALIZATIONS:
 [1] Finish RTC time integration.
+[1] Kernel run time statistics should be exposed through a "procfs"-type virtual
+    filesystem. Simiarly for memory information. 
 [1] Standardized debug/log messages system.
 [1] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
 [1] Thread-local memory. Finish dynamic reentrancy in syscalls.
 [1] Figure out protected-mode driver access model and syscalls via SVC/SWI?
 [1] Switch over to the lwIP stack instead of uIP.
 [2] RomFS should be FlashFS, with IAP.
-[2] Finish GPIO driver.
+[2] Finish GPIO driver wrt pin muxing, direction, and pullup/down state.
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 
 ADDITIONS:

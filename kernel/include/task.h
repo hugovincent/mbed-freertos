@@ -1017,6 +1017,20 @@ void vTaskGetRunTimeStats( signed char *pcWriteBuffer ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
+ * <PRE>unsigned long long ullTaskGetSchedulerUptime( void );</PRE>
+ *
+ * configGENERATE_RUN_TIME_STATS must be defined as 1 for this function
+ * to be available.
+ *
+ * @return The time in microseconds since the scheduler started.
+ *
+ * \page vTaskGetRunTimeStats vTaskGetRunTimeStats
+ * \ingroup TaskUtils
+ */
+unsigned long long ullTaskGetSchedulerUptime( void ) PRIVILEGED_FUNCTION;
+
+/**
+ * task. h
  * <PRE>void vTaskStartTrace( char * pcBuffer, unsigned portBASE_TYPE uxBufferSize );</PRE>
  *
  * Starts a real time kernel activity trace.  The trace logs the identity of
