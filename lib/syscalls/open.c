@@ -20,7 +20,7 @@ int _open_r(struct _reent *ptr, const char * path, int flags, int mode)
 	}
 
 	/* It is an error to open a file that already exists. */
-	if ((flags & O_CREAT) 
+	if ((flags & O_CREAT)
 			&& (flags & O_EXCL))
 	{
 		struct stat st;
@@ -33,7 +33,7 @@ int _open_r(struct _reent *ptr, const char * path, int flags, int mode)
 		}
 	}
 
-	/* The flags are Unix-style, so we need to convert them. */ 
+	/* The flags are Unix-style, so we need to convert them. */
 #ifdef O_BINARY
 	if (flags & O_BINARY)
 		aflags |= 1;
@@ -41,7 +41,7 @@ int _open_r(struct _reent *ptr, const char * path, int flags, int mode)
 
 	/* In O_RDONLY we expect aflags == 0. */
 
-	if (flags & O_RDWR) 
+	if (flags & O_RDWR)
 		aflags |= 2;
 
 	if ((flags & O_CREAT)

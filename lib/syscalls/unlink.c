@@ -11,7 +11,7 @@ int _unlink_r(struct _reent *ptr, const char *path)
 	block[1] = strlen(path);
 	res = do_AngelSWI(AngelSWI_Reason_Remove, block);
 
-	if (res == -1) 
+	if (res == -1)
 		return error (res);
 
 	return 0;

@@ -5,7 +5,7 @@
 int chmod(const char *path, mode_t mode)
 {
 	errno = EROFS;
-	return -1; 
+	return -1;
 }
 
 

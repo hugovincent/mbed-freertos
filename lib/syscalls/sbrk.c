@@ -20,7 +20,7 @@ void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr)
 	prev_heap_end = heap_end;
 
 	/* Align to always be on 8-byte boundaries */
-	next_heap_end = (void *)((((unsigned int)heap_end + incr) + 7) & ~7);  
+	next_heap_end = (void *)((((unsigned int)heap_end + incr) + 7) & ~7);
 
 	/* Check if this allocation would collide with the heap */
 	if (next_heap_end > (void *)&__stacks_min__)

@@ -11,7 +11,7 @@
 int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)
 {
 	//-------------------------------------------------------------------------
-	// FIXME temporary...	
+	// FIXME temporary...
 	extern int uart0write(const char *buff, size_t len);
 	return uart0write(buf, len);
 
@@ -43,7 +43,7 @@ int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)
 
 	pfd->pos += len - res;
 
-	/* We wrote 0 bytes? 
+	/* We wrote 0 bytes?
 	   Retrieve errno just in case. */
 	if ((len - res) == 0)
 		return error (0);

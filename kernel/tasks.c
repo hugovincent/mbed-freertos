@@ -2067,7 +2067,7 @@ tskTCB *pxNewTCB;
 			}
 			#endif			
 			
-			sprintf( pcStatusString, ( char * ) "%s\t\t%c\t%u\t%u\t%u\r\n", pxNextTCB->pcTaskName, cStatus, ( unsigned int ) pxNextTCB->uxPriority, usStackRemaining, ( unsigned int ) pxNextTCB->uxTCBNumber );
+			sprintf( pcStatusString, ( char * ) "%s\t\t%c\t%u\t%u\t%u\n", pxNextTCB->pcTaskName, cStatus, ( unsigned int ) pxNextTCB->uxPriority, usStackRemaining, ( unsigned int ) pxNextTCB->uxTCBNumber );
 			strcat( ( char * ) pcWriteBuffer, ( char * ) pcStatusString );
 
 		} while( pxNextTCB != pxFirstTCB );
@@ -2119,7 +2119,7 @@ tskTCB *pxNewTCB;
 				if( pxNextTCB->ullRunTimeCounter == 0 )
 				{
 					/* The task has used no CPU time at all. */
-					sprintf( pcStatsString, ( char * ) "%s\t            0\t    0%%\t(%s)\r\n", pxNextTCB->pcTaskName, taskState);
+					sprintf( pcStatsString, ( char * ) "%s\t            0\t    0%%\t(%s)\n", pxNextTCB->pcTaskName, taskState);
 				}
 				else
 				{
@@ -2130,13 +2130,13 @@ tskTCB *pxNewTCB;
 					if( ulStatsAsPercentage > 0UL )
 					{
 						// FIXME this printf %12llu will overflow after 277 hours of task run time.
-						sprintf( pcStatsString, ( char * ) "%s\t%12llu\t%2u.%02u%%\t(%s)\r\n", pxNextTCB->pcTaskName, pxNextTCB->ullRunTimeCounter, ( unsigned int ) ulStatsAsPercentage / 100, ( unsigned int ) ulStatsAsPercentage % 100, taskState);
+						sprintf( pcStatsString, ( char * ) "%s\t%12llu\t%2u.%02u%%\t(%s)\n", pxNextTCB->pcTaskName, pxNextTCB->ullRunTimeCounter, ( unsigned int ) ulStatsAsPercentage / 100, ( unsigned int ) ulStatsAsPercentage % 100, taskState);
 					}
 					else
 					{
 						/* If the percentage is zero here then the task has
 						consumed less than 1% of the total run time. */
-						sprintf( pcStatsString, ( char * ) "%s\t%12llu\t<0.01%%\t(%s)\r\n", pxNextTCB->pcTaskName, pxNextTCB->ullRunTimeCounter, taskState );
+						sprintf( pcStatsString, ( char * ) "%s\t%12llu\t<0.01%%\t(%s)\n", pxNextTCB->pcTaskName, pxNextTCB->ullRunTimeCounter, taskState );
 					}
 				}
 

@@ -16,7 +16,7 @@ static int monitor_stdout;
 static int monitor_stderr;
 
 /* Return a pointer to the structure associated with
-   the user file descriptor fd. */ 
+   the user file descriptor fd. */
 struct fdent* findslot(int fd)
 {
 	CHECK_INIT(_REENT);
@@ -33,8 +33,8 @@ struct fdent* findslot(int fd)
 	return &openfiles[fd];
 }
 
-/* Return the next lowest numbered free file 
-   structure, or -1 if we can't find one. */ 
+/* Return the next lowest numbered free file
+   structure, or -1 if we can't find one. */
 int newslot(void)
 {
 	int i;
@@ -51,7 +51,7 @@ int newslot(void)
 
 void initialise_stdio(void)
 {
-	/* Open the standard file descriptors by opening the debug UART and 
+	/* Open the standard file descriptors by opening the debug UART and
 	 * attaching it write-only to stdout and stderr, and read-only to stdin.
 	 */
 

@@ -89,16 +89,48 @@ void simpleSerialTask(void *p)
 	}
 }
 
+#include <dirent.h>
+#include <time.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <signal.h>
+
+extern "C" void handler(int sig)
+{
+	printf("signal %d!\n", sig);
+}
+
 int main()
 {
+#if 1
+	signal(SIGRTMIN+1, &handler);
+	raise(SIGRTMIN+1);
+#endif
+
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
-	/*vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
+#if 0
+	vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
 	vCreateBlockTimeTasks();
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
 	vStartQueuePeekTasks();
-	vStartDynamicPriorityTasks();*/
+	vStartDynamicPriorityTasks();
+#endif
 	vStartWebserverTask();
+
+#if 0
+	char *name = "testfile";
+	int len = strlen(name);
+	DIR *dirp = opendir("/sdcard");
+	struct dirent *dp;
+	while ((dp = readdir(dirp)) != NULL)
+		if (dp->d_namlen == len && !strcmp(dp->d_name, name)) {
+			(void)closedir(dirp);
+			printf("found\n");
+		}
+	(void)closedir(dirp);
+	printf("not_found\n");
+#endif
 
 #ifdef CORE_HAS_MPU
 	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 100,
@@ -133,6 +165,13 @@ extern "C" void vApplicationTickHook()
 
 #if configGENERATE_RUN_TIME_STATS == 1
 		unsigned long long uptime_usec = ullTaskGetSchedulerUptime();
+
+#if 1
+		struct timeval tp;
+		int t = gettimeofday(&tp, NULL);
+		printf("timeofday = %d seconds %d microseconds (code %d)\n", tp.tv_sec, tp.tv_usec, t);
+#endif
+
 		printf("Uptime: %u.%06u seconds\n", (unsigned int)(uptime_usec / 1000000), (unsigned int)(uptime_usec % 1000000));
 
 		int8_t *taskListBuffer = (int8_t *)malloc(40 * uxTaskGetNumberOfTasks());
