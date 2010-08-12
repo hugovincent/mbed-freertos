@@ -32,7 +32,7 @@ SECTIONS
 		KEEP( *( .vectors ) )
 		*( .privileged_code )
 #ifdef HAVE_MPU
-		MPU_REGION_SIZE(__priviledged_code_start__)
+		MPU_REGION_SIZE(__privileged_code_start__)
 #endif
 		__privileged_code_end__ = .;
 
@@ -61,7 +61,7 @@ SECTIONS
 		*crt0.o( .privileged_bss )
 		*( .privileged_bss )
 #ifdef HAVE_MPU
-		MPU_REGION_SIZE(__priviledged_bss_start__)
+		MPU_REGION_SIZE(__privileged_bss_start__)
 #endif
 		__privileged_bss_end__ = . ;
 
