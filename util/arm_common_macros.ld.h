@@ -7,7 +7,7 @@
  * size. This pads so that the size from start_addr to where this macro is
  * instantiated is power-of-two sized. */
 #define MPU_REGION_SIZE(start_addr) 										\
-		start_addr##_len  = . - __privileged_code_start__ - 1 ; 			\
+		start_addr##_len  = . - start_addr - 1 ;							\
 		start_addr##_len |= start_addr##_len >>  1 ;						\
 		start_addr##_len |= start_addr##_len >>  2 ;						\
 		start_addr##_len |= start_addr##_len >>  4 ;						\
