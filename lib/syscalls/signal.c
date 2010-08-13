@@ -119,11 +119,6 @@ int __sigtramp_r(struct _reent *ptr, int sig)
 	}
 }
 
-int raise(int sig)
-{
-	return _raise_r (_REENT, sig);
-}
-
 _sig_func_ptr signal(int sig, _sig_func_ptr func)
 {
 	return _signal_r (_REENT, sig, func);

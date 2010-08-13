@@ -62,6 +62,9 @@ DRIVERS:
 
 THINGS TO CHECK:
 [1] Stack overflow checker needs checking.
+[1] Check syscall_wrappers are complete. I use'd a script to extract all symbols
+    in the libraries (lib{c,m,g}.a), but there are more header-defined symbols that
+	aren't wrapped yet. Hopefully the macros at least make these easy to add.
 [2] Ensure debug output printed by abort traps is actually correct (hmmm?).
 [f] Investigate running everything in USR mode instead of SVC on ARM7.
 

@@ -26,6 +26,7 @@ C_SOURCE+= \
 		lib/syscalls/stat.c \
 		lib/syscalls/symlink.c \
 		lib/syscalls/syscalls_util.c \
+		lib/syscalls/syscall_wrappers.c \
 		lib/syscalls/times.c \
 		lib/syscalls/unlink.c \
 		lib/syscalls/write.c

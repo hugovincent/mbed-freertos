@@ -22,6 +22,11 @@ struct _reent *__getreent( void )
 	return _impure_ptr;
 }
 
+int *__errno( void )
+{
+	return &__getreent()->_errno;
+}
+
 #if 0
 /*** From reent.c ***/
 
