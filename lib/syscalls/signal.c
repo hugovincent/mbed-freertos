@@ -23,8 +23,9 @@
 #include <stdlib.h>
 #include <reent.h>
 #include <_syslist.h>
+#include "mpu_wrappers.h"
 
-int _init_signal_r(struct _reent *ptr)
+int _init_signal_r(struct _reent *ptr) PRIVILEGED_FUNCTION
 {
 	int i;
 
@@ -41,7 +42,7 @@ int _init_signal_r(struct _reent *ptr)
 	return 0;
 }
 
-_sig_func_ptr _signal_r(struct _reent *ptr, int sig, _sig_func_ptr func)
+_sig_func_ptr _signal_r(struct _reent *ptr, int sig, _sig_func_ptr func) PRIVILEGED_FUNCTION
 {
 	_sig_func_ptr old_func;
 
@@ -60,7 +61,7 @@ _sig_func_ptr _signal_r(struct _reent *ptr, int sig, _sig_func_ptr func)
 	return old_func;
 }
 
-int _raise_r(struct _reent *ptr, int sig)
+int _raise_r(struct _reent *ptr, int sig) PRIVILEGED_FUNCTION
 {
 	_sig_func_ptr func;
 
@@ -92,7 +93,7 @@ int _raise_r(struct _reent *ptr, int sig)
 	}
 }
 
-int __sigtramp_r(struct _reent *ptr, int sig)
+int __sigtramp_r(struct _reent *ptr, int sig) PRIVILEGED_FUNCTION
 {
 	_sig_func_ptr func;
 
@@ -117,20 +118,5 @@ int __sigtramp_r(struct _reent *ptr, int sig)
 		func (sig);
 		return 0;
 	}
-}
-
-_sig_func_ptr signal(int sig, _sig_func_ptr func)
-{
-	return _signal_r (_REENT, sig, func);
-}
-
-int _init_signal(void)
-{
-	return _init_signal_r (_REENT);
-}
-
-int __sigtramp(int sig)
-{
-	return __sigtramp_r (_REENT, sig);
 }
 

@@ -1,37 +1,11 @@
 #include <reent.h>
 
-// Function to add multithread support to newlib
-struct _reent *__getreent( void )
-{
-#if 0
-	NU_HISR *HisrPtr;
-	NU_TASK *TaskPtr;
+/* FIXME this file is a placeholder for now */
 
-	if ((HisrPtr = TCC_Current_HISR_Pointer()) == NULL)
-	{
-		// Running in normal task mode
-		if ((TaskPtr = TCC_Current_Task_Pointer()) == NULL)
-		{
-			// No valid tasks are running currently return global space
-			return _impure_ptr;
-		}
-		return TaskPtr->_impure_ptr;
-	}
-	return HisrPtr->_impure_ptr;
-#endif
-	return _impure_ptr;
-}
-
-int *__errno( void )
-{
-	return &__getreent()->_errno;
-}
-
-#if 0
 /*** From reent.c ***/
 
+#if 0
 /* Interim cleanup code */
-
 void
 _DEFUN (cleanup_glue, (ptr, glue),
 		struct _reent *ptr _AND
@@ -160,7 +134,5 @@ _DEFUN (_wrapup_reent, (ptr), struct _reent *ptr)
 static struct _reent __ATTRIBUTE_IMPURE_DATA__ impure_data = _REENT_INIT (impure_data);
 struct _reent *__ATTRIBUTE_IMPURE_PTR__ _impure_ptr = &impure_data;
 struct _reent *_CONST __ATTRIBUTE_IMPURE_PTR__ _global_impure_ptr = &impure_data;
-
-
 
 #endif

@@ -1,9 +1,10 @@
 #include <unistd.h>
 #include <errno.h>
+#include "mpu_wrappers.h"
 
-int fsync(int fildes)
+int _fsync_r(struct _reent *ptr, int fd) PRIVILEGED_FUNCTION
 {
-	errno = EINVAL;
+	ptr->_errno = EINVAL;
 	return -1;
 }
 

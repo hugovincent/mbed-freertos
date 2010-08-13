@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include "lib/syscalls/syscalls_util.h"
 
+#include "mpu_wrappers.h"
+
 /* fd, is a user file descriptor. */
-int _close_r(struct _reent *ptr, int fd)
+int _close_r(struct _reent *ptr, int fd) PRIVILEGED_FUNCTION
 {
 	int res;
 	struct fdent *pfd;
@@ -12,7 +14,7 @@ int _close_r(struct _reent *ptr, int fd)
 	pfd = findslot(fd);
 	if (pfd == NULL)
 	{
-		errno = EBADF;
+		ptr->_errno = EBADF;
 		return -1;
 	}
 

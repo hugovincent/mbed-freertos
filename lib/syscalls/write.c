@@ -6,9 +6,10 @@
 #include "lib/syscalls/syscalls_util.h"
 #include "FreeRTOS.h"
 #include "task.h"
+#include "mpu_wrappers.h"
 
 /* fd, is a user file descriptor. */
-int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)
+int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len) PRIVILEGED_FUNCTION
 {
 	//-------------------------------------------------------------------------
 	// FIXME temporary...
@@ -25,7 +26,7 @@ int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)
 	pfd = findslot(fd);
 	if (pfd == NULL)
 	{
-		errno = EBADF;
+		ptr->_errno = EBADF;
 		return -1;
 	}
 
@@ -50,3 +51,4 @@ int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)
 
 	return (len - res);
 }
+

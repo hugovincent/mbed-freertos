@@ -4,9 +4,10 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
 /* fd, is a user file descriptor. */
-_off_t _lseek_r(struct _reent *ptr, int fd, _off_t offs, int dir)
+_off_t _lseek_r(struct _reent *ptr, int fd, _off_t offs, int dir) PRIVILEGED_FUNCTION
 {
 	int res;
 	struct fdent *pfd;
@@ -15,7 +16,7 @@ _off_t _lseek_r(struct _reent *ptr, int fd, _off_t offs, int dir)
 	pfd = findslot(fd);
 	if (pfd == NULL)
 	{
-		errno = EBADF;
+		ptr->_errno = EBADF;
 		return -1;
 	}
 
@@ -24,7 +25,7 @@ _off_t _lseek_r(struct _reent *ptr, int fd, _off_t offs, int dir)
 			&& (dir != SEEK_SET)
 			&& (dir != SEEK_END))
 	{
-		errno = EINVAL;
+		ptr->_errno = EINVAL;
 		return -1;
 	}
 
@@ -35,9 +36,9 @@ _off_t _lseek_r(struct _reent *ptr, int fd, _off_t offs, int dir)
 		/* The resulting file offset would be negative. */
 		if (offs < 0)
 		{
-			errno = EINVAL;
+			ptr->_errno = EINVAL;
 			if ((pfd->pos > 0) && (offs > 0))
-				errno = EOVERFLOW;
+				ptr->_errno = EOVERFLOW;
 			return -1;
 		}
 		dir = SEEK_SET;

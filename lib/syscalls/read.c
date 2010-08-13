@@ -3,11 +3,12 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
 /* fd, is a valid user file handle.
    Translates the return of _read into
    bytes read. */
-int _read_r(struct _reent *ptr, int fd, void * buf, size_t len)
+int _read_r(struct _reent *ptr, int fd, void * buf, size_t len) PRIVILEGED_FUNCTION
 {
 	int res;
 	struct fdent *pfd;
@@ -16,7 +17,7 @@ int _read_r(struct _reent *ptr, int fd, void * buf, size_t len)
 	pfd = findslot(fd);
 	if (pfd == NULL)
 	{
-		errno = EBADF;
+		ptr->_errno = EBADF;
 		return -1;
 	}
 

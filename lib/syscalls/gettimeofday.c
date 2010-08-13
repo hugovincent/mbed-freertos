@@ -3,8 +3,9 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
-int _gettimeofday_r(struct _reent *ptr, struct timeval * tp, void * tzvp)
+int _gettimeofday_r(struct _reent *ptr, struct timeval * tp, void * tzvp) PRIVILEGED_FUNCTION
 {
 	struct timezone *tzp = (struct timezone *)tzvp;
 	if (tp)

@@ -5,8 +5,9 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
-int _swistat(int fd, struct stat * st)
+int _swistat_r(struct _reent *ptr, int fd, struct stat * st) PRIVILEGED_FUNCTION
 {
 	struct fdent *pfd;
 	int res;
@@ -14,7 +15,7 @@ int _swistat(int fd, struct stat * st)
 	pfd = findslot(fd);
 	if (pfd == NULL)
 	{
-		errno = EBADF;
+		ptr->_errno = EBADF;
 		return -1;
 	}
 
@@ -31,8 +32,9 @@ int _swistat(int fd, struct stat * st)
 	return 0;
 }
 
-int _fstat_r(struct _reent *ptr, int fd, struct stat * st)
+int _fstat_r(struct _reent *ptr, int fd, struct stat * st) PRIVILEGED_FUNCTION
 {
 	memset(st, 0, sizeof(*st));
-	return _swistat(fd, st);
+	return _swistat_r(ptr, fd, st);
 }
+

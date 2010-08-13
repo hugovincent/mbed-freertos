@@ -6,11 +6,12 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
 /* In lib/syscalls/fstat.c */
 extern int _swistat(int fd, struct stat * st);
 
-int _stat_r(struct _reent *ptr, const char *fname, struct stat *st)
+int _stat_r(struct _reent *ptr, const char *fname, struct stat *st) PRIVILEGED_FUNCTION
 {
 	int fd, res;
 	memset(st, 0, sizeof (* st));

@@ -2,8 +2,9 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
-int _kill_r(struct _reent *ptr, int pid, int sig)
+int _kill_r(struct _reent *ptr, int pid, int sig) PRIVILEGED_FUNCTION
 {
 	(void) pid;
 	(void) sig;

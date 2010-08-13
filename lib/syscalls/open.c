@@ -5,8 +5,9 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
-int _open_r(struct _reent *ptr, const char * path, int flags, int mode)
+int _open_r(struct _reent *ptr, const char * path, int flags, int mode) PRIVILEGED_FUNCTION
 {
 	int aflags = 0, fh;
 	int block[3];
@@ -15,7 +16,7 @@ int _open_r(struct _reent *ptr, const char * path, int flags, int mode)
 
 	if (fd == -1)
 	{
-		errno = EMFILE;
+		ptr->_errno = EMFILE;
 		return -1;
 	}
 
@@ -28,7 +29,7 @@ int _open_r(struct _reent *ptr, const char * path, int flags, int mode)
 		res = _stat_r (ptr, path, &st);
 		if (res != -1)
 		{
-			errno = EEXIST;
+			ptr->_errno = EEXIST;
 			return -1;
 		}
 	}

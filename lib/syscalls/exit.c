@@ -1,5 +1,7 @@
 #include <sys/signal.h>
 
+// FIXME this file is a placeholder for now.
+
 void _exit(int status)
 {
 	/* There is only one SWI for both _exit and _kill. For _exit, call

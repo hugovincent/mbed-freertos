@@ -3,15 +3,16 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
-int _isatty_r(struct _reent *ptr, int fd)
+int _isatty_r(struct _reent *ptr, int fd) PRIVILEGED_FUNCTION
 {
 	struct fdent *pfd;
 
 	pfd = findslot(fd);
 	if (pfd == NULL)
 	{
-		errno = EBADF;
+		ptr->_errno = EBADF;
 		return -1;
 	}
 

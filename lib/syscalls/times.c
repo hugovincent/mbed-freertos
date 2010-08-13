@@ -3,9 +3,10 @@
 
 #include <reent.h>
 #include "lib/syscalls/syscalls_util.h"
+#include "mpu_wrappers.h"
 
 /* Return a clock that ticks at 100Hz.  */
-clock_t _times_r(struct _reent *ptr, struct tms * tp)
+clock_t _times_r(struct _reent *ptr, struct tms * tp) PRIVILEGED_FUNCTION
 {
 	clock_t timeval = do_AngelSWI(AngelSWI_Reason_Clock, NULL);
 
@@ -19,3 +20,4 @@ clock_t _times_r(struct _reent *ptr, struct tms * tp)
 
 	return timeval;
 }
+

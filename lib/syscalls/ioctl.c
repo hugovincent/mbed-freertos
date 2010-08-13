@@ -3,15 +3,13 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-int ioctl(int fd, unsigned long request, ...)
+#include "mpu_wrappers.h"
+
+int _vioctl_r(struct _reent *ptr, int fd, unsigned long request, va_list args) PRIVILEGED_FUNCTION
 {
-	va_list ap;
+	printf("first variable arg %d\n", va_arg(args, int));
 
-	va_start(ap, request);
-	printf("first variable arg %d\n", va_arg(ap, int));
-	va_end(ap);
-
-	errno = ENOTTY;
+	ptr->_errno = ENOTTY;
 	return -1;
 }
 
