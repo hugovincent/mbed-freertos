@@ -33,6 +33,7 @@ void MPUManager_Idle(void)
 			printf("[FreeRTOS] Killed task \"%s\" due to MPU protection violation.\n", name);
 			printf("\tpc : [<%08x>]  bad_access : [<%08x>]\n", (unsigned int)task.pc,
 				(unsigned int)task.faultAddr);
+			fflush(stdout);
 		}
 	}
 }

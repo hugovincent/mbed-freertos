@@ -220,6 +220,8 @@ extern "C" void vApplicationTickHook()
 		{
 			printf("All Good.\n");
 		}
+		fflush(stdout);
 	}
 }
 #endif
+
