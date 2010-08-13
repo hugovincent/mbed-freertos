@@ -1,3 +1,4 @@
+#include <string.h>
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -33,26 +34,56 @@ void Console_SingleMode()
 /* ------------------------------------------------------------------------- */
 // FIXME:
 
-int uart0write(const char *buff, size_t len)
+int uart0write_(const char *buf, size_t len)
 {
-	bool running = xTaskGetSchedulerState() == taskSCHEDULER_RUNNING;
+	char *tmp = (char *)buf;
+	while (tmp < ((char *)buf + len))
+	{
+		tmp += UART_Write(uart0, tmp, ((char *)buf + len) - tmp);
+	}
+	return len;
+}
+
+int uart0write(const char *buf, size_t len)
+{
+	bool running = (xTaskGetSchedulerState() == taskSCHEDULER_RUNNING);
 	if (running)
 	{
 		while (!xSemaphoreTake(uart0mutex, portMAX_DELAY))
 			;
 	}
-	char *tmp = (char *)buff;
-	while (tmp < ((char *)buff + len))
+
+	// FIXME CR stripping
+	// Newline -> CRLF replacement (zero copy):
+	char *nl = strchr(buf, '\n');
+	if (nl != NULL)
 	{
-		tmp += UART_Write(uart0, tmp, ((char *)buff + len) - tmp);
+		char *tmp = (char *)buf;
+		int printed = 0;
+		while (nl != NULL)
+		{
+			printed += uart0write_(tmp, nl - tmp) + 1;
+			uart0write_("\r\n", 2);
+			tmp = nl + 1;
+			if (tmp > (buf + len))
+				break;
+			nl = strchr(tmp, '\n');
+		}
+		if (len - printed > 0)
+			uart0write_(tmp, len - printed);
 	}
+	else
+	{
+		uart0write_(buf, len);
+	}
+
 	if (running)
 		xSemaphoreGive(uart0mutex);
 	return len;
 }
 
-int uart0writeDebug(const char *buff, size_t len)
+int uart0writeDebug(const char *buf, size_t len)
 {
-	return UART_WriteUnbuffered(uart0, buff, len);
+	return UART_WriteUnbuffered(uart0, buf, len);
 }
 

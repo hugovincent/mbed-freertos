@@ -35,17 +35,13 @@ long telldir(DIR *dir);
 
 #include <limits.h>
 
-#ifndef NAME_MAX
-#define NAME_MAX 63
-#endif
-
 struct dirent {
 	long	d_ino;
 	off_t	d_off;
 	unsigned short	d_reclen;
 	/* we need better syntax for variable-sized arrays */
 	unsigned short	d_namlen;
-	char		d_name[NAME_MAX + 1];
+	char		d_name[__FILENAME_MAX__ + 1];
 };
 
 int scandir ( const char *dirname,

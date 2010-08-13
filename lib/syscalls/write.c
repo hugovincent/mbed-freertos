@@ -13,12 +13,10 @@ int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len) PRIVILEGE
 {
 	//-------------------------------------------------------------------------
 	// FIXME temporary...
-	extern int uart0write(const char *buff, size_t len);
+	extern int uart0write(const char *buf, size_t len);
 	return uart0write(buf, len);
-
-	// End FIXME
 	//-------------------------------------------------------------------------
-
+#if 0
 	int res;
 	struct fdent *pfd;
 	int block[3];
@@ -50,5 +48,6 @@ int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len) PRIVILEGE
 		return error (0);
 
 	return (len - res);
+#endif
 }
 
