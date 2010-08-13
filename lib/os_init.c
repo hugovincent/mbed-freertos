@@ -63,5 +63,6 @@ void OS_Init()
 
 	printf("FreeRTOS Kernel " tskKERNEL_VERSION_NUMBER " for " PLAT_NAME 
 			" @ %lu MHz booted.\n", SystemCoreClock / 1000000);
+	fflush(stdout);
 }
 

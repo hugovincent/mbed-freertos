@@ -13,38 +13,29 @@
 #define UART_FCR_DMA		(1UL<<3)
 #define UART_LSR_TEMT		(0x40)
 
-bool UART::m_HaveInitialized;
-
 	UART::UART(int deviceNum, size_t txFifoLen, size_t rxFifoLen, bool useDMA)
 : m_DevNum(deviceNum), m_Base(0), m_RxDMA(0), m_TxDMA(0)
 {
-	if (!m_HaveInitialized)
-	{
-		LPC_SC->PCLKSEL0 &= ~(0x3<<6);
-		m_HaveInitialized = true;
-	}
-
-	// The remaining PINCON regs need to be set! There might be a better way of configuring this
 	switch (m_DevNum)
 	{
 		case 0:
 			LPC_SC->PCONP |= 0x1<<3;
-			LPC_PINCON->PINSEL0 |= 0x00000050;
+			LPC_SC->PCLKSEL0 &= ~(0x3<<6);
 			m_Base = (LPC_UART_TypeDef*)LPC_UART0_BASE;
 			break;
 		case 1:
 			LPC_SC->PCONP |= 0x1<<4;
-			//LPC_PINCON->PINSEL0 |= (1<<) | (1<<);
+			LPC_SC->PCLKSEL0 &= ~(0x3<<8);
 			m_Base = (LPC_UART_TypeDef*)LPC_UART1_BASE;
 			break;
 		case 2:
 			LPC_SC->PCONP |= 0x1<<24;
-			//LPC_PINCON->PINSEL0 |= (1<<20) | (1<<22);
+			LPC_SC->PCLKSEL1 &= ~(0x3<<16);
 			m_Base = (LPC_UART_TypeDef*)LPC_UART2_BASE;
 			break;
 		case 3:
 			LPC_SC->PCONP |= 0x1<<25;
-			//LPC_PINCON->PINSEL0 |= (1<<) | (1<<);
+			LPC_SC->PCLKSEL1 &= ~(0x3<<18);
 			m_Base = (LPC_UART_TypeDef*)LPC_UART3_BASE;
 			break;
 		default:
@@ -229,7 +220,7 @@ int UART::Read(char * buf, size_t len)
 	{
 		for (num = 0; num < len; num++)
 		{
-			if ((LPC_UART0->FIFOLVL & 0xF) > 0) // FIFO got something
+			if (LPC_UART0->LSR & 0x1) // Receive data ready
 			{
 				*buf++ = LPC_UART0->RBR & 0xFF;
 			}

@@ -37,7 +37,12 @@ void Board_EarlyInit( void )
 
 #endif
 
-	// FIXME This is where pinmux configuration should get done
+	// Connect UART0 pins
+	LPC_PINCON->PINSEL0 |= 0x00000050;
+
+	// Connect ethernet pins
+	LPC_PINCON->PINSEL2 = 0x50150105;
+	LPC_PINCON->PINSEL3 = ( LPC_PINCON->PINSEL3 & ~0x0000000F ) | 0x00000005;
 
 	uart0 = UART_Init(/* which: */ 0, /* Tx buffer size: */ 128, 
 			/* Rx buffer size: */ 128, /* use DMA: */ true);

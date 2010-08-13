@@ -39,7 +39,12 @@ int uart0write_(const char *buf, size_t len)
 	char *tmp = (char *)buf;
 	while (tmp < ((char *)buf + len))
 	{
+#ifdef TARGET_LPC23xx
+		// DMA currently doesn't work on the LPC23xx
+		tmp += UART_WriteUnbuffered(uart0, tmp, ((char *)buf + len) - tmp);
+#else
 		tmp += UART_Write(uart0, tmp, ((char *)buf + len) - tmp);
+#endif
 	}
 	return len;
 }

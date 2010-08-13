@@ -41,7 +41,6 @@
 #define emacLINK_ESTABLISHED		( 0x0001 )
 #define emacFULL_DUPLEX_ENABLED		( 0x0004 )
 #define emac10BASE_T_MODE			( 0x0002 )
-#define emacPINSEL2_VALUE			( 0x50150105 )
 
 /* If no buffers are available, then wait this long before looking again.... */
 #define emacBUFFER_WAIT_DELAY	( 3 / portTICK_RATE_MS )
@@ -267,10 +266,6 @@ long x, lDummy;
 	LPC_GPIO1->FIOCLR = (0x1 << 28);
 	vTaskDelay( emacSHORT_DELAY );
 	LPC_GPIO1->FIOSET = (0x1 << 28);
-
-	/* Enable P1 Ethernet Pins. */
-	LPC_PINCON->PINSEL2 = emacPINSEL2_VALUE;
-	LPC_PINCON->PINSEL3 = ( LPC_PINCON->PINSEL3 & ~0x0000000F ) | 0x00000005;
 
 	/* Power Up the EMAC controller. */
 	LPC_SC->PCONP |= (0x1<<30);

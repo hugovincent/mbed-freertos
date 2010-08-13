@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include <lpc17xx.h>
+#include <cmsis.h>
 #include <drivers/gpdma.h>
 
 #ifdef __cplusplus
@@ -40,8 +40,6 @@ protected:
 
 	static const FractionalBaudEntry FractionalBaudTable[72];
 	static void FindBaudWithFractional(uint32_t wantedBaud, uint32_t *divisor, uint32_t *fracDiv);
-
-	static bool m_HaveInitialized;
 
 	int m_DevNum;
 	LPC_UART_TypeDef *m_Base;

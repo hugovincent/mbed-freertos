@@ -2,7 +2,7 @@
 #define GPDMA_h
 
 #include <stdint.h>
-#include <lpc17xx.h>
+#include <cmsis.h>
 #include <stdlib.h>
 
 #ifdef __cplusplus
@@ -225,6 +225,7 @@ inline void GPDMA::setConfig(bool channelEnabled,
 
 inline void GPDMA::setPeripheralType(PeripheralId_t peripheral, bool isTimerMatchRatherThanUart)
 {
+#ifdef TARGET_LPC17xx
 	if (peripheral >= UART0Tx_Mat00 && peripheral <= UART3Rx_Mat31)
 	{
 		if (isTimerMatchRatherThanUart)
@@ -232,6 +233,7 @@ inline void GPDMA::setPeripheralType(PeripheralId_t peripheral, bool isTimerMatc
 		else
 			LPC_SC->DMAREQSEL &= ~(1 << (peripheral - UART0Tx_Mat00));
 	}
+#endif
 }
 
 /**** DmaM2P Implementation ****/
