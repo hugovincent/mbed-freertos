@@ -1,42 +1,41 @@
-
-
 #include <drivers/gpdma.h>
 #include <cmsis_nvic.h>
 
-typedef struct 
+typedef struct
 {
 	uint32_t offset[8];
 } devChanOffset_t;
 
-Gpdma * Gpdma::_channels[];
+GPDMA * GPDMA::_channels[];
 
-
-void Gpdma::init()
+void GPDMA::init()
 {
 	LPC_SC->PCONP |= (1UL << 29UL); // DMA power
 	NVIC_SetVector(DMA_IRQn, (unsigned long)&dmaIsr);
-	//NVIC_EnableIRQ(DMA_IRQn);
+	NVIC_EnableIRQ(DMA_IRQn);
 	LPC_GPDMA->DMACConfig = 1; // Enable DMA controller
 	while (!(LPC_GPDMA->DMACConfig & 1))
 		;
 }
 
-Gpdma * Gpdma::getChannel(int channel)
+GPDMA * GPDMA::getChannel(int channel)
 {
 	if (channel >= NumChannels || channel < -1)
 		return 0;
-	Gpdma *c;
+
+	GPDMA *c;
 	if (-1 == channel)
 	{
 		// Find a free one
 		for (channel = 0; (c = _channels[channel]); ++channel)
-			;	
+			;
 	}
 	else
 		c = _channels[channel];
+
 	if (0 == c)
 	{
-		c = new Gpdma(channel);
+		c = new GPDMA(channel);
 		_channels[channel] = c;
 	}
 
@@ -49,7 +48,7 @@ Gpdma * Gpdma::getChannel(int channel)
 	return c;
 }
 
-void Gpdma::dmaIsr()
+void GPDMA::dmaIsr()
 {
 	//uint8_t channelActive = LPC_GPDMA->DMACIntStat & 0xFF;
 	uint8_t channelTC = LPC_GPDMA->DMACIntTCStat & 0xFF;
@@ -65,8 +64,6 @@ void Gpdma::dmaIsr()
 			else
 			{
 				// TODO Service int
-
-
 			}
 
 			LPC_GPDMA->DMACIntTCClear |= (1 << i);
@@ -80,8 +77,6 @@ void Gpdma::dmaIsr()
 			else
 			{
 				// TODO Service int
-
-
 			}
 
 			LPC_GPDMA->DMACIntErrClr |= (1 << i);
@@ -92,8 +87,4 @@ void Gpdma::dmaIsr()
 			break;
 	}
 }
-
-
-
-
 
