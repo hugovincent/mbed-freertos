@@ -13,6 +13,7 @@
 #include "drivers/gpio.h"
 #include "drivers/wdt.h"
 #include "drivers/uart.h"
+#include "drivers/rtc.h"
 
 extern void vPortSVCHandler( void );
 extern void xPortPendSVHandler(void);
@@ -58,8 +59,7 @@ void Board_LateInit()
 	GPIO_SetDirection(1, 0, (0x1<<18) | (0x1<<20) | (0x1<<21) | (0x1<<23)); // mbed LEDs
 	GPIO_SetDirection(0, 0, (0x1<<4) | (0x1<<5)); // ethernet LEDs on mbed workshop board
 
-	//RTC_Init();
-
+	RTC_Init();
 	SemiFS_Init();
 }
 
