@@ -36,16 +36,14 @@ void Console_SingleMode()
 
 int uart0write_(const char *buf, size_t len)
 {
+#if defined(TARGET_LPC23xx)
+	// DMA currently doesn't work on the LPC23xx
+	UART_WriteUnbuffered(uart0, buf, len);
+#else
 	char *tmp = (char *)buf;
 	while (tmp < ((char *)buf + len))
-	{
-#ifdef TARGET_LPC23xx
-		// DMA currently doesn't work on the LPC23xx
-		tmp += UART_WriteUnbuffered(uart0, tmp, ((char *)buf + len) - tmp);
-#else
 		tmp += UART_Write(uart0, tmp, ((char *)buf + len) - tmp);
 #endif
-	}
 	return len;
 }
 
@@ -58,26 +56,25 @@ int uart0write(const char *buf, size_t len)
 			;
 	}
 
-	// FIXME CR stripping
+#ifndef configCONSOLE_NO_CRLF
 	// Newline -> CRLF replacement (zero copy):
-	char *nl = strchr(buf, '\n');
+	char *nl = memchr(buf, '\n', len);
 	if (nl != NULL)
 	{
 		char *tmp = (char *)buf;
-		int printed = 0;
-		while (nl != NULL)
+		do
 		{
-			printed += uart0write_(tmp, nl - tmp) + 1;
+			tmp += uart0write_(tmp, nl - tmp) + 1;
 			uart0write_("\r\n", 2);
-			tmp = nl + 1;
-			if (tmp > (buf + len))
+			if (tmp >= (buf + len))
 				break;
-			nl = strchr(tmp, '\n');
-		}
-		if (len - printed > 0)
-			uart0write_(tmp, len - printed);
+			nl = memchr(tmp, '\n', buf + len - tmp);
+		} while (nl != NULL);
+		if (tmp < buf + len)
+			uart0write_(tmp, buf + len - tmp);
 	}
 	else
+#endif
 	{
 		uart0write_(buf, len);
 	}
