@@ -53,7 +53,11 @@ void Board_EarlyInit( void )
 
 void Board_LateInit()
 {
+	// Setup LEDs
 	GPIO_Init();
+	GPIO_SetDirection(1, 0, (0x1<<18) | (0x1<<20) | (0x1<<21) | (0x1<<23)); // mbed LEDs
+	GPIO_SetDirection(0, 0, (0x1<<4) | (0x1<<5)); // ethernet LEDs on mbed workshop board
+
 	//RTC_Init();
 
 	SemiFS_Init();

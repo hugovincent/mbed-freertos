@@ -26,11 +26,14 @@ void GPIO_Init()
 	// Enable GPIO peripheral power for GPIO0 and GPIO1
 	LPC_SC->PCONP |= 0x00008000;
 
-	// We have four LEDs on P1.18, P1.20, P1,21, and P1,23.
-	LPC_GPIO1->FIODIR |= (0x1 << 18) | (0x1 << 20) | (0x1 << 21) | (0x1 << 23);
+	// FIXME need some registry-type-thing of which pins are in/out and which
+	// are in use by which task.
+}
 
-	// And two ethernet LEDs on P0.4 and P0.5
-	LPC_GPIO0->FIODIR |= (0x1 << 4) | (0x1 << 5);
+void GPIO_SetDirection(int which, unsigned int in_bitmap, unsigned int out_bitmap)
+{
+	block(which)->FIODIR |= out_bitmap;
+	block(which)->FIODIR &= ~(in_bitmap);
 }
 
 void GPIO_Write(int which, unsigned int set_bitmap, unsigned int clear_bitmap)
@@ -49,6 +52,4 @@ unsigned int GPIO_Read(int which)
 {
 	return block(which)->FIOPIN;
 }
-
-
 

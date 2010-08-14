@@ -12,7 +12,8 @@ extern "C" {
 
 // FIXME register pins, set direction, register interrupt
 
-void GPIO_Init(); // fixme should pass in pins & directions here
+void GPIO_Init();
+void GPIO_SetDirection(int block, unsigned int in_bitmap, unsigned int out_bitmap);
 void GPIO_Write(int block, unsigned int set_bitmap, unsigned int clear_bitmap);
 void GPIO_Toggle(int block, unsigned int bitmap);
 unsigned int GPIO_Read(int block);
