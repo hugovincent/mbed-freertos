@@ -4,7 +4,7 @@
 #include "console.h"
 #include "debug_support.h"
 #include "power_management.h"
-#include "mpu_manager.h"
+#include "task_manager.h"
 
 enum ExceptionType
 {
@@ -176,10 +176,10 @@ void MemManage_Handler()
 
 	const unsigned int mpuFaultAddr = mmarValid ? SCB->MMFAR : 0;
 
-	if (!MPUManager_HandleFault(pc, mpuFaultAddr))
+	if (!TaskManager_HandleFault(TaskManager_MPUFault, pc, mpuFaultAddr))
 	{
 		Console_SingleMode();
-		puts("\n[FreeRTOS] Fatal Error: Unhandled Access Violation.");
+		puts("\n[FreeRTOS] Fatal Error: Unhandled MPU protection violation.");
 		printf("\tpc : [<%08x>]  bad_access : [<%08x>]\n", pc, mpuFaultAddr);
 		puts("\nHalting.");
 		PowerManagement_PowerDown();

@@ -5,17 +5,12 @@
 #include "lib/syscalls/heap.h"
 #include "power_management.h"
 #include "drivers/wdt.h"
-
-#ifdef CORE_HAS_MPU
-#include "mpu_manager.h"
-#endif
+#include "task_manager.h"
 
 #if configUSE_IDLE_HOOK == 1
 void vApplicationIdleHook()
 {
-#ifdef CORE_HAS_MPU
-	MPUManager_Idle();
-#endif
+	TaskManager_Idle();
 	PowerManagement_Idle();
 }
 #endif

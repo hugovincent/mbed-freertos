@@ -67,8 +67,7 @@ C_SOURCE= \
 		mach/cpu-lpc1768/core_cm3.c \
 		mach/cpu-lpc1768/system_LPC17xx.c \
 		mach/cpu-lpc1768/crt0.c \
-		mach/cpu-lpc1768/fault_handlers.c \
-		lib/mpu_manager.c
+		mach/cpu-lpc1768/fault_handlers.c
 endif
 
 #------------------------------------------------------------------------------
@@ -140,7 +139,8 @@ C_SOURCE+= \
 		lib/semifs.c \
 		lib/romfs.c \
 		lib/console.c \
-		lib/os_init.c
+		lib/os_init.c \
+		lib/task_manager.c
 CXX_SOURCE+= \
 		Main.cpp
 

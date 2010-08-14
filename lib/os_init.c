@@ -5,10 +5,7 @@
 #include "device_manager.h"
 #include "console.h"
 #include "romfs.h"
-
-#ifdef CORE_HAS_MPU
-#include "mpu_manager.h"
-#endif
+#include "task_manager.h"
 
 /* For kernel version message: */
 #include "FreeRTOS.h"
@@ -55,9 +52,7 @@ void Boot_Init()
 
 void OS_Init()
 {
-#ifdef CORE_HAS_MPU
-	MPUManager_Init();
-#endif
+	TaskManager_Init();
 	DeviceManager_Init();
 	RomFS_Init();
 
