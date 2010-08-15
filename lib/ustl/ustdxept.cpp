@@ -3,7 +3,7 @@
 // Copyright (c) 2005-2009 by Mike Sharov <msharov@users.sourceforge.net>
 // This file is free software, distributed under the MIT License.
 
-#include "ustdxept.h"
+#include <stdexcept>
 #include "mistream.h"
 #include "mostream.h"
 #include "strmsize.h"

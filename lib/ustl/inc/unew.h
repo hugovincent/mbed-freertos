@@ -6,7 +6,7 @@
 #ifndef UNEW_H_11D237512B324C9C05A55DAF1BF086F1
 #define UNEW_H_11D237512B324C9C05A55DAF1BF086F1
 
-#include "uexception.h"
+#include <exception>
 #include <stdlib.h>
 
 /// Just like malloc, but throws on failure.

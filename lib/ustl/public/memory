@@ -12,9 +12,9 @@
 #else
     #include <stdlib.h>
 #endif
-#include "upair.h"
-#include "uiterator.h"
-#include "ulimits.h"
+#include <pair>
+#include <iterator>
+#include <limits>
 
 namespace std {
 

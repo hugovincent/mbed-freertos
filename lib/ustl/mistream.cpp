@@ -5,8 +5,8 @@
 
 #include "mistream.h"
 #include "sostream.h"
-#include "ustring.h"
-#include "ualgo.h"
+#include <string>
+#include <algo>
 
 namespace std {
 

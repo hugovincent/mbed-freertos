@@ -6,8 +6,8 @@
 #ifndef UBITSET_H_7B6450EC1400CBA45DCE0127739F82EE
 #define UBITSET_H_7B6450EC1400CBA45DCE0127739F82EE
 
-#include "ustring.h"
-#include "ufunction.h"
+#include <string>
+#include <function>
 
 namespace std {
 

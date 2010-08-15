@@ -6,7 +6,7 @@
 #ifndef USET_H_45543F516E02A87A3FCEA5024052A6F5
 #define USET_H_45543F516E02A87A3FCEA5024052A6F5
 
-#include "uvector.h"
+#include <vector>
 
 namespace std {
 

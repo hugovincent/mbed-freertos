@@ -98,7 +98,6 @@ CFLAGS = $(COMMON_FLAGS) \
 
 CXXFLAGS= $(COMMON_FLAGS) \
 		-I lib/ustl/public -nostdinc++ \
-		-fno-rtti \
 		-fno-enforce-eh-specs \
 		-fno-use-cxa-get-exception-ptr \
 		-fno-stack-protector

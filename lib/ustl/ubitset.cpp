@@ -3,7 +3,7 @@
 // Copyright (c) 2005-2009 by Mike Sharov <msharov@users.sourceforge.net>
 // This file is free software, distributed under the MIT License.
 
-#include "ubitset.h"
+#include <bitset>
 
 namespace std {
 

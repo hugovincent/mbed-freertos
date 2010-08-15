@@ -6,8 +6,8 @@
 #ifndef UMULTISET_H_446AEDBB7F61C6994DC228C25D5FA3A1
 #define UMULTISET_H_446AEDBB7F61C6994DC228C25D5FA3A1
 
-#include "uvector.h"
-#include "ualgo.h"
+#include <vector>
+#include <algo>
 
 namespace std {
 

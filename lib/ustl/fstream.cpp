@@ -3,9 +3,9 @@
 // Copyright (c) 2005-2009 by Mike Sharov <msharov@users.sourceforge.net>
 // This file is free software, distributed under the MIT License.
 
-#include "fstream"
-#include "uexception.h"
-#include "uutility.h"
+#include <fstream>
+#include <exception>
+#include <utility>
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>

@@ -5,9 +5,9 @@
 
 #include "mistream.h"
 #include "memblock.h"
-#include "ualgo.h"
-#include "umemory.h"
-#include "fstream"
+#include <algo>
+#include <memory>
+#include <fstream>
 #include <errno.h>
 
 namespace std {

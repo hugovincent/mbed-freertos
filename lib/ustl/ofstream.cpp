@@ -4,8 +4,8 @@
 // This file is free software, distributed under the MIT License.
 
 #include "ofstream.h"
-#include "ustring.h"
-#include "uexception.h"
+#include <string>
+#include <exception>
 #include <unistd.h>
 #include <errno.h>
 #include <stdio.h>

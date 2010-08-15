@@ -5,7 +5,7 @@
 
 #include "sistream.h"
 #include "sostream.h"
-#include "ustring.h"
+#include <string>
 
 namespace std {
 

@@ -7,9 +7,9 @@
 #define MOSTREAM_H_24A8C5397E0848216573E5670930FC9A
 
 #include "memlink.h"
-#include "uexception.h"
+#include <exception>
 #include "utf8.h"
-#include "uios.h"
+#include <ios>
 #if WANT_STREAM_BOUNDS_CHECKING
     #include "typeinfo.h"
 #endif

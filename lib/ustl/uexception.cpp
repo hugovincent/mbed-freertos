@@ -3,8 +3,8 @@
 // Copyright (c) 2005-2009 by Mike Sharov <msharov@users.sourceforge.net>
 // This file is free software, distributed under the MIT License.
 
-#include "uexception.h"
-#include "ustring.h"
+#include <exception>
+#include <string>
 #include "mistream.h"
 #include "sostream.h"
 #include "strmsize.h"
@@ -37,7 +37,7 @@ void exception::read (istream& is)
 {
     uint32_t stmSize;
     xfmt_t fmt = xfmt_Exception;
-    is >> fmt >> stmSize >> m_Backtrace;
+    is >> fmt >> stmSize;
     assert (fmt == m_Format && "The saved exception is of a different type.");
     assert ((stmSize + 8) - exception::stream_size() <= is.remaining() && "The saved exception data is corrupt.");
     m_Format = fmt;
@@ -46,7 +46,7 @@ void exception::read (istream& is)
 /// Writes the exception into stream \p os as an IFF chunk.
 void exception::write (ostream& os) const
 {
-    os << m_Format << uint32_t(stream_size() - 8) << m_Backtrace;
+    os << m_Format << uint32_t(stream_size() - 8);
 }
 
 /// Writes the exception as text into stream \p os.

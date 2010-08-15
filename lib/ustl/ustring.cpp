@@ -3,10 +3,10 @@
 // Copyright (c) 2005-2009 by Mike Sharov <msharov@users.sourceforge.net>
 // This file is free software, distributed under the MIT License.
 
-#include "ustring.h"
+#include <string>
 #include "mistream.h"
 #include "mostream.h"
-#include "ualgo.h"
+#include <algo>
 #include <stdio.h>	// for vsnprintf (in string::format)
 
 namespace std {

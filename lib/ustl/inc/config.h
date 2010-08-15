@@ -30,10 +30,6 @@
 /// even more). By default only the debug build does this.
 #undef WANT_NAME_DEMANGLING
 
-#if !defined(WANT_NAME_DEMANGLING) && !defined(NDEBUG)
-    #define WANT_NAME_DEMANGLING 1
-#endif
-
 /// Define to 1 if you want to build without libstdc++
 #define WITHOUT_LIBSTDCPP 1
 

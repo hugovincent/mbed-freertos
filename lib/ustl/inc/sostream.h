@@ -6,7 +6,7 @@
 #ifndef SOSTREAM_H_5323DC8C26E181D43278F2F53FDCF19F
 #define SOSTREAM_H_5323DC8C26E181D43278F2F53FDCF19F
 
-#include "ustring.h"
+#include <string>
 #include "mostream.h"
 
 namespace std {

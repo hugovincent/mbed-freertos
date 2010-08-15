@@ -11,7 +11,7 @@
 
 #include "types.h"
 #include "traits.h"
-#include "limits.h"
+#include <limits>
 #include <assert.h>
 
 namespace std {

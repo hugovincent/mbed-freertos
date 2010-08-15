@@ -7,10 +7,10 @@
 #define MISTREAM_H_103AEF1F266C04AA1A817D38705983DA
 
 #include "memlink.h"
-#include "uexception.h"
+#include <exception>
 #include "strmsize.h"
 #include "utf8.h"
-#include "uios.h"
+#include <ios>
 #if WANT_STREAM_BOUNDS_CHECKING
     #include "typeinfo.h"
 #endif

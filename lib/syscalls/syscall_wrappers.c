@@ -186,6 +186,7 @@ REENT_WRAPPER(void *,	realloc,		(__getreent(), ptr, size), void *ptr, size_t siz
 REENT_WRAPPER(char *,	strdup,			(__getreent(), s1), const char *s1)
 REENT_WRAPPER(long,		strtol,			(__getreent(), str, endptr, base), const char *restrict str, char **restrict endptr, int base)
 REENT_WRAPPER(unsigned long, strtoul,	(__getreent(), str, endptr, base), const char *restrict str, char **restrict endptr, int base)
+REENT_WRAPPER(int,		vsnprintf,		(__getreent(), s, n, format, ap), char *restrict s, size_t n, const char *restrict format, va_list ap);
 REENT_WRAPPER_VA(int, 	sprintf,		(__getreent(), s, fmt, arglist), char *s, const char *fmt)
 REENT_WRAPPER_VA(int, 	snprintf,		(__getreent(), s, n, fmt, arglist), char *s, size_t n, const char *fmt)
 REENT_WRAPPER_VA(int,	fprintf,		(__getreent(), stream, fmt, arglist), FILE *stream, const char *fmt)

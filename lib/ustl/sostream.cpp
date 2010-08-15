@@ -5,8 +5,8 @@
 
 #include "mistream.h"	// for istream_iterator, referenced in utf8.h
 #include "sostream.h"
-#include "ustring.h"
-#include "ulimits.h"
+#include <string>
+#include <limits>
 #include <stdio.h>
 
 namespace std {

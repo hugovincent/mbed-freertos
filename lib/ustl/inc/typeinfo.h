@@ -10,7 +10,7 @@
     #include <typeinfo>
 #else
 
-#include "uexception.h"
+#include <exception>
 
 namespace __cxxabiv1 { class __class_type_info; }
 
