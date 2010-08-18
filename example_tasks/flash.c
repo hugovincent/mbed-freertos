@@ -47,10 +47,6 @@
 #define ledNUMBER_OF_LEDS	( 4 )
 #define ledFLASH_RATE_BASE	( ( portTickType ) 500 ) // milliseconds
 
-/* Variable used by the created tasks to calculate the LED number to use, and
-the rate at which they should flash the LED. */
-static volatile unsigned portBASE_TYPE uxFlashTaskNumber = 0;
-
 /* The task that is created three times. */
 static portTASK_FUNCTION_PROTO( vLEDFlashTask, pvParameters );
 
@@ -59,12 +55,14 @@ static portTASK_FUNCTION_PROTO( vLEDFlashTask, pvParameters );
 void vStartLEDFlashTasks( unsigned portBASE_TYPE uxPriority )
 {
 signed portBASE_TYPE xLEDTask;
+signed char xLedName[] = "LEDx";
 
 	/* Create the four tasks. */
 	for( xLEDTask = 0; xLEDTask < ledNUMBER_OF_LEDS; ++xLEDTask )
 	{
 		/* Spawn the task. */
-		xTaskCreate( vLEDFlashTask, ( signed char * ) "LEDx", ledSTACK_SIZE, NULL, uxPriority, ( xTaskHandle * ) NULL );
+		xLedName[3] = '1' + xLEDTask;
+		xTaskCreate( vLEDFlashTask, xLedName, ledSTACK_SIZE, ( void * ) xLEDTask, uxPriority, ( xTaskHandle * ) NULL );
 	}
 }
 /*-----------------------------------------------------------*/
@@ -72,22 +70,11 @@ signed portBASE_TYPE xLEDTask;
 static portTASK_FUNCTION( vLEDFlashTask, pvParameters )
 {
 portTickType xFlashRate, xLastFlashTime;
-unsigned portBASE_TYPE uxLED;
+unsigned portBASE_TYPE uxLED, uxFlashTaskNumber = ( unsigned portBASE_TYPE ) pvParameters;
 	portLONG pin_map[] = {18, 20, 21, 23};	
 
-	/* The parameters are not used. */
-	( void ) pvParameters;
-
-	/* Calculate the LED and flash rate. */
-	portENTER_CRITICAL();
-	{
-		/* See which of the eight LED's we should use. */
-		uxLED = pin_map[uxFlashTaskNumber];
-
-		/* Update so the next task uses the next LED. */
-		uxFlashTaskNumber++;
-	}
-	portEXIT_CRITICAL();
+	/* See which of the eight LED's we should use. */
+	uxLED = pin_map[uxFlashTaskNumber++];
 
 	xFlashRate = ledFLASH_RATE_BASE + (ledFLASH_RATE_BASE * (portTickType)uxFlashTaskNumber);
 	xFlashRate /= portTICK_RATE_MS;

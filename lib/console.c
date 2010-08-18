@@ -40,9 +40,12 @@ int uart0write_(const char *buf, size_t len)
 	// DMA currently doesn't work on the LPC23xx
 	UART_WriteUnbuffered(uart0, buf, len);
 #else
-	char *tmp = (char *)buf;
-	while (tmp < ((char *)buf + len))
-		tmp += UART_Write(uart0, tmp, ((char *)buf + len) - tmp);
+	const char *tmp = buf;
+	do
+	{
+		tmp += UART_Write(uart0, tmp, (buf + len) - tmp);
+	}
+	while (tmp < (buf + len));
 #endif
 	return len;
 }

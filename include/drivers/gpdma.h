@@ -281,11 +281,11 @@ template<typename T>
 				;
 
 			numToGo = _dma->getTransfersToGo();
-			if (numToGo < 1)
+			usingLli = _dma->getLLIAddress() != 0;
+			if (numToGo < 1 && !usingLli)
 				wasActive = false;
 			else
 			{
-				usingLli = _dma->getLLIAddress() != 0;
 				if (usingLli)
 				{
 					numInLli = GPDMA::getTransfersToGoFromLLI(&_LLI);
@@ -305,10 +305,19 @@ template<typename T>
 			if (usingLli)
 			{
 				memcpy(_buffEnd, buf, len);
-				_LLI.Control = controlWord + numInLli + len; // can do this as transfer size is in bottom 3 nibbles
 				_buffEnd += len;
-				_dma->setLLIAddress(&_LLI);
-				_dma->setControl(controlWord + numToGo);
+				if (numToGo)
+				{
+					_LLI.Control = controlWord + numInLli + len; // can do this as transfer size is in bottom 3 nibbles
+					_dma->setLLIAddress(&_LLI);
+					_dma->setControl(controlWord + numToGo);
+				}
+				else
+				{
+					_dma->setLLIAddress(0);
+					_dma->setControl(controlWord + numInLli + len);
+					src = _buff;
+				}
 			}
 			else
 			{
