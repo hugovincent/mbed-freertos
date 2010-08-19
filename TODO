@@ -3,6 +3,7 @@ Last Update: 10 August 2010.
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
 BUGS:
+[1] Need a set of macros for making ISR definitions, entry and exit portable.
 [1] fd allocation in SemiFS and RomFS is broken and should be done by device_manager.
 [1] Add dirent-related functions to device manager and reenable semifs ones.
 [2] Exception handlers on ARM7 are currently broken.
@@ -22,6 +23,8 @@ GENERALIZATIONS:
 [1] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
 [1] Thread-local memory. Finish dynamic reentrancy in syscalls.
 [1] Switch over to the lwIP stack instead of uIP.
+[2] See if it's possible for the kernel microsecond clock to share the systick
+    timer rather than needing an extra timer.
 [2] RomFS should be FlashFS, with IAP.
 [2] Finish GPIO driver wrt permissions (tasks should have exclusive access to pins
     they open and use until they release them).
