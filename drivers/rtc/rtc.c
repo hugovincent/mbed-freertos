@@ -112,8 +112,6 @@ int RTC_SetTime(struct tm *tm)
 
 void RTC_Init()
 {
-	RTC_Wake();
-
 	// Reset clock divider and enable clock
 	LPC_RTC->CCR = 0;
 	LPC_RTC->CCR = RTC_CCR_CTCRST;
@@ -125,9 +123,11 @@ void RTC_Init()
 	// Disable all periodic interrupts
 	LPC_RTC->CIIR = 0;
 
+#if defined(TARGET_LPC17xx)
 	// Enable the RTC oscillator failure detection interrupt
 	LPC_RTC->RTC_AUX   = RTC_AUX_OSCF;
 	LPC_RTC->RTC_AUXEN = RTC_AUXEN_OSCFEN;
+#endif
 
 	// Check for a sensible-looking time
 	bool nonsense = false;
@@ -147,11 +147,12 @@ void RTC_Init()
 	// Clear pending interrupts
 	LPC_RTC->ILR = RTC_ILR_MASK;
 
+	// Put the RTC to sleep (continues to keep time whilst asleep)
+	RTC_Sleep();
+
 	// Enable the interrupt
 	NVIC_SetVector(RTC_IRQn, (uint32_t)RTC_ISR);
 	NVIC_EnableIRQ(RTC_IRQn);
-
-	RTC_Sleep();
 }
 
 int RTC_SetAlarm(struct tm *tm)
@@ -301,7 +302,18 @@ void RTC_SetAlarm_Epoch(time_t then)
 /* ------------------------------------------------------------------------- */
 // Interrupt service routine:
 
+#if defined(TARGET_LPC23xx)
+void RTC_ISR_Handler();
+__attribute__((interrupt ("IRQ"))) void RTC_ISR()
+{
+	portSAVE_CONTEXT();
+	RTC_ISR_Handler();
+	portRESTORE_CONTEXT();
+}
+void RTC_ISR_Handler()
+#elif defined(TARGET_LPC17xx)
 __attribute__((interrupt)) void RTC_ISR()
+#endif
 {
 	portBASE_TYPE higherPriorityTaskWoken = pdFALSE;
 
@@ -325,6 +337,7 @@ __attribute__((interrupt)) void RTC_ISR()
 		LPC_RTC->ILR = RTC_ILR_RTCALF;
 	}
 
+#if defined(TARGET_LPC17xx)
 	// Oscillator failure interrupt
 	if (LPC_RTC->RTC_AUX & RTC_AUX_OSCF)
 	{
@@ -333,14 +346,15 @@ __attribute__((interrupt)) void RTC_ISR()
 		// Clear the interrupt
 		LPC_RTC->RTC_AUX = RTC_AUX_OSCF;
 	}
+#endif
 
 	RTC_Sleep();
 
-#ifdef TARGET_LPC23xx
-	// Clear the interrupt
-	LPC_VIC->Address = 0;
-#endif
-
+#if defined(TARGET_LPC17xx)
 	portEND_SWITCHING_ISR(higherPriorityTaskWoken);
+#elif defined(TARGET_LPC23xx)
+	LPC_VIC->Address = 0; // Clear the interrupt
+	if (higherPriorityTaskWoken) { vPortYieldFromISR(); }
+#endif
 }
 

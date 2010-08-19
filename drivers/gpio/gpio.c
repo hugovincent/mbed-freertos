@@ -1,5 +1,7 @@
 #include <stdlib.h>
 #include <cmsis.h>
+#include "FreeRTOS.h"
+#include "task.h"
 #include "drivers/gpio.h"
 
 static inline LPC_GPIO_TypeDef *block(int which)
@@ -44,8 +46,12 @@ void GPIO_Write(int which, unsigned int set_bitmap, unsigned int clear_bitmap)
 
 void GPIO_Toggle(int which, unsigned int bitmap)
 {
-	unsigned int oldval = GPIO_Read(which);
-	GPIO_Write(which, ~oldval & bitmap, oldval & bitmap);
+	taskENTER_CRITICAL();
+	{
+		unsigned int oldval = GPIO_Read(which);
+		GPIO_Write(which, ~oldval & bitmap, oldval & bitmap);
+	}
+	taskEXIT_CRITICAL();
 }
 
 unsigned int GPIO_Read(int which)

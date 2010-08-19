@@ -535,15 +535,23 @@ const long lMaxTime = 10;
 }
 /*-----------------------------------------------------------*/
 
-void vEMAC_ISR( void )
+#if defined(TARGET_LPC23xx)
+void EMAC_ISR_Handler();
+__attribute__((interrupt ("IRQ"))) void EMAC_ISR()
+{
+	portSAVE_CONTEXT();
+	EMAC_ISR_Handler();
+	portRESTORE_CONTEXT();
+}
+void EMAC_ISR_Handler()
+#elif defined(TARGET_LPC17xx)
+__attribute__((interrupt)) void EMAC_ISR()
+#endif
 {
 unsigned long ulStatus;
 long lHigherPriorityTaskWoken = pdFALSE;
 
 	ulStatus = LPC_EMAC->IntStatus;
-
-	/* Clear the interrupt. */
-	LPC_EMAC->IntClear = ulStatus;
 
 	if( ulStatus & INT_RX_DONE )
 	{
@@ -573,5 +581,14 @@ long lHigherPriorityTaskWoken = pdFALSE;
 		}
 	}
 
-	portEND_SWITCHING_ISR( lHigherPriorityTaskWoken );
+	/* Clear the interrupt. */
+	LPC_EMAC->IntClear = ulStatus;
+
+#if defined(TARGET_LPC17xx)
+	portEND_SWITCHING_ISR(lHigherPriorityTaskWoken);
+#elif defined(TARGET_LPC23xx)
+	LPC_VIC->Address = 0; // Clear the interrupt
+	if (lHigherPriorityTaskWoken) { vPortYieldFromISR(); }
+#endif
 }
+
