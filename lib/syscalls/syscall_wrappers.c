@@ -126,6 +126,7 @@ extern int _nanosleep_r(struct _reent *ptr, const struct timespec *rqtp, struct 
 extern int _usleep_r(struct _reent *ptr, useconds_t useconds);
 extern unsigned int _sleep_r(struct _reent *ptr, unsigned int seconds);
 extern int _symlink_r(struct _reent *ptr, const char *path1, const char *path2);
+extern void *_memalign_r(struct _reent *ptr, size_t blocksize, size_t bytes);
 
 /* ------------------------------------------------------------------------- */
 // The following are syscall wrappers.
