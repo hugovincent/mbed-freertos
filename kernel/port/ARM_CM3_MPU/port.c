@@ -164,7 +164,7 @@ static void prvSVCHandler( unsigned long *pulRegisters ) __attribute__(( noinlin
 /*
  * Prototypes for all the MPU wrappers.
  */
-signed portBASE_TYPE MPU_xTaskGenericCreate( pdTASK_CODE pvTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, portSTACK_TYPE *puxStackBuffer, const xMemoryRegion * const xRegions );
+signed portBASE_TYPE MPU_xTaskGenericCreate( pdTASK_CODE pvTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, const xMemoryRegion * const xRegions );
 void MPU_vTaskAllocateMPURegions( xTaskHandle xTask, const xMemoryRegion * const xRegions );
 void MPU_vTaskDelete( xTaskHandle pxTaskToDelete );
 void MPU_vTaskDelayUntil( portTickType * const pxPreviousWakeTime, portTickType xTimeIncrement );
@@ -554,6 +554,7 @@ void vPortStoreTaskMPUSettings( xMPU_SETTINGS *xMPUSettings, const struct xMEMOR
 long lIndex;
 unsigned long ul;
 
+#if 0
 	if( xRegions == NULL )
 	{
 		/* No MPU regions are specified so allow access to all RAM. */
@@ -638,9 +639,58 @@ unsigned long ul;
 			lIndex++;
 		}
 	}
+#else
+	/* This function is called automatically when the task is created - in
+	which case the stack region parameters will be valid.  At all other
+	times the stack parameters will not be valid and it is assumed that the
+	stack region has already been configured. */
+	if( usStackDepth > 0 )
+	{
+		/* Define the region that allows access to the stack. */
+		xMPUSettings->xRegion[ 0 ].ulRegionBaseAddress =	
+				( ( unsigned long ) pxBottomOfStack ) | 
+				( portMPU_REGION_VALID ) |
+				( portSTACK_REGION ); /* Region number. */
+
+		xMPUSettings->xRegion[ 0 ].ulRegionAttribute =	
+				( portMPU_REGION_READ_WRITE ) | /* Read and write. */
+				( prvGetMPURegionSizeSetting( ( unsigned long ) usStackDepth * ( unsigned long ) sizeof( portSTACK_TYPE ) + sizeof( struct _reent ) ) ) |
+				( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+				( portMPU_REGION_ENABLE );
+	}
+
+	lIndex = 0;
+
+	for( ul = 1; ul <= portNUM_CONFIGURABLE_REGIONS; ul++ )
+	{
+		if( ( xRegions != NULL ) && ( ( xRegions[ lIndex ] ).ulLengthInBytes > 0UL ) )
+		{
+			/* Translate the generic region definition contained in 
+			xRegions into the CM3 specific MPU settings that are then 
+			stored in xMPUSettings. */
+			xMPUSettings->xRegion[ ul ].ulRegionBaseAddress =	
+					( ( unsigned long ) xRegions[ lIndex ].pvBaseAddress ) | 
+					( portMPU_REGION_VALID ) |
+					( portSTACK_REGION + ul ); /* Region number. */
+
+			xMPUSettings->xRegion[ ul ].ulRegionAttribute =	
+					( prvGetMPURegionSizeSetting( xRegions[ lIndex ].ulLengthInBytes ) ) | 
+					( xRegions[ lIndex ].ulParameters ) | 
+					( portMPU_REGION_ENABLE ); 
+		}
+		else
+		{
+			/* Invalidate the region. */
+			xMPUSettings->xRegion[ ul ].ulRegionBaseAddress = ( portSTACK_REGION + ul ) | portMPU_REGION_VALID;	
+			xMPUSettings->xRegion[ ul ].ulRegionAttribute = 0UL;
+		}
+
+		lIndex++;
+	}
+#endif
 }
 /*-----------------------------------------------------------*/
-
+#if 0
 signed portBASE_TYPE MPU_xTaskGenericCreate( pdTASK_CODE pvTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, portSTACK_TYPE *puxStackBuffer, const xMemoryRegion * const xRegions )
 {
 signed portBASE_TYPE xReturn;
@@ -650,6 +700,17 @@ portBASE_TYPE xRunningPrivileged = prvRaisePrivilege();
 	portRESET_PRIVILEGE( xRunningPrivileged );
 	return xReturn;
 }
+#else
+signed portBASE_TYPE MPU_xTaskGenericCreate( pdTASK_CODE pvTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, const xMemoryRegion * const xRegions )
+{
+signed portBASE_TYPE xReturn;
+portBASE_TYPE xRunningPrivileged = prvRaisePrivilege();
+
+	xReturn = xTaskGenericCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask, xRegions );
+	portRESET_PRIVILEGE( xRunningPrivileged );
+	return xReturn;
+}
+#endif
 /*-----------------------------------------------------------*/
 
 void MPU_vTaskAllocateMPURegions( xTaskHandle xTask, const xMemoryRegion * const xRegions )

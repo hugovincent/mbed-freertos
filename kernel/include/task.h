@@ -237,8 +237,11 @@ typedef struct xTASK_PARAMTERS
  * \defgroup xTaskCreate xTaskCreate
  * \ingroup Tasks
  */
+#if ( portUSING_MPU_WRAPPERS )
+#define xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask ) xTaskGenericCreate( ( pvTaskCode ), ( pcName ), ( usStackDepth ), ( pvParameters ), ( uxPriority ), ( pxCreatedTask ), ( NULL ) )
+#else
 #define xTaskCreate( pvTaskCode, pcName, usStackDepth, pvParameters, uxPriority, pxCreatedTask ) xTaskGenericCreate( ( pvTaskCode ), ( pcName ), ( usStackDepth ), ( pvParameters ), ( uxPriority ), ( pxCreatedTask ), ( NULL ), ( NULL ) )
-
+#endif
 /**
  * task. h
  *<pre>
@@ -306,7 +309,11 @@ xTaskHandle xHandle;
  * \defgroup xTaskCreateRestricted xTaskCreateRestricted
  * \ingroup Tasks
  */
+#if ( portUSING_MPU_WRAPPERS )
+#define xTaskCreateMPU( x, pxCreatedTask ) xTaskGenericCreate( ((x)->pvTaskCode), ((x)->pcName), ((x)->usStackDepth), ((x)->pvParameters), ((x)->uxPriority), (pxCreatedTask), ((x)->xRegions) )
+#else
 #define xTaskCreateRestricted( x, pxCreatedTask ) xTaskGenericCreate( ((x)->pvTaskCode), ((x)->pcName), ((x)->usStackDepth), ((x)->pvParameters), ((x)->uxPriority), (pxCreatedTask), ((x)->puxStackBuffer), ((x)->xRegions) )
+#endif // !define ( portUSING_MPU_WRAPPERS )
 
 /**
  * task. h
@@ -355,6 +362,8 @@ void vATask( void *pvParameters )
  * \ingroup Tasks
  */
 void vTaskAllocateMPURegions( xTaskHandle xTask, const xMemoryRegion * const pxRegions ) PRIVILEGED_FUNCTION;
+
+struct _reent *xTaskGetReent( xTaskHandle xTask ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h
@@ -1247,7 +1256,11 @@ void vTaskPriorityDisinherit( xTaskHandle * const pxMutexHolder ) PRIVILEGED_FUN
  * Generic version of the task creation function which is in turn called by the
  * xTaskCreate() and xTaskCreateRestricted() macros.
  */
+#if ( portUSING_MPU_WRAPPERS )
+signed portBASE_TYPE xTaskGenericCreate( pdTASK_CODE pvTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, const xMemoryRegion * const xRegions ) PRIVILEGED_FUNCTION;
+#else
 signed portBASE_TYPE xTaskGenericCreate( pdTASK_CODE pvTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, portSTACK_TYPE *puxStackBuffer, const xMemoryRegion * const xRegions ) PRIVILEGED_FUNCTION;
+#endif
 
 #ifdef __cplusplus
 }
