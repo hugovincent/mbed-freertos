@@ -135,9 +135,9 @@ int main()
 #endif
 
 #ifdef CORE_HAS_MPU
-	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, &hndl1);
+	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
-	xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, &hndl2);
+	xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 
 	extern int numAlloc;
 	printf("Starting scheduler.\n");
