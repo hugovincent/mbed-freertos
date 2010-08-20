@@ -116,7 +116,9 @@ int main()
 	vStartQueuePeekTasks();
 	vStartDynamicPriorityTasks();
 #endif
+#if 0
 	vStartWebserverTask();
+#endif
 
 #if 0
 	char *name = "testfile";
@@ -133,13 +135,13 @@ int main()
 #endif
 
 #ifdef CORE_HAS_MPU
-	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE + 100,
-			(void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
+	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, &hndl1);
 #endif
-	xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE + 200,
-			(void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
+	xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, &hndl2);
 
+	extern int numAlloc;
 	printf("Starting scheduler.\n");
+	fflush(stdout);
 
 	// Start the scheduler.
 	vTaskStartScheduler();

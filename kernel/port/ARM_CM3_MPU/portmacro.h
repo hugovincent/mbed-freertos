@@ -108,6 +108,19 @@ extern "C" {
 #define portNUM_CONFIGURABLE_REGIONS		( ( portLAST_CONFIGURABLE_REGION - portFIRST_CONFIGURABLE_REGION ) + 1 )
 #define portTOTAL_NUM_REGIONS				( portNUM_CONFIGURABLE_REGIONS + 1 ) /* Plus one to make space for the stack region. */
 
+static inline unsigned portBASE_TYPE portROUND_UP_TO_POWER_TWO(unsigned portBASE_TYPE val)
+{
+	val--;
+	val |= val >> 1;
+	val |= val >> 2;
+	val |= val >> 4;
+	val |= val >> 8;
+	val |= val >> 16;
+	return ++val;
+}
+
+#define portMPU_REGION_SIZE(_minSize)	((portROUND_UP_TO_POWER_TWO((_minSize)) < 32) ? 32 : portROUND_UP_TO_POWER_TWO((_minSize)))
+
 #define portSWITCH_TO_USER_MODE() __asm volatile ( " mrs r0, control \n orr r0, #1 \n msr control, r0 " :::"r0" )
 
 typedef struct MPU_REGION_REGISTERS

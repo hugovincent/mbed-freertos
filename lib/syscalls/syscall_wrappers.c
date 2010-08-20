@@ -7,6 +7,7 @@
  */
 
 #include "FreeRTOS.h"
+#include "task.h"
 #include <reent.h>
 
 #include <stdio.h>
@@ -15,6 +16,7 @@
 #include <wchar.h>
 #include <signal.h>
 #include <string.h>
+#include <malloc.h>
 
 #ifdef CORE_HAS_MPU
 
@@ -109,7 +111,7 @@ static portBASE_TYPE prvRaisePrivilege(void)
 /* ------------------------------------------------------------------------- */
 // Foward declarations needed by the wrappers:
 
-struct _reent *__getreent_mpu();
+static inline struct _reent *__getreent_mpu();
 extern int _chmod_r(struct _reent *ptr, const char *path, mode_t mode);
 extern int _chown_r(struct _reent *ptr, const char *path, uid_t owner, gid_t group);
 extern int _fsync_r(struct _reent *ptr, int fd);
@@ -205,7 +207,8 @@ REENT_WRAPPER_VA(int, 	printf,			(__getreent(), fmt, arglist), const char *fmt)
 
 struct _reent *__getreent_mpu() PRIVILEGED_FUNCTION
 {
-	// FIXME do newlib <-> FreeRTOS thread integration here. 
+	return xTaskGetReent(NULL);
+
 
 	// This is an example for Nucleus RTOS:
 #if 0

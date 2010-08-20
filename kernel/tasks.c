@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <reent.h>
+#include <malloc.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
@@ -64,6 +66,10 @@ typedef struct tskTaskControlBlock
 
 	#if ( portSTACK_GROWTH > 0 )
 		portSTACK_TYPE *pxEndOfStack;			/*< Used for stack overflow checking on architectures where the stack grows up from low memory. */
+	#endif
+
+	#if ( portUSING_MPU_WRAPPERS )
+		struct _reent *xSysReent;
 	#endif
 
 	#if ( portCRITICAL_NESTING_IN_TCB == 1 )
@@ -320,7 +326,11 @@ static void prvCheckTasksWaitingTermination( void ) PRIVILEGED_FUNCTION;
  * Allocates memory from the heap for a TCB and associated stack.  Checks the
  * allocation was successful.
  */
+#if ( portUSING_MPU_WRAPPERS )
+static tskTCB *prvAllocateTCBAndStack( unsigned short usStackDepth ) PRIVILEGED_FUNCTION;
+#else
 static tskTCB *prvAllocateTCBAndStack( unsigned short usStackDepth, portSTACK_TYPE *puxStackBuffer ) PRIVILEGED_FUNCTION;
+#endif
 
 /*
  * Called from vTaskList.  vListTasks details all the tasks currently under
@@ -356,15 +366,25 @@ static tskTCB *prvAllocateTCBAndStack( unsigned short usStackDepth, portSTACK_TY
 /*-----------------------------------------------------------
  * TASK CREATION API documented in task.h
  *----------------------------------------------------------*/
-
+#if ( portUSING_MPU_WRAPPERS )
+signed portBASE_TYPE xTaskGenericCreate( pdTASK_CODE pxTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, const xMemoryRegion * const xRegions )
+#else
 signed portBASE_TYPE xTaskGenericCreate( pdTASK_CODE pxTaskCode, const signed char * const pcName, unsigned short usStackDepth, void *pvParameters, unsigned portBASE_TYPE uxPriority, xTaskHandle *pxCreatedTask, portSTACK_TYPE *puxStackBuffer, const xMemoryRegion * const xRegions )
+#endif
 {
 signed portBASE_TYPE xReturn;
 tskTCB * pxNewTCB;
 
 	/* Allocate the memory required by the TCB and stack for the new task,
 	checking that the allocation was successful. */
+#if ( portUSING_MPU_WRAPPERS )
+	/* This really isn't the nicest way to do it but it's the simplest way without having to change the FreeRTOS tasks.c layout too much */
+	size_t usStackAndReentSize = portMPU_REGION_SIZE( sizeof( struct _reent ) + ( ( size_t )usStackDepth * sizeof( portSTACK_TYPE ) ) );
+	usStackDepth = ( usStackAndReentSize - sizeof( struct _reent ) ) / sizeof( portSTACK_TYPE );	
+	pxNewTCB = prvAllocateTCBAndStack( usStackDepth );
+#else
 	pxNewTCB = prvAllocateTCBAndStack( usStackDepth, puxStackBuffer );
+#endif
 
 	if( pxNewTCB != NULL )
 	{
@@ -382,6 +402,13 @@ tskTCB * pxNewTCB;
 				xRunPrivileged = pdFALSE;
 			}
 			uxPriority &= ~portPRIVILEGE_BIT;
+
+			{
+				portSTACK_TYPE *xReentStart = pxNewTCB->pxStack + usStackDepth;
+				struct _reent *xReent = ( struct _reent * ) xReentStart;
+				_REENT_INIT_PTR(xReent);
+				pxNewTCB->xSysReent = xReent;
+			}
 		#endif /* portUSING_MPU_WRAPPERS == 1 */
 
 		/* Calculate the top of stack address.  This depends on whether the
@@ -1944,6 +1971,21 @@ static void prvInitialiseTCBVariables( tskTCB *pxTCB, const signed char * const 
         vPortStoreTaskMPUSettings( &( pxTCB->xMPUSettings ), xRegions, NULL, 0 );
 	}
 	/*-----------------------------------------------------------*/
+
+	struct _reent *xTaskGetReent( xTaskHandle xTask )
+	{
+	tskTCB *pxTCB;
+
+		if ( xSchedulerRunning == pdFALSE )
+		{
+			return _impure_ptr;
+		}
+
+		/* If null is passed in here then we are getting reent for ourselves. */
+		pxTCB = prvGetTCBFromHandle( xTask );
+		
+		return pxTCB->xSysReent;
+	}
 #endif
 
 static void prvInitialiseTaskLists( void )
@@ -2013,7 +2055,11 @@ static void prvCheckTasksWaitingTermination( void )
 }
 /*-----------------------------------------------------------*/
 
+#if ( portUSING_MPU_WRAPPERS )
+static tskTCB *prvAllocateTCBAndStack( unsigned short usStackDepth )
+#else
 static tskTCB *prvAllocateTCBAndStack( unsigned short usStackDepth, portSTACK_TYPE *puxStackBuffer )
+#endif
 {
 tskTCB *pxNewTCB;
 
@@ -2026,7 +2072,18 @@ tskTCB *pxNewTCB;
 		/* Allocate space for the stack used by the task being created.
 		The base of the stack memory stored in the TCB so the task can
 		be deleted later if required. */
+#if ( portUSING_MPU_WRAPPERS )
+		{
+			size_t xStackAndReentLen = ( ( size_t ) usStackDepth * sizeof( portSTACK_TYPE ) ) + sizeof( struct _reent );
+			vTaskSuspendAll();
+			{
+				pxNewTCB->pxStack = ( portSTACK_TYPE * ) _memalign_r( _impure_ptr, xStackAndReentLen, xStackAndReentLen );
+			}
+			xTaskResumeAll();
+		}
+#else
 		pxNewTCB->pxStack = ( portSTACK_TYPE * ) pvPortMallocAligned( ( ( ( size_t )usStackDepth ) * sizeof( portSTACK_TYPE ) ), puxStackBuffer );
+#endif
 
 		if( pxNewTCB->pxStack == NULL )
 		{
