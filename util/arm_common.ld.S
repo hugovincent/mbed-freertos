@@ -51,7 +51,7 @@ SECTIONS
 
 	/* .bss section -- used for uninitialized data */
 	/* Located at the start of RAM */
-	.bss : {
+	.bss (NOLOAD) : {
 		__bss_start__ = . ;
 
 		__privileged_bss_start__ = . ;
