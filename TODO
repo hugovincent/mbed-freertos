@@ -1,8 +1,9 @@
-Last Update: 10 August 2010.
+Last Update: 21 August 2010.
 
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
 BUGS:
+[1] Finish device_manager and async_event.
 [1] Need a set of macros for making ISR definitions, entry and exit portable.
 [1] fd allocation in SemiFS and RomFS is broken and should be done by device_manager.
 [1] Add dirent-related functions to device manager and reenable semifs ones.
