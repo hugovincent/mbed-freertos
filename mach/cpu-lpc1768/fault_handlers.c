@@ -176,7 +176,7 @@ void MemManage_Handler()
 
 	const unsigned int mpuFaultAddr = mmarValid ? SCB->MMFAR : 0;
 
-	if (!TaskManager_HandleFault(TaskManager_MPUFault, pc, mpuFaultAddr))
+	if (!TaskManager_HandleFault(TaskManager_MPUFault | ((exc_return & (0x1<<3)) ? TaskManager_FaultFromThread : 0), pc, mpuFaultAddr))
 	{
 		Console_SingleMode();
 		puts("\n[FreeRTOS] Fatal Error: Unhandled MPU protection violation.");

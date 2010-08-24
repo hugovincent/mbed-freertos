@@ -54,6 +54,7 @@ COMMON_FLAGS= \
 		-DTARGET_LPC17xx \
 		-DCORE_HAS_MPU \
 		-DPLAT_NAME="\"LPC1768\"" \
+		-DUSE_PROCESS_STACK \
 		-Iinclude/LPC1768
 LINKER_FLAGS= \
 		-mthumb \

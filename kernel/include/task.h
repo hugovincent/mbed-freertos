@@ -83,7 +83,6 @@ typedef struct xTASK_PARAMTERS
 	unsigned short usStackDepth;
 	void *pvParameters;
 	unsigned portBASE_TYPE uxPriority;
-	portSTACK_TYPE *puxStackBuffer;
 	xMemoryRegion xRegions[ portNUM_CONFIGURABLE_REGIONS ];
 } xTaskParameters;
 
@@ -364,6 +363,9 @@ void vATask( void *pvParameters )
 void vTaskAllocateMPURegions( xTaskHandle xTask, const xMemoryRegion * const pxRegions ) PRIVILEGED_FUNCTION;
 
 struct _reent *xTaskGetReent( xTaskHandle xTask ) PRIVILEGED_FUNCTION;
+
+/* Set the user read-only MPU region. Region size must be appropriate MPU region size */
+void vSetUserMPURegion( void *startAddress, unsigned portBASE_TYPE areaLen ) PRIVILEGED_FUNCTION;
 
 /**
  * task. h

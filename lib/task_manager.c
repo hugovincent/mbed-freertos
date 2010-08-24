@@ -64,7 +64,8 @@ bool TaskManager_HandleFault(TaskManager_FaultType_t type, uint32_t pc, uint32_t
 {
 	// FIXME check it was application code (not
 	// ISR or library code) that faulted:
-	bool will_handle = true;
+	bool will_handle = type & TaskManager_FaultFromThread;
+	type &= ~TaskManager_FaultFromThread;
 
 	if (will_handle)
 	{

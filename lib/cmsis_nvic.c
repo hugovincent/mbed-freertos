@@ -1,8 +1,9 @@
 #include "cmsis_nvic.h"
+#include "FreeRTOS.h"
 
 #if defined(TARGET_LPC17xx)
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vect)
+void NVIC_SetVector(IRQn_Type IRQn, uint32_t vect) PRIVILEGED_FUNCTION
 {
 	extern void (* __ram_vectors[])(void);
 	void (*vector)(void) = (void (*)(void))vect;

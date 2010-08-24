@@ -304,7 +304,7 @@ template<typename T>
 		{
 			if (usingLli)
 			{
-				memcpy(_buffEnd, buf, len);
+				memcpy(_buffEnd, buf, len * sizeof(T));
 				_buffEnd += len;
 				if (numToGo)
 				{
@@ -325,10 +325,10 @@ template<typename T>
 				if (len > spaceAtTop)
 				{
 					// Setup an LLI
-					memcpy(_buffEnd, buf, spaceAtTop);
+					memcpy(_buffEnd, buf, spaceAtTop * sizeof(T));
 					_dma->setControl(controlWord + numToGo + spaceAtTop);
 					numInLli = len - spaceAtTop;
-					memcpy(_buff, buf + spaceAtTop, numInLli);
+					memcpy(_buff, buf + spaceAtTop, numInLli * sizeof(T));
 					_LLI.Control = controlWord + numInLli;
 					_LLI.SrcAddr = (uint32_t)_buff;
 					_LLI.NextLLI = 0;
@@ -337,7 +337,7 @@ template<typename T>
 				}
 				else // Don't need LLI, add to end of existing transfer
 				{
-					memcpy(_buffEnd, buf, len);
+					memcpy(_buffEnd, buf, len * sizeof(T));
 					_buffEnd += len;
 					_dma->setControl(controlWord + numToGo + len);
 					_dma->setLLIAddress(0);
@@ -348,7 +348,7 @@ template<typename T>
 		else // wasn't active
 		{
 			_buffEnd = _buff + len;
-			memcpy(_buff, buf, len);
+			memcpy(_buff, buf, len * sizeof(T));
 			_dma->setSrcAddress(_buff);
 			_dma->setControl(controlWord + len);
 			_dma->setLLIAddress(0);
@@ -453,7 +453,7 @@ template<typename T>
 			len = numInBuff;
 		if (usingLli)
 		{
-			memcpy(buf, _buffStart, len);
+			memcpy(buf, _buffStart, len * sizeof(T));
 			_buffStart += len;
 			_LLI.Control = GPDMA::createControlWord(numToGoInLli + len, GPDMA::_1, GPDMA::_1, txWidth, txWidth, false, true);
 			_dma->setLLIAddress(&_LLI);
@@ -465,9 +465,9 @@ template<typename T>
 			if (len > numAtTop)
 			{
 				// Setup LLI
-				memcpy(buf, _buffStart, numAtTop);
+				memcpy(buf, _buffStart, numAtTop * sizeof(T));
 				size_t numAtBottom = len - numAtTop;
-				memcpy(buf + numAtTop, _buff, numAtBottom);
+				memcpy(buf + numAtTop, _buff, numAtBottom * sizeof(T));
 				_buffStart = _buff + numAtBottom;
 				numToGo += numAtTop;
 				_LLI.Control = GPDMA::createControlWord(numAtBottom, GPDMA::_1, GPDMA::_1, txWidth, txWidth, false, true);
@@ -475,14 +475,14 @@ template<typename T>
 			}
 			else if (len < numAtTop)
 			{
-				memcpy(buf, _buffStart, len);
+				memcpy(buf, _buffStart, len * sizeof(T));
 				_buffStart += len;
 				_dma->setLLIAddress(0);
 				numToGo += len;
 			}
 			else // if (len == numAtTop)
 			{
-				memcpy(buf, _buffStart, len);
+				memcpy(buf, _buffStart, len * sizeof(T));
 				numToGo += len;
 				_buffStart = _buff;
 				_dma->setLLIAddress(0);

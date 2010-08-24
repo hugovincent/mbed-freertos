@@ -9,7 +9,9 @@ extern "C" {
 #endif
 
 typedef enum {
-	TaskManager_MPUFault,
+	TaskManager_MPUFault = (1<<0),
+
+	TaskManager_FaultFromThread = (1<<31)
 	// FIXME
 } TaskManager_FaultType_t;
 

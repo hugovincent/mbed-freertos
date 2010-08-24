@@ -91,6 +91,7 @@ extern "C" {
 #define portUSING_MPU_WRAPPERS		1
 #define portPRIVILEGE_BIT			( 0x80000000UL )
 
+#define portMPU_REGION_USER_READ_ONLY			( 0x02UL << 24UL )
 #define portMPU_REGION_READ_WRITE				( 0x03UL << 24UL )
 #define portMPU_REGION_PRIVILEGED_READ_ONLY		( 0x05UL << 24UL )
 #define portMPU_REGION_READ_ONLY				( 0x06UL << 24UL )
@@ -101,7 +102,7 @@ extern "C" {
 #define portUNPRIVILEGED_FLASH_REGION		( 0UL )
 #define portPRIVILEGED_FLASH_REGION			( 1UL )
 #define portPRIVILEGED_RAM_REGION			( 2UL )
-#define portGENERAL_PERIPHERALS_REGION		( 3UL )
+#define portUSER_SHARED_REGION				( 3UL )
 #define portSTACK_REGION					( 4UL )
 #define portFIRST_CONFIGURABLE_REGION	    ( 5UL )
 #define portLAST_CONFIGURABLE_REGION		( 7UL )

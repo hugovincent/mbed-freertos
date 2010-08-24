@@ -148,7 +148,7 @@ static portBASE_TYPE prvRaisePrivilege( void ) __attribute__(( naked ));
  */
 void xPortPendSVHandler( void ) __attribute__ (( naked )) PRIVILEGED_FUNCTION;
 void xPortSysTickHandler( void )  __attribute__ ((optimize("3"))) PRIVILEGED_FUNCTION;
-void vPortSVCHandler( void ) __attribute__ (( naked )) PRIVILEGED_FUNCTION;
+void vPortSVCHandler( void ) PRIVILEGED_FUNCTION;
 
 /*
  * Starts the scheduler by restoring the context of the first task to run.
@@ -159,7 +159,7 @@ static void prvRestoreContextOfFirstTask( void ) __attribute__(( naked )) PRIVIL
  * C portion of the SVC handler.  The SVC handler is split between an asm entry
  * and a C wrapper for simplicity of coding and maintenance.
  */
-static void prvSVCHandler( unsigned long *pulRegisters ) __attribute__(( noinline )) PRIVILEGED_FUNCTION;
+static inline void prvSVCHandler( unsigned long *pulRegisters ) PRIVILEGED_FUNCTION;
 
 /*
  * Prototypes for all the MPU wrappers.
@@ -207,6 +207,19 @@ size_t MPU_xPortGetFreeHeapSize( void );
 
 /*-----------------------------------------------------------*/
 
+void vSetUserMPURegion( void *startAddress, unsigned portBASE_TYPE areaLen )
+{
+	*portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) startAddress ) | 
+									( portMPU_REGION_VALID ) |
+									( portUSER_SHARED_REGION ); 
+
+
+	*portMPU_REGION_ATTRIBUTE =		( portMPU_REGION_USER_READ_ONLY | portMPU_REGION_EXECUTE_NEVER ) |
+									( areaLen ) |
+									( portMPU_REGION_ENABLE );
+}
+/*-----------------------------------------------------------*/
+
 /*
  * See header file for description.
  */
@@ -239,28 +252,25 @@ portSTACK_TYPE *pxPortInitialiseStack( portSTACK_TYPE *pxTopOfStack, pdTASK_CODE
 
 void vPortSVCHandler( void )
 {
+	register unsigned long * param;
 	/* Assumes psp was in use. */
 	__asm volatile 
 	(
 		#ifndef USE_PROCESS_STACK	/* Code should not be required if a main() is using the process stack. */
 			"	tst lr, #4						\n"
 			"	ite eq							\n"
-			"	mrseq r0, msp					\n"
-			"	mrsne r0, psp					\n"
+			"	mrseq %0, msp					\n"
+			"	mrsne %0, psp					\n"
 		#else
-			"	mrs r0, psp						\n"
+			"	mrs %0, psp						\n"
 		#endif
-			"	b prvSVCHandler					\n"
-			:::"r0"
+			: "=r" ( param )
 	);
-
-	/* This will never get executed, but is required to prevent prvSVCHandler
-	being removed by the optimiser. */
-	prvSVCHandler( NULL );
+	prvSVCHandler( param );
 }
 /*-----------------------------------------------------------*/
 
-static void prvSVCHandler(	unsigned long *pulParam )
+static inline void prvSVCHandler( unsigned long *pulParam )
 {
 unsigned char ucSVCNumber;
 
@@ -488,15 +498,11 @@ static void prvSetupMPU( void )
 										prvGetMPURegionSizeSetting( ( unsigned long ) &__privileged_bss_end__ - ( unsigned long ) &__privileged_bss_start__ ) |
 										( portMPU_REGION_ENABLE );
 
-		/* By default allow everything to access the general peripherals.  The
-		system peripherals and registers are protected. */
-		*portMPU_REGION_BASE_ADDRESS =	( portPERIPHERALS_START_ADDRESS ) |
-										( portMPU_REGION_VALID ) |
-										( portGENERAL_PERIPHERALS_REGION ); 
+		/* This region gets setup when tasks store data in the user shared area using vSetUserMPURegion. */
+		*portMPU_REGION_BASE_ADDRESS =	( portMPU_REGION_VALID ) |
+										( portUSER_SHARED_REGION ); 
 
-		*portMPU_REGION_ATTRIBUTE =		( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
-										( prvGetMPURegionSizeSetting( portPERIPHERALS_END_ADDRESS - portPERIPHERALS_START_ADDRESS ) ) |
-										( portMPU_REGION_ENABLE );
+		*portMPU_REGION_ATTRIBUTE =		0UL;
 
 		/* Enable the memory fault exception. */
 		*portNVIC_SYS_CTRL_STATE |= portNVIC_MEM_FAULT_ENABLE;
