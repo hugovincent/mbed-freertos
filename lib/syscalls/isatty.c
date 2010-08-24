@@ -5,7 +5,7 @@
 #include "lib/syscalls/syscalls_util.h"
 #include "mpu_wrappers.h"
 
-int _isatty_r(struct _reent *ptr, int fd) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _isatty_r(struct _reent *ptr, int fd) 
 {
 	struct fdent *pfd;
 

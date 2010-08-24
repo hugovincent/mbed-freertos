@@ -9,7 +9,7 @@
 
 /* Low-level bulk RAM allocator -- used by Newlib's Malloc */
 void *heap_end = NULL;
-void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION void *_sbrk_r(struct _reent *ptr, ptrdiff_t incr)
 {
 	void *prev_heap_end, *next_heap_end, *ret;
 

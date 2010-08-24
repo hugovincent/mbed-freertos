@@ -6,7 +6,7 @@
 #include "mpu_wrappers.h"
 
 /* fd, is a user file descriptor. */
-int _close_r(struct _reent *ptr, int fd) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _close_r(struct _reent *ptr, int fd) 
 {
 	int res;
 	struct fdent *pfd;

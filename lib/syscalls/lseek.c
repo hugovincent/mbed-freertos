@@ -7,7 +7,7 @@
 #include "mpu_wrappers.h"
 
 /* fd, is a user file descriptor. */
-_off_t _lseek_r(struct _reent *ptr, int fd, _off_t offs, int dir) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION _off_t _lseek_r(struct _reent *ptr, int fd, _off_t offs, int dir) 
 {
 	int res;
 	struct fdent *pfd;

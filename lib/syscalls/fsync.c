@@ -2,7 +2,7 @@
 #include <errno.h>
 #include "mpu_wrappers.h"
 
-int _fsync_r(struct _reent *ptr, int fd) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _fsync_r(struct _reent *ptr, int fd) 
 {
 	ptr->_errno = EINVAL;
 	return -1;

@@ -3,7 +3,7 @@
 
 #if defined(TARGET_LPC17xx)
 
-void NVIC_SetVector(IRQn_Type IRQn, uint32_t vect) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION void NVIC_SetVector(IRQn_Type IRQn, uint32_t vect)
 {
 	extern void (* __ram_vectors[])(void);
 	void (*vector)(void) = (void (*)(void))vect;

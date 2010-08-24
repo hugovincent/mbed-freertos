@@ -4,7 +4,7 @@
 #include "lib/syscalls/syscalls_util.h"
 #include "mpu_wrappers.h"
 
-int _unlink_r(struct _reent *ptr, const char *path) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _unlink_r(struct _reent *ptr, const char *path)
 {
 	int res;
 	int block[2];

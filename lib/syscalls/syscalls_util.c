@@ -18,7 +18,7 @@ static int monitor_stderr;
 
 /* Return a pointer to the structure associated with
    the user file descriptor fd. */
-struct fdent* findslot(int fd) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION struct fdent* findslot(int fd) 
 {
 	CHECK_INIT(_REENT);
 
@@ -36,7 +36,7 @@ struct fdent* findslot(int fd) PRIVILEGED_FUNCTION
 
 /* Return the next lowest numbered free file
    structure, or -1 if we can't find one. */
-int newslot(void) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int newslot(void) 
 {
 	int i;
 
@@ -50,7 +50,7 @@ int newslot(void) PRIVILEGED_FUNCTION
 	return i;
 }
 
-void initialise_stdio(void) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION void initialise_stdio(void) 
 {
 	/* Open the standard file descriptors by opening the debug UART and
 	 * attaching it write-only to stdout and stderr, and read-only to stdin.
@@ -98,14 +98,14 @@ void initialise_stdio(void) PRIVILEGED_FUNCTION
 /* FIXME a mess: */
 
 /* Set errno and return result. */
-int error(int result) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int error(int result) 
 {
 	errno = do_AngelSWI(AngelSWI_Reason_Errno, NULL);
 	return result;
 }
 
 /* Check the return and set errno appropriately. */
-int checkerror(int result) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int checkerror(int result) 
 {
 	if (result == -1)
 		return error (-1);

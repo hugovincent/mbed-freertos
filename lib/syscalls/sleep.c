@@ -6,19 +6,19 @@
 
 // FIXME
 
-int _nanosleep_r(struct _reent *ptr, const struct timespec *rqtp, struct timespec *rmtp) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _nanosleep_r(struct _reent *ptr, const struct timespec *rqtp, struct timespec *rmtp) 
 {
 	ptr->_errno = ENOSYS;
 	return -1;
 }
 
-int _usleep_r(struct _reent *ptr, useconds_t useconds) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _usleep_r(struct _reent *ptr, useconds_t useconds) 
 {
 	ptr->_errno = EINTR;
 	return -1;
 }
 
-unsigned int _sleep_r(struct _reent *ptr, unsigned int seconds) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION unsigned int _sleep_r(struct _reent *ptr, unsigned int seconds) 
 {
 	return 0;
 }

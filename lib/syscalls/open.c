@@ -7,7 +7,7 @@
 #include "lib/syscalls/syscalls_util.h"
 #include "mpu_wrappers.h"
 
-int _open_r(struct _reent *ptr, const char * path, int flags, int mode) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _open_r(struct _reent *ptr, const char * path, int flags, int mode) 
 {
 	int aflags = 0, fh;
 	int block[3];

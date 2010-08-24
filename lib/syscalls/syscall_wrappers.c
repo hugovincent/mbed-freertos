@@ -205,7 +205,7 @@ REENT_WRAPPER_VA(int, 	printf,			(__getreent(), fmt, arglist), const char *fmt)
 // and the other is a wrapper: unprivileged but slower as it must raise and lower
 // the tasks privilege to get the reentrancy structure.
 
-struct _reent *__getreent_mpu() PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION struct _reent *__getreent_mpu()
 {
 	return xTaskGetReent(NULL);
 

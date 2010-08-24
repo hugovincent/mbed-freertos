@@ -11,7 +11,7 @@
 /* In lib/syscalls/fstat.c */
 extern int _swistat(int fd, struct stat * st);
 
-int _stat_r(struct _reent *ptr, const char *fname, struct stat *st) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _stat_r(struct _reent *ptr, const char *fname, struct stat *st) 
 {
 	int fd, res;
 	memset(st, 0, sizeof (* st));

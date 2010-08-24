@@ -2,7 +2,7 @@
 
 #include "mpu_wrappers.h"
 
-int _getpid_r(struct _reent *ptr) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _getpid_r(struct _reent *ptr) 
 {
 	return 1;
 }

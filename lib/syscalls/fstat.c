@@ -7,7 +7,7 @@
 #include "lib/syscalls/syscalls_util.h"
 #include "mpu_wrappers.h"
 
-int _swistat_r(struct _reent *ptr, int fd, struct stat * st) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _swistat_r(struct _reent *ptr, int fd, struct stat * st) 
 {
 	struct fdent *pfd;
 	int res;
@@ -32,7 +32,7 @@ int _swistat_r(struct _reent *ptr, int fd, struct stat * st) PRIVILEGED_FUNCTION
 	return 0;
 }
 
-int _fstat_r(struct _reent *ptr, int fd, struct stat * st) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _fstat_r(struct _reent *ptr, int fd, struct stat * st) 
 {
 	memset(st, 0, sizeof(*st));
 	return _swistat_r(ptr, fd, st);

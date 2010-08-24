@@ -60,7 +60,7 @@ void TaskManager_Init(void)
 }
 
 
-bool TaskManager_HandleFault(TaskManager_FaultType_t type, uint32_t pc, uint32_t faultAddr) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION bool TaskManager_HandleFault(TaskManager_FaultType_t type, uint32_t pc, uint32_t faultAddr)
 {
 	// FIXME check it was application code (not
 	// ISR or library code) that faulted:

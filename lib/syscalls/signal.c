@@ -25,7 +25,7 @@
 #include <_syslist.h>
 #include "mpu_wrappers.h"
 
-int _init_signal_r(struct _reent *ptr) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _init_signal_r(struct _reent *ptr) 
 {
 	int i;
 
@@ -42,7 +42,7 @@ int _init_signal_r(struct _reent *ptr) PRIVILEGED_FUNCTION
 	return 0;
 }
 
-_sig_func_ptr _signal_r(struct _reent *ptr, int sig, _sig_func_ptr func) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION _sig_func_ptr _signal_r(struct _reent *ptr, int sig, _sig_func_ptr func) 
 {
 	_sig_func_ptr old_func;
 
@@ -61,7 +61,7 @@ _sig_func_ptr _signal_r(struct _reent *ptr, int sig, _sig_func_ptr func) PRIVILE
 	return old_func;
 }
 
-int _raise_r(struct _reent *ptr, int sig) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _raise_r(struct _reent *ptr, int sig) 
 {
 	_sig_func_ptr func;
 
@@ -93,7 +93,7 @@ int _raise_r(struct _reent *ptr, int sig) PRIVILEGED_FUNCTION
 	}
 }
 
-int __sigtramp_r(struct _reent *ptr, int sig) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int __sigtramp_r(struct _reent *ptr, int sig) 
 {
 	_sig_func_ptr func;
 

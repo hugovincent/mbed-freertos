@@ -8,7 +8,7 @@
 /* fd, is a valid user file handle.
    Translates the return of _read into
    bytes read. */
-int _read_r(struct _reent *ptr, int fd, void * buf, size_t len) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _read_r(struct _reent *ptr, int fd, void * buf, size_t len) 
 {
 	int res;
 	struct fdent *pfd;

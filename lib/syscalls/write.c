@@ -9,7 +9,7 @@
 #include "mpu_wrappers.h"
 
 /* fd, is a user file descriptor. */
-int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _write_r(struct _reent *ptr, int fd, const void * buf, size_t len)
 {
 	//-------------------------------------------------------------------------
 	// FIXME temporary...

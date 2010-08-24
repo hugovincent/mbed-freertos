@@ -5,7 +5,7 @@
 #include "lib/syscalls/syscalls_util.h"
 #include "mpu_wrappers.h"
 
-int _gettimeofday_r(struct _reent *ptr, struct timeval * tp, void * tzvp) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _gettimeofday_r(struct _reent *ptr, struct timeval * tp, void * tzvp) 
 {
 	struct timezone *tzp = (struct timezone *)tzvp;
 	if (tp)

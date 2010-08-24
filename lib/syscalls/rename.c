@@ -5,7 +5,7 @@
 #include "lib/syscalls/syscalls_util.h"
 #include "mpu_wrappers.h"
 
-int _rename_r(struct _reent *ptr, const char * oldpath, const char * newpath) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _rename_r(struct _reent *ptr, const char * oldpath, const char * newpath) 
 {
 	int block[4];
 	block[0] = (int)oldpath;

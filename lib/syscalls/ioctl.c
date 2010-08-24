@@ -5,7 +5,7 @@
 
 #include "mpu_wrappers.h"
 
-int _vioctl_r(struct _reent *ptr, int fd, unsigned long request, va_list args) PRIVILEGED_FUNCTION
+PRIVILEGED_FUNCTION int _vioctl_r(struct _reent *ptr, int fd, unsigned long request, va_list args) 
 {
 	printf("first variable arg %d\n", va_arg(args, int));
 

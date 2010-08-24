@@ -79,16 +79,11 @@ only for ports that are using the MPU. */
 			#define vQueueUnregisterQueue			MPU_vQueueUnregisterQueue
 		#endif
 
-		/* Remove the privileged function macro. */
-		#define PRIVILEGED_FUNCTION
-
-	#else /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE */
-
-		/* Ensure API functions go in the privileged execution section. */
-		#define PRIVILEGED_FUNCTION __attribute__((section(".privileged_code")))
-		#define PRIVILEGED_DATA __attribute__((section(".privileged_bss")))
-
 	#endif /* MPU_WRAPPERS_INCLUDED_FROM_API_FILE */
+
+	/* Ensure API functions go in the privileged execution section. */
+	#define PRIVILEGED_FUNCTION __attribute__((section(".privileged_code")))
+	#define PRIVILEGED_DATA __attribute__((section(".privileged_bss")))
 
 #else /* portUSING_MPU_WRAPPERS */
 
