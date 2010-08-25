@@ -65,6 +65,13 @@ SECTIONS
 #endif
 		__privileged_bss_end__ = . ;
 
+		__user_bss_start__ = . ;
+		*( .user_bss )
+#ifdef HAVE_MPU
+		MPU_REGION_SIZE(__user_bss_start__)
+#endif
+		__user_bss_end__ = . ;
+
 		BSS()
 
 		__bss_end__ = . ;

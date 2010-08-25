@@ -80,10 +80,12 @@ __attribute__ ((noreturn)) void Reset_Handler(void)
 	// Enable div-by-0 and unaligned access faults
 	SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk | SCB_CCR_UNALIGN_TRP_Msk;
 
+#ifdef USE_PROCESS_STACK
 	// Change to process stack. This is only used until scheduler starts.
 	// Leave MSP a few in case any interrupts occur during startup
 	__set_PSP((uint32_t)(&__stacks_top__ - 16)); 
 	__set_CONTROL(2); // PSP + priv mode
+#endif
 
 	// Boot the system: hardware initialisation etc., eventually calls main()
 	Boot_Init();

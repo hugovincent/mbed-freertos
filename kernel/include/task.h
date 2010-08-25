@@ -364,9 +364,6 @@ void vTaskAllocateMPURegions( xTaskHandle xTask, const xMemoryRegion * const pxR
 
 struct _reent *xTaskGetReent( xTaskHandle xTask ) PRIVILEGED_FUNCTION;
 
-/* Set the user read-only MPU region. Region size must be appropriate MPU region size */
-void vSetUserMPURegion( void *startAddress, unsigned portBASE_TYPE areaLen ) PRIVILEGED_FUNCTION;
-
 /**
  * task. h
  * <pre>void vTaskDelete( xTaskHandle pxTask );</pre>

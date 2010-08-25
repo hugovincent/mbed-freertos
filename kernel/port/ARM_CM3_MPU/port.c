@@ -118,6 +118,7 @@ extern unsigned long __FLASH_segment_start__, __FLASH_segment_end__;
 extern unsigned long __SRAM_segment_start__, __SRAM_segment_end__;
 extern unsigned long __privileged_code_start__, __privileged_code_end__;
 extern unsigned long __privileged_bss_start__, __privileged_bss_end__;
+extern unsigned long __user_bss_start__, __user_bss_end__;
 
 /*
  * Setup the timer to generate the tick interrupts.
@@ -205,19 +206,6 @@ void MPU_vPortFree( void *pv );
 void MPU_vPortInitialiseBlocks( void );
 size_t MPU_xPortGetFreeHeapSize( void );
 
-/*-----------------------------------------------------------*/
-
-void vSetUserMPURegion( void *startAddress, unsigned portBASE_TYPE areaLen )
-{
-	*portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) startAddress ) | 
-									( portMPU_REGION_VALID ) |
-									( portUSER_SHARED_REGION ); 
-
-
-	*portMPU_REGION_ATTRIBUTE =		( portMPU_REGION_USER_READ_ONLY | portMPU_REGION_EXECUTE_NEVER ) |
-									( areaLen ) |
-									( portMPU_REGION_ENABLE );
-}
 /*-----------------------------------------------------------*/
 
 /*
@@ -499,10 +487,15 @@ static void prvSetupMPU( void )
 										( portMPU_REGION_ENABLE );
 
 		/* This region gets setup when tasks store data in the user shared area using vSetUserMPURegion. */
-		*portMPU_REGION_BASE_ADDRESS =	( portMPU_REGION_VALID ) |
+		*portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) &__user_bss_start__ ) | 
+										( portMPU_REGION_VALID ) |
 										( portUSER_SHARED_REGION ); 
 
-		*portMPU_REGION_ATTRIBUTE =		0UL;
+
+		*portMPU_REGION_ATTRIBUTE =		( portMPU_REGION_READ_WRITE | portMPU_REGION_EXECUTE_NEVER ) |
+										( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
+										prvGetMPURegionSizeSetting( ( unsigned long ) &__user_bss_end__ - ( unsigned long ) &__user_bss_start__ ) |
+										( portMPU_REGION_ENABLE );
 
 		/* Enable the memory fault exception. */
 		*portNVIC_SYS_CTRL_STATE |= portNVIC_MEM_FAULT_ENABLE;
