@@ -88,3 +88,44 @@ void GPDMA::dmaIsr()
 	}
 }
 
+/**** DmaM2M Implementation ****/
+DmaM2M::DmaM2M(GPDMA * dma)
+	: _dma(dma)
+{
+	if (!_dma)
+		_dma = GPDMA::getChannel();
+	_dma->reset();
+}
+
+DmaM2M::~DmaM2M()
+{
+}
+
+void DmaM2M::transferForwards(void *dest, const void *src, size_t num, GPDMA::TransferWidth_t transferWidth)
+{
+	_dma->setDestAddress(dest);
+	_dma->setSrcAddress((void *)src);
+	_dma->setLLIAddress(0);
+	_dma->setControl(GPDMA::createControlWord(num, GPDMA::_1, GPDMA::_1, transferWidth, transferWidth, true, true));
+	_dma->setConfig(true, (GPDMA::PeripheralId_t)0, (GPDMA::PeripheralId_t)0, GPDMA::MemToMem);
+}
+
+
+/* ------------------------------------------------------------------------- */
+// C Wrappers:
+
+DmaM2M *DmaM2M_Init(GPDMA *dma)
+{
+	return new DmaM2M(dma);
+}
+
+void DmaM2M_Transfer(DmaM2M *dma, void *dest, const void *src, size_t num, GPDMA_TransferWidth_t transferWidth)
+{ 
+	dma->transfer(dest, src, num, (GPDMA::TransferWidth_t)transferWidth); 
+}
+
+bool DmaM2M_TransferInProgress(DmaM2M *dma)
+{
+	return dma->transferInProgress();
+}
+

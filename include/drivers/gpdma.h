@@ -188,6 +188,25 @@ template <typename T>
 			GPDMA::LLI_t _LLI;
 	};
 
+class DmaM2M
+{
+	public:
+		DmaM2M(GPDMA * dma = 0);
+		~DmaM2M();
+
+		void transferForwards(void *dest, const void *src, size_t num, GPDMA::TransferWidth_t transferWidth);
+		inline void transfer(void *dest, const void *src, size_t num, GPDMA::TransferWidth_t transferWidth)
+		{
+			return transferForwards(dest, src, num, transferWidth);
+		}
+
+		inline bool transferInProgress() { return _dma->getEnabled(); }
+
+		inline GPDMA * getDma() { return _dma; }
+	protected:
+		GPDMA *_dma;
+};
+
 /**** GPDMA Implementation ****/
 inline void GPDMA::reset()
 {
@@ -495,7 +514,33 @@ template<typename T>
 		return len;
 	}
 
+extern "C" {
+
+#else // ifdef __cplusplus
+
+#include <stdbool.h>
+
+typedef struct GPDMA GPDMA;
+typedef struct DmaM2P DmaM2P;
+typedef struct DmaP2M DmaP2M;
+typedef struct DmaM2M DmaM2M;
+
 #endif // ifdef __cplusplus
+
+typedef enum
+{
+	GPDMA_Byte,
+	GPDMA_HalfWord,
+	GPDMA_Word
+} GPDMA_TransferWidth_t;
+
+DmaM2M *DmaM2M_Init(GPDMA *dma);
+void DmaM2M_Transfer(DmaM2M *dma, void *dest, const void *src, size_t num, GPDMA_TransferWidth_t transferWidth);
+bool DmaM2M_TransferInProgress(DmaM2M *dma);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // ifdef __cpluspls
 
 #endif // ifndef GPDMA_h
 

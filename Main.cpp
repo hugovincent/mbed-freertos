@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "drivers/wdt.h"
 #include "drivers/uart.h"
+#include "drivers/dma_memcpy.h"
 #include "power_management.h"
 #include "console.h"
 

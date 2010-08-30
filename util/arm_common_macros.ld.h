@@ -6,16 +6,24 @@
 /* MPU regions have to be power-of-two sized, and have to be aligned to their
  * size. This pads so that the size from start_addr to where this macro is
  * instantiated is power-of-two sized. */
-#define MPU_REGION_SIZE(start_addr) 										\
-		start_addr##_len  = . - start_addr - 1 ;							\
+#define MPU_REGION_SIZE(start_addr, end_addr)								\
+		end_addr##_len  = . - start_addr - 1 ;								\
+		end_addr##_len |= end_addr##_len >>  1 ;							\
+		end_addr##_len |= end_addr##_len >>  2 ;							\
+		end_addr##_len |= end_addr##_len >>  4 ;							\
+		end_addr##_len |= end_addr##_len >>  8 ;							\
+		end_addr##_len |= end_addr##_len >> 16 ;							\
+		. = ALIGN( MAX( end_addr##_len + 1, 32 ) ) ;
+
+#define MPU_REGION_ALIGN(start_addr, size)									\
+		start_addr##_len  = size - 1 ;										\
 		start_addr##_len |= start_addr##_len >>  1 ;						\
 		start_addr##_len |= start_addr##_len >>  2 ;						\
 		start_addr##_len |= start_addr##_len >>  4 ;						\
 		start_addr##_len |= start_addr##_len >>  8 ;						\
 		start_addr##_len |= start_addr##_len >> 16 ;						\
-		. = ALIGN( MAX( start_addr##_len + 1, 32 ) ) ;						\
+		. = ALIGN( MAX( start_addr##_len + 1, 32 ) ) ;						
 
-#define MPU_REGION_ALIGN(size) FIXME
 
 #define DEBUG_STUFF()														\
 	.stab    0 (NOLOAD) : { *(.stab) }										\

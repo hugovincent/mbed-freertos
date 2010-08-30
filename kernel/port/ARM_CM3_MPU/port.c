@@ -117,7 +117,6 @@ static unsigned portBASE_TYPE uxCriticalNesting = 0xaaaaaaaa;
 extern unsigned long __FLASH_segment_start__, __FLASH_segment_end__;
 extern unsigned long __SRAM_segment_start__, __SRAM_segment_end__;
 extern unsigned long __privileged_code_start__, __privileged_code_end__;
-extern unsigned long __privileged_bss_start__, __privileged_bss_end__;
 extern unsigned long __user_bss_start__, __user_bss_end__;
 
 /*
@@ -475,6 +474,7 @@ static void prvSetupMPU( void )
 										( prvGetMPURegionSizeSetting( ( unsigned long ) &__privileged_code_end__ - ( unsigned long ) &__privileged_code_start__ ) ) | 
 										( portMPU_REGION_ENABLE );
 
+#if 0
 		/* Setup the privileged data RAM region.  This is where the kernel data
 		is placed. */
 		*portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) &__privileged_bss_start__ ) | /* Base address. */
@@ -485,8 +485,14 @@ static void prvSetupMPU( void )
 										( portMPU_REGION_CACHEABLE_BUFFERABLE ) |
 										prvGetMPURegionSizeSetting( ( unsigned long ) &__privileged_bss_end__ - ( unsigned long ) &__privileged_bss_start__ ) |
 										( portMPU_REGION_ENABLE );
+#else
+		*portMPU_REGION_BASE_ADDRESS =	( portMPU_REGION_VALID ) |
+										( portPRIVILEGED_RAM_REGION );
 
-		/* This region gets setup when tasks store data in the user shared area using vSetUserMPURegion. */
+		*portMPU_REGION_ATTRIBUTE =		0;
+#endif
+
+		/* This region gets setup when tasks store data in the user shared area. */
 		*portMPU_REGION_BASE_ADDRESS =	( ( unsigned long ) &__user_bss_start__ ) | 
 										( portMPU_REGION_VALID ) |
 										( portUSER_SHARED_REGION ); 

@@ -32,7 +32,7 @@ SECTIONS
 		KEEP( *( .vectors ) )
 		*( .privileged_code )
 #ifdef HAVE_MPU
-		MPU_REGION_SIZE(__privileged_code_start__)
+		MPU_REGION_SIZE(__privileged_code_start__, __privileged_code_end__)
 #endif
 		__privileged_code_end__ = .;
 
@@ -53,22 +53,12 @@ SECTIONS
 	/* Located at the start of RAM */
 	.bss (NOLOAD) : {
 		__bss_start__ = . ;
-
-		__privileged_bss_start__ = . ;
-		/* It is easiest to put RAM vectors here to meet the elaborate
-		 * alignment requirements placed upon them. */
 		*crt0.o( .ram_vectors )
-		*crt0.o( .privileged_bss )
-		*( .privileged_bss )
-#ifdef HAVE_MPU
-		MPU_REGION_SIZE(__privileged_bss_start__)
-#endif
-		__privileged_bss_end__ = . ;
 
 		__user_bss_start__ = . ;
 		*( .user_bss )
 #ifdef HAVE_MPU
-		MPU_REGION_SIZE(__user_bss_start__)
+		MPU_REGION_SIZE(__user_bss_start__, __user_bss_end__)
 #endif
 		__user_bss_end__ = . ;
 

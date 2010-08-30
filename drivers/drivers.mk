@@ -6,4 +6,5 @@ C_SOURCE+= \
 
 CXX_SOURCE+= \
 		drivers/uart/uart.cpp \
-		drivers/gpdma/gpdma.cpp
+		drivers/gpdma/gpdma.cpp \
+		drivers/gpdma/dma_memcpy.cpp
