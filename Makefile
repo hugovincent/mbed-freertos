@@ -209,6 +209,7 @@ $(LDSCRIPT) : mach/cpu-$(TARGET)/$(TARGET).ld.S util/arm_common.ld.S util/arm_co
 $(ODIR)/exists:
 	@mkdir -p $(ODIR)/drivers/uart $(ODIR)/drivers/gpio $(ODIR)/drivers/rtc
 	@mkdir -p $(ODIR)/drivers/emac $(ODIR)/drivers/wdt $(ODIR)/drivers/gpdma
+	@mkdir -p $(ODIR)/drivers/xbee
 	@mkdir -p $(ODIR)/mach/board-mbed $(ODIR)/mach/cpu-$(TARGET)
 	@mkdir -p $(ODIR)/kernel $(ODIR)/mach/cpu-common $(ODIR)/kernel/port/$(PORT_DIR)
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/apps/webserver $(ODIR)/lib/uip
