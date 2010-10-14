@@ -140,7 +140,6 @@ int main()
 #endif
 	xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 
-	extern int numAlloc;
 	printf("Starting scheduler.\n");
 	fflush(stdout);
 
@@ -172,7 +171,7 @@ extern "C" void vApplicationTickHook()
 #if 1
 		struct timeval tp;
 		int t = gettimeofday(&tp, NULL);
-		printf("timeofday = %d seconds %d microseconds (code %d)\n", tp.tv_sec, tp.tv_usec, t);
+		printf("timeofday = %ld seconds %ld microseconds (code %d)\n", (long)tp.tv_sec, (long)tp.tv_usec, t);
 #endif
 
 		printf("Uptime: %u.%06u seconds\n", (unsigned int)(uptime_usec / 1000000), (unsigned int)(uptime_usec % 1000000));

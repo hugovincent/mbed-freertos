@@ -4,6 +4,7 @@
  */
 
 #include "power_management.h"
+#include "debug_support.h"
 #include "cmsis.h"
 #include "FreeRTOS.h"
 
@@ -24,3 +25,10 @@ void PowerManagement_Idle()
 	// Cortex-M3 "wait for interrupt" instruction
 	__WFI();
 }
+
+void PowerManagement_MbedInterfacePowerdown()
+{
+	int dummy;
+	SemihostCall(Semihost_USR_POWERDOWN, &dummy);
+}
+

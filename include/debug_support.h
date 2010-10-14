@@ -51,9 +51,10 @@ enum SemihostReasons {
 	Semihost_SYS_ENSURE = 0xb,
 	Semihost_SYS_FLEN   = 0xc,
 
-	// Custom Functions:
-	Semihost_USR_XFFIND = 0x100, // mbed, getting listings of files
-	Semihost_USR_UID    = 0x101, // mbed, get unique ID and ethernet MAC address
+	// Custom Mbed Functions:
+	Semihost_USR_XFFIND    = 0x100, // mbed, getting listings of files
+	Semihost_USR_UID       = 0x101, // mbed, get unique ID and ethernet MAC address
+	Semihost_USR_POWERDOWN = 0x104, // mbed, power down interface chip when USB is disconnected
 };
 
 static inline int SemihostCall(enum SemihostReasons reason, void *arg)

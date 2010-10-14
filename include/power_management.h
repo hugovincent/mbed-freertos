@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+void PowerManagement_MbedInterfacePowerdown();
 void PowerManagement_Idle();
 void PowerManagement_Sleep();
 __attribute__ ((noreturn)) void PowerManagement_PowerDown();
