@@ -17,7 +17,7 @@ FEATURES:
 
 * Support for the ARM Cortex M3 and ARM7TDMI; currently the NXP LPC1768 and
   LPC2368 ports are working.
-* Hard-realtime preemptive multitasking kernel (FreeRTOS v6.0.4).
+* Hard-realtime preemptive multitasking kernel (FreeRTOS v6.1.0).
 * Supports protected memory on Cortex M3s that have an MPU (memory protection
   unit -- included in the LPC17xx series). Tasks that access memory they do no
   have permission to access are cleanly terminated and debug information is 
@@ -81,7 +81,7 @@ COPYING:
 
 Portions copyright Richard Barry, Real Time Engineers Ltd:
 
-    FreeRTOS V6.0.4 - Copyright (C) 2010 Real Time Engineers Ltd.
+    FreeRTOS V6.1.0 - Copyright (C) 2010 Real Time Engineers Ltd.
 
     FreeRTOS is free software; you can redistribute it and/or modify it under
     the terms of the GNU General Public License (version 3) as published by the
