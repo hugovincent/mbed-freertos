@@ -3,16 +3,8 @@
 #include <stdint.h>
 #include <fcntl.h>
 
-#include "device_manager.h"
+#include "device_manager_driver.h"
 #include "romfs.h"
-
-#define ROMFS_MAX_FDS	4
-static struct {
-	int handle;
-	int pos;
-} RomFS_fd_table[ROMFS_MAX_FDS];
-
-static int RomFS_num_fd;
 
 struct file_entry {
 	const char *filename;
@@ -27,14 +19,6 @@ struct file_entry {
 
 static int RomFS_Open(const char *path, int flags, int mode /* <-- ignored */)
 {
-	int fd, fh;
-
-	if (RomFS_num_fd == ROMFS_MAX_FDS)
-	{
-		errno = ENFILE;
-		return -1;
-	}
-
 	if ((flags & O_RDWR) || (flags & O_WRONLY) || (flags & O_APPEND)
 			|| (flags & O_CREAT) || (flags & O_TRUNC))
 	{
@@ -43,6 +27,7 @@ static int RomFS_Open(const char *path, int flags, int mode /* <-- ignored */)
 	}
 
 	// Find file in filesystem
+	unsigned short fh; 
 	for (fh = 0; fh < romfs_numfiles; fh++)
 	{
 		const char *filename = romfs_header[fh].filename;
@@ -55,31 +40,31 @@ static int RomFS_Open(const char *path, int flags, int mode /* <-- ignored */)
 		return -1;
 	}
 
-	// Find an empty fd (we know there is at least one available here)
-	for (int i = 0; i < ROMFS_MAX_FDS; i ++)
-		if (RomFS_fd_table[i].handle == -1)
-			fd = i;
-	RomFS_num_fd++;
-
-	RomFS_fd_table[fd].handle = fh;
-	RomFS_fd_table[fd].pos = 0;
-
-	return fd;
+	// Create a device-manager fd
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_NewFd();
+	fdstruct->handle = fh;
+	fdstruct->pos = 0;
+	
+	return fdstruct->fd;
 
 }
 
 static int RomFS_Close(int fd)
 {
-	RomFS_fd_table[fd].handle = -1;
-	RomFS_num_fd--;
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_FdStructForFd(fd);
+	if (fdstruct == NULL)
+		return -1;
+	DeviceManager_ReleaseFd(fdstruct);
 	return 0;
 }
 
 static ssize_t RomFS_Read(int fd, void *ptr, size_t len)
 {
-	int fh = RomFS_fd_table[fd].handle;
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_FdStructForFd(fd);
+	if (fdstruct == NULL)
+		return -1;
 
-	int bytes = romfs_header[fh].length - RomFS_fd_table[fd].pos;
+	int bytes = romfs_header[fdstruct->handle].length - fdstruct->pos;
 	if (bytes > len)
 		bytes = len;
 
@@ -87,36 +72,37 @@ static ssize_t RomFS_Read(int fd, void *ptr, size_t len)
 	// to reset offset if necessary first.
 	if (bytes < 0)
 	{
-		RomFS_fd_table[fd].pos = romfs_header[fh].length;
-		bytes = 0;
+		fdstruct->pos = romfs_header[fdstruct->handle].length;
+		errno = EIO;
+		return -1;
 	}
 
-	if (bytes == 0)
+	if (bytes > 0)
 	{
-		return 0;
+		int offset = romfs_header[fdstruct->handle].offset + fdstruct->pos;
+		memcpy(ptr, (void*)&(romfs_data[offset]), bytes);
+
+		fdstruct->pos += bytes;
 	}
-
-	int offset = romfs_header[fh].offset + RomFS_fd_table[fd].pos;
-	memcpy(ptr, (void*)&(romfs_data[offset]), bytes);
-
-	RomFS_fd_table[fd].pos += bytes;
 	return bytes;
 }
 
 static off_t RomFS_Lseek(int fd, off_t off, int whence)
 {
-	int fh = RomFS_fd_table[fd].handle;
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_FdStructForFd(fd);
+	if (fdstruct == NULL)
+		return -1;
 
 	switch (whence)
 	{
 		case SEEK_CUR:
 			// seek from current position
-			off += RomFS_fd_table[fd].pos;
+			off += fdstruct->pos;
 			break;
 
 		case SEEK_END:
 			// seek from end of file
-			off += romfs_header[fh].length;
+			off += romfs_header[fdstruct->handle].length;
 			break;
 
 		case SEEK_SET:
@@ -135,7 +121,7 @@ static off_t RomFS_Lseek(int fd, off_t off, int whence)
 		errno = EINVAL;
 		return -1;
 	}
-	RomFS_fd_table[fd].pos = off;
+	fdstruct->pos = off;
 	return off;
 }
 
@@ -178,9 +164,6 @@ struct FileLikeObj RomFS_FLO =
 
 void RomFS_Init()
 {
-	for (int i = 0; i < ROMFS_MAX_FDS; i++)
-		RomFS_fd_table[i].handle = -1;
-
 	DeviceManager_Register(&RomFS_FLO);
 }
 

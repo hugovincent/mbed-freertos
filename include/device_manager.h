@@ -53,9 +53,6 @@ struct FileLikeObj {
 // before registering any devices.
 void DeviceManager_Init();
 
-// Register a device or filesystem with the device manager.
-int  DeviceManager_Register(struct FileLikeObj *dev);
-
 // Retrieve the FileLikeObj struct that is responsible for handling a given path.
 struct FileLikeObj *DeviceManager_GetDeviceForPath(const char *path);
 

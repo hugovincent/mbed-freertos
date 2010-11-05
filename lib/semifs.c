@@ -24,7 +24,7 @@
 #include <stdint.h>
 #include <fcntl.h>
 
-#include "device_manager.h"
+#include "device_manager_driver.h"
 #include "debug_support.h"
 #include "semifs.h"
 
@@ -51,26 +51,13 @@ struct SemiFS_SearchInfo {
 	struct SemiFS_XF_Info file_info;
 };
 
-#define SEMIFS_MAX_FDS	4
-static struct {
-	int handle;
-	int pos;
-} SemiFS_fd_table[SEMIFS_MAX_FDS];
-
-static int SemiFS_num_fd;
-
 /*****************************************************************************/
 
 static int SemiFS_Open(const char *path, int flags, int mode /* <-- ignored */)
 {
-	int aflags = 0, fd, fh;
+	int aflags = 0;
+	unsigned short fh;
 	uint32_t args[3];
-
-	if (SemiFS_num_fd == SEMIFS_MAX_FDS)
-	{
-		errno = ENFILE;
-		return -1;
-	}
 
 	if (flags & O_RDWR)
 		aflags |= 2;
@@ -87,12 +74,7 @@ static int SemiFS_Open(const char *path, int flags, int mode /* <-- ignored */)
 		aflags |= 8;
 	}
 
-	// Find an empty fd (we know there is at least one available here)
-	for (int i = 0; i < SEMIFS_MAX_FDS; i ++)
-		if (SemiFS_fd_table[i].handle == -1)
-			fd = i;
-	SemiFS_num_fd++;
-
+	// Find file and open it (via semihosting call)
 	args[0] = (uint32_t)path;
 	args[1] = (uint32_t)aflags;
 	args[2] = (uint32_t)strlen(path);
@@ -100,82 +82,92 @@ static int SemiFS_Open(const char *path, int flags, int mode /* <-- ignored */)
 
 	if (fh >= 0)
 	{
-		SemiFS_fd_table[fd].handle = fh;
-		SemiFS_fd_table[fd].pos = 0;
+		// Create a device-manager fd
+		struct DeviceManager_FdStruct *fdstruct = DeviceManager_NewFd();
+		fdstruct->handle = fh;
+		fdstruct->pos = 0;
+		return fdstruct->fd;
 	}
-
-	return fd;
+	else
+	{
+		errno = ENOENT; // FIXME query actual error and report
+		return -1;
+	}
 }
 
 static int SemiFS_Close(int fd)
 {
-	int fh = SemiFS_fd_table[fd].handle;
-
-	if (fd != SEMIFS_MAX_FDS)
-		SemiFS_fd_table[fd].handle = -1;
-
-	SemiFS_num_fd--;
-
-	return SemihostCall(Semihost_SYS_CLOSE, &fh);
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_FdStructForFd(fd);
+	if (fdstruct == NULL)
+		return -1;
+	int res = SemihostCall(Semihost_SYS_CLOSE, &fdstruct->handle);
+	if (res == 0)
+		DeviceManager_ReleaseFd(fdstruct);
+	return res;
 }
 
 static ssize_t SemiFS_Write(int fd, void *ptr, size_t len)
 {
-	int fh = SemiFS_fd_table[fd].handle, x;
-	uint32_t args[3];
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_FdStructForFd(fd);
+	if (fdstruct == NULL)
+		return -1;
 
-	args[0] = (uint32_t)fh;
+	uint32_t args[3];
+	args[0] = (uint32_t)fdstruct->handle;
 	args[1] = (uint32_t)ptr;
 	args[2] = (uint32_t)len;
-	x = SemihostCall(Semihost_SYS_WRITE, args);
 
-	if (x == -1 || x == len)
+	// Perform write
+	int res = SemihostCall(Semihost_SYS_WRITE, args);
+	if (res == -1 || res == len)
 	{
 		errno = EIO;
 		return -1;
 	}
 
-	if (fd != SEMIFS_MAX_FDS)
-		SemiFS_fd_table[fd].pos += len - x;
-
-	return len - x;
+	// Update position
+	fdstruct->pos += len - res;
+	return len - res;
 }
 
 static ssize_t SemiFS_Read(int fd, void *ptr, size_t len)
 {
-	int fh = SemiFS_fd_table[fd].handle, x;
-	uint32_t args[3];
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_FdStructForFd(fd);
+	if (fdstruct == NULL)
+		return -1;
 
-	args[0] = (uint32_t)fh;
+	uint32_t args[3];
+	args[0] = (uint32_t)fdstruct->handle;
 	args[1] = (uint32_t)ptr;
 	args[2] = (uint32_t)len;
-	x = SemihostCall(Semihost_SYS_READ, args);
 
-	if (x < 0)
+	// Perform read
+	int res = SemihostCall(Semihost_SYS_READ, args);
+	if (res < 0)
 	{
 		errno = EIO;
 		return -1;
 	}
 
-	if (fd != SEMIFS_MAX_FDS)
-		SemiFS_fd_table[fd].pos += len - x;
-
-	return len - x;
+	// Update position
+	fdstruct->pos += len - res;
+	return len - res;
 }
 
 static off_t SemiFS_Lseek(int fd, off_t off, int whence)
 {
-	int fh = SemiFS_fd_table[fd].handle, res;
 	uint32_t args[2];
+
+	struct DeviceManager_FdStruct *fdstruct = DeviceManager_FdStructForFd(fd);
+	if (fdstruct == NULL)
+		return -1;
 
 	switch (whence)
 	{
 		case SEEK_CUR:
 			{
 				// seek from current position
-				if (fd == SEMIFS_MAX_FDS)
-					return -1;
-				off += SemiFS_fd_table[fd].pos;
+				off += fdstruct->pos;
 				whence = SEEK_SET;
 			}
 			break;
@@ -183,7 +175,7 @@ static off_t SemiFS_Lseek(int fd, off_t off, int whence)
 		case SEEK_END:
 			{
 				// seek from end of file
-				args[0] = fh;
+				args[0] = fdstruct->handle;
 				off += SemihostCall(Semihost_SYS_FLEN, &args);
 			}
 			break;
@@ -200,12 +192,12 @@ static off_t SemiFS_Lseek(int fd, off_t off, int whence)
 			}
 	}
 	// Do absolute seek
-	args[0] = (uint32_t)fh;
+	args[0] = (uint32_t)fdstruct->handle;
 	args[1] = (uint32_t)off;
-	res = SemihostCall(Semihost_SYS_SEEK, args);
+	int res = SemihostCall(Semihost_SYS_SEEK, args);
 
-	if (fd != SEMIFS_MAX_FDS && res == 0)
-		SemiFS_fd_table[fd].pos = off;
+	if (res == 0)
+		fdstruct->pos = off;
 
 	/* This is expected to return the position in the file.  */
 	return res == 0 ? off : -1;
@@ -279,9 +271,6 @@ struct FileLikeObj SemiFS_FLO =
 
 void SemiFS_Init()
 {
-	for (int i = 0; i < SEMIFS_MAX_FDS; i++)
-		SemiFS_fd_table[i].handle = -1;
-
 	DeviceManager_Register(&SemiFS_FLO);
 }
 

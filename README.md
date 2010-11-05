@@ -1,7 +1,7 @@
-FreeRTOS/OS - A FreeRTOS distribution for ARM devices
-=====================================================
+A FreeRTOS distribution for ARM microcontrollers
+================================================
 
-	Hugo Vincent <hugo.vincent@gmail.com>, 24 July 2010.
+	Hugo Vincent <hugo.vincent@gmail.com>, 5 November 2010.
 
 This is a real-time operating system for very small devices built around an ARM
 microcontroller (with typically at least 16 kB of RAM and 64 kB of flash).
@@ -28,7 +28,7 @@ FEATURES:
   state information. In addition, the kernel attempts to recover from such faults
   by cleanly terminating the responsible task. Similarly for tasks that overflow their
   application stack.
-* Complete C library support (including malloc, standard file IO etc).
+* Complete C library support (including `malloc`, standard file IO etc).
 * C++ support, including lightweight STL (www.uSTL.sf.net), and exception handling.
 * Ethernet networking with the lightweight uIP TCP/IP stack, including a web server.
 * Support for power management (processor is aggressively idled when possible, 
@@ -36,15 +36,15 @@ FEATURES:
 * Well integrated GNU toolchain and build system. 
 * Build system lists total flash and RAM, and provides an estimate for
   available heap space for dynamically allocated (malloc'd) memory.
-* A UNIX-like filesystem hierarchy. Devices can be accessed via their /dev/
+* A UNIX-like filesystem hierarchy. Devices can be accessed via their `/dev/`
   nodes. Filesystems (depending on target hardware) can be added to the root
-  filesystem hierarchy, for example /flash or /sd_card.
+  filesystem hierarchy, for example `/flash` or `/sd_card`.
   	* A read-only filesystem resident in on-chip flash is supported on all targets.
 	* mbed (mbed.org) target supports semihosted local filesystem, accessible via
 	  the mbed USB interface. Should also work with semihosting-compatible debuggers.
 	* Read/write FAT filesystem on SD/microSD cards _(coming soon)_.
 * One UART is used as the console, which is used for operating system messages,
-  debug output, and standard IO (printf et. al.).
+  debug output, and standard IO (`printf` et. al.).
 * POSIX APIs for threads, timers, sockets etc. _(coming soon)_. We're aiming
   for full POSIX 1003.13 Profile 52 support eventually.
 * Device drivers for many on-chip and common off-chip peripherals.
@@ -121,6 +121,9 @@ not the copyright owner and are NOT COVERED BY THE GPL.
 2. The uIP TCP/IP stack the copyright of which is held by Adam Dunkels.
    Users must ensure the open source license conditions stated at the top
    of each uIP source file is understood and adhered to.
+
+3. Miscellaneous drivers, e.g. for Digi Xbee radios, SD cards etc. License
+   text is in those files.
 
 
 The GPL license text follows:
