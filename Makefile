@@ -22,7 +22,7 @@ PROG_TYPE=mbed
 
 # Set local options here:
 INSTALL_PATH=/Volumes/MBED/
-BINNAME=RTOSDemo
+BINNAME=freertos-$(TARGET)
 TOOLPRE=util/arm-none-eabi
 
 #------------------------------------------------------------------------------
@@ -56,9 +56,6 @@ COMMON_FLAGS= \
 		-DPLAT_NAME="\"LPC1768\"" \
 		-DUSE_PROCESS_STACK \
 		-Iinclude/LPC1768
-LINKER_FLAGS= \
-		-mthumb \
-		-mcpu=cortex-m3
 PORT_DIR= \
 		ARM_CM3_MPU
 EXTRA_LDFLAGS= \
@@ -92,18 +89,18 @@ COMMON_FLAGS += \
 		-fexceptions -fsection-anchors -fomit-frame-pointer \
 		-ffunction-sections -fdata-sections \
 		-fstrict-aliasing -mlong-calls \
-		-mfloat-abi=soft -mtp=soft -mabi=aapcs
+		-mfloat-abi=soft -mtp=soft -mabi=aapcs -fshort-wchar
 
 CFLAGS = $(COMMON_FLAGS) \
 		-std=gnu99
 
-CXXFLAGS= $(COMMON_FLAGS) \
+CXXFLAGS = $(COMMON_FLAGS) \
 		-I lib/ustl/public -nostdinc++ \
 		-fno-enforce-eh-specs \
 		-fno-use-cxa-get-exception-ptr \
 		-fno-stack-protector
 
-LINKER_FLAGS= \
+LINKER_FLAGS += \
 		-T$(LDSCRIPT) $(EXTRA_LDFLAGS) \
 		-Wl,--gc-sections -Wl,-O3 \
 		-Wl,-Map=$(BINNAME).map \

@@ -48,7 +48,7 @@ for line in sh('cat .buildtmp/mach/cpu-' + target + '/' + target + '.ld.S | grep
 
 # Parse stack allocations from linker output
 if target == 'lpc1768':
-	line = sh('grep "C_Stack_Size" %s.map' % "RTOSDemo.elg".split('.')[0]).strip().split('\n')[0]
+	line = sh('grep "C_Stack_Size" %s.map' % sys.argv[2].split('.')[0]).strip().split('\n')[0]
 	total_stack = int(line.split()[-1], 16)
 else:
 	total_stack = 0
@@ -72,7 +72,7 @@ for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[2]).strip().split('\n'):
 # Summarize usage (note: sizes are approximate due to padding for alignment)
 print
 print 'Flash: total code usage:       %s' % format_kb(total_text + total_init_ram)
-print 'RAM:   stack usage:            %s' % format_kb(total_stack)
+print 'RAM:   stack allocation:       %s' % format_kb(total_stack)
 print '       static heap usage:      %s' % format_kb(total_ram)
 print '       dynamic heap available: %s (approx.)' % format_kb(memories['Ram'] - \
 		total_stack - total_ram)
