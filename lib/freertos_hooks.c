@@ -1,7 +1,7 @@
 #include <sys/types.h>
 #include "FreeRTOS.h"
 #include "task.h"
-#include "FreeRTOSconfig.h"
+#include "FreeRTOSConfig.h"
 #include "lib/syscalls/heap.h"
 #include "power_management.h"
 #include "drivers/wdt.h"
