@@ -10,7 +10,7 @@ import os
 from datetime import datetime as dt
 
 if len(sys.argv) != 3:
-	print "Usage: build_romfs.py output.c directory/to/pack"
+	print("Usage: build_romfs.py output.c directory/to/pack")
 	sys.exit()
 
 output = open(sys.argv[1], "w")
