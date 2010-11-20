@@ -70,12 +70,12 @@ for line in sh('arm-none-eabi-readelf -l %s' % sys.argv[2]).strip().split('\n'):
 
 #------------------------------------------------------------------------------
 # Summarize usage (note: sizes are approximate due to padding for alignment)
-print
-print 'Flash: total code usage:       %s' % format_kb(total_text + total_init_ram)
-print 'RAM:   stack allocation:       %s' % format_kb(total_stack)
-print '       static heap usage:      %s' % format_kb(total_ram)
-print '       dynamic heap available: %s (approx.)' % format_kb(memories['Ram'] - \
-		total_stack - total_ram)
+print('')
+print('Flash: total code usage:       %s' % format_kb(total_text + total_init_ram))
+print('RAM:   stack allocation:       %s' % format_kb(total_stack))
+print('       static heap usage:      %s' % format_kb(total_ram))
+print('       dynamic heap available: %s (approx.)' % format_kb(memories['Ram'] - \
+		total_stack - total_ram))
 
 #------------------------------------------------------------------------------
 # FIXME add a more detailed print out: top 5 flash/RAM users, attempt to summarize library usage

@@ -209,7 +209,6 @@ PRIVILEGED_FUNCTION struct _reent *__getreent_mpu()
 {
 	return xTaskGetReent(NULL);
 
-
 	// This is an example for Nucleus RTOS:
 #if 0
 	NU_HISR *HisrPtr;
@@ -227,7 +226,6 @@ PRIVILEGED_FUNCTION struct _reent *__getreent_mpu()
 	}
 	return HisrPtr->_impure_ptr;
 #endif
-	return _impure_ptr;
 }
 
 struct _reent *__getreent()

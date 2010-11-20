@@ -1,0 +1,7 @@
+Compared to the upstream FreeRTOS.org kernel, non-trivial changes are
+limited to the following files. This might be useful for future kernel
+updates from upstream.
+
+* tasks.c
+* include/task.h
+* 
