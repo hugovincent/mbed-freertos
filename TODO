@@ -3,7 +3,7 @@ Last Update: 4 October 2010.
 Numbers in [ ] are priorities, 'f' is "distant future", 'd' is "done but pending".
 
 BUGS:
-[1] Finish device_manager and async_event.
+[d] Finish device_manager and async_event.
 [1] Need a set of macros for making ISR definitions, entry and exit portable.
 [1] fd allocation in SemiFS and RomFS is broken and should be done by device_manager.
 [1] Add dirent-related functions to device manager and reenable semifs ones.
@@ -13,6 +13,7 @@ BUGS:
     uIP's built in httpd-fs stuff.
 
 GENERALIZATIONS:
+[1] Support ARM968e-s microcontrollers and LPC29xx specifically. 
 [1] Finish RTC time integration.
 [1] Task startup/exit system (signals, atexit, resource releasing etc).
 [1] Kernel run time statistics should be exposed through a "procfs"-type virtual
@@ -21,7 +22,7 @@ GENERALIZATIONS:
     and attached to stdin/stdout/stderr. Boards should symlink /dev/console to
     whatever console device they're using e.g. /dev/uart/0
 [1] Standardized debug/log messages system.
-[1] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
+[d] Buffered, multiplexed standard IO (console). "Early stdout init" for debugging.
 [1] Thread-local memory. Finish dynamic reentrancy in syscalls.
 [1] Switch over to the lwIP stack instead of uIP.
 [2] See if it's possible for the kernel microsecond clock to share the systick
@@ -32,6 +33,7 @@ GENERALIZATIONS:
 [f] Fractional baud rate code is inefficient and takes up a bunch of storage.
 
 ADDITIONS:
+[1] Standardized flash bootloader with the same interface (perhaps the LPC17xx serial bootload protocol) on different SoCs.
 [1] POSIX wrappers for threading, sockets, timers, date/time etc.
 [1] Standardized, kernel-mediated interrupt API for drivers.
 [1] Standardized user-process-level signal-based interrupt abstraction.
@@ -72,7 +74,7 @@ DRIVERS:
 
 THINGS TO CHECK:
 [1] Stack overflow checker needs checking.
-[1] Check syscall_wrappers are complete. I use'd a script to extract all symbols
+[1] Check syscall_wrappers are complete. I used a script to extract all symbols
     in the libraries (lib{c,m,g}.a), but there are more header-defined symbols that
     aren't wrapped yet. Hopefully the macros at least make these easy to add.
 [2] Ensure debug output printed by abort traps is actually correct (hmmm?).

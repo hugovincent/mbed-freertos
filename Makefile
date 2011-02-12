@@ -1,4 +1,3 @@
-# For mbed <http://www.mbed.org>
 # Hugo Vincent, April 25 2010
 #
 # Note: after installing an arm-eabi-none* toolchain using the instructions at
@@ -6,18 +5,18 @@
 #
 # Targets you can Make:
 #	all		- Build all code and produce a binary suitable for installation.
-#	install	- Install to an attached mbed device. Set INSTALL_PATH below to suit.
+#	install	- Install to an attached device. Set PROG_TYPE below to suit.
 #	clean	- Delete all temporary build products.
 #	dep		- Compute interdependecies between source files. Useful if you're
 #			  hacking on the source (otherwise you need to make clean && make).
 #	disasm	- Produce a disassembly listing of the whole program.
 #
 
-# Set CPU type here (can be lpc2368 for older mbeds, or lpc1768 for newer ones):
+# Set CPU type here (can be lpc2368, lpc1768, or lpc2929):
 TARGET=lpc1768
 
-# Set programming method here (can be mbed or serial_isp):
-PROG_TYPE=mbed
+# Set programming method here (can be mbed, jtag or serial_isp):
+PROG_TYPE=jtag
 #ISP_OPT=/dev/tty.usbserial-isp 115200 12000
 
 # Set local options here:
@@ -67,6 +66,26 @@ C_SOURCE= \
 		mach/cpu-lpc1768/crt0.c \
 		mach/cpu-lpc1768/fault_handlers.c
 endif
+
+#------------------------------------------------------------------------------
+# Stuff specific to LPC2929 target:
+ifeq ($(TARGET), lpc2929)
+CPUFLAGS= \
+		-mcpu=arm968e-s \
+		-mthumb-interwork
+COMMON_FLAGS= \
+		-DTARGET_LPC29xx \
+		-DPLAT_NAME="\"LPC2929\"" \
+		-Iinclude/LPC2929
+PORT_DIR= \
+		ARM9_LPC29xx
+ASM_SOURCE= \
+		mach/cpu-lpc2929/crt0.s
+C_SOURCE= \
+		mach/cpu-lpc2929/system_LPC29xx.c \
+		mach/cpu-lpc2929/exception_handlers.c
+endif
+
 
 #------------------------------------------------------------------------------
 # Compiler, Assembler and Linker Options:

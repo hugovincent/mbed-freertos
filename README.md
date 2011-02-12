@@ -48,6 +48,7 @@ FEATURES:
 * POSIX APIs for threads, timers, sockets etc. _(coming soon)_. We're aiming
   for full POSIX 1003.13 Profile 52 support eventually.
 * Device drivers for many on-chip and common off-chip peripherals.
+* Aims not to drown in excessive configuration options.
 
 INSTALATION:
 ------------
