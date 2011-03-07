@@ -63,13 +63,10 @@ typedef struct tskTaskControlBlock
 	unsigned portBASE_TYPE	uxPriority;			/*< The priority of the task where 0 is the lowest priority. */
 	portSTACK_TYPE			*pxStack;			/*< Points to the start of the stack. */
 	signed char				pcTaskName[ configMAX_TASK_NAME_LEN ];/*< Descriptive name given to the task when created.  Facilitates debugging only. */
+	struct _reent 			*xSysReent;			/*< Per-task reentrancy buffer. */
 
 	#if ( portSTACK_GROWTH > 0 )
 		portSTACK_TYPE *pxEndOfStack;			/*< Used for stack overflow checking on architectures where the stack grows up from low memory. */
-	#endif
-
-	#if ( portUSING_MPU_WRAPPERS )
-		struct _reent *xSysReent;
 	#endif
 
 	#if ( portCRITICAL_NESTING_IN_TCB == 1 )
@@ -383,7 +380,7 @@ tskTCB * pxNewTCB;
 	usStackDepth = ( usStackAndReentSize - sizeof( struct _reent ) ) / sizeof( portSTACK_TYPE );	
 	pxNewTCB = prvAllocateTCBAndStack( usStackDepth );
 #else
-	pxNewTCB = prvAllocateTCBAndStack( usStackDepth, puxStackBuffer );
+	pxNewTCB = prvAllocateTCBAndStack( usStackDepth + sizeof( struct _reent ) / sizeof( portSTACK_TYPE ), puxStackBuffer );
 #endif
 
 	if( pxNewTCB != NULL )
@@ -402,14 +399,12 @@ tskTCB * pxNewTCB;
 				xRunPrivileged = pdFALSE;
 			}
 			uxPriority &= ~portPRIVILEGE_BIT;
-
-			{
-				portSTACK_TYPE *xReentStart = pxNewTCB->pxStack + usStackDepth;
-				struct _reent *xReent = ( struct _reent * ) xReentStart;
-				_REENT_INIT_PTR(xReent);
-				pxNewTCB->xSysReent = xReent;
-			}
 		#endif /* portUSING_MPU_WRAPPERS == 1 */
+
+		portSTACK_TYPE *xReentStart = pxNewTCB->pxStack + usStackDepth;
+		struct _reent *xReent = ( struct _reent * ) xReentStart;
+		_REENT_INIT_PTR(xReent);
+		pxNewTCB->xSysReent = xReent;
 
 		/* Calculate the top of stack address.  This depends on whether the
 		stack grows from high memory to low (as per the 80x86) or visa versa.
@@ -1971,22 +1966,23 @@ static void prvInitialiseTCBVariables( tskTCB *pxTCB, const signed char * const 
         vPortStoreTaskMPUSettings( &( pxTCB->xMPUSettings ), xRegions, NULL, 0 );
 	}
 	/*-----------------------------------------------------------*/
-
-	struct _reent *xTaskGetReent( xTaskHandle xTask )
-	{
-	tskTCB *pxTCB;
-
-		if ( xSchedulerRunning == pdFALSE )
-		{
-			return _impure_ptr;
-		}
-
-		/* If null is passed in here then we are getting reent for ourselves. */
-		pxTCB = prvGetTCBFromHandle( xTask );
-		
-		return pxTCB->xSysReent;
-	}
 #endif
+
+struct _reent *xTaskGetReent( xTaskHandle xTask )
+{
+tskTCB *pxTCB;
+
+	if ( xSchedulerRunning == pdFALSE )
+	{
+		return _impure_ptr;
+	}
+
+	/* If null is passed in here then we are getting reent for ourselves. */
+	pxTCB = prvGetTCBFromHandle( xTask );
+	
+	return pxTCB->xSysReent;
+}
+/*-----------------------------------------------------------*/
 
 static void prvInitialiseTaskLists( void )
 {
