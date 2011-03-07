@@ -14,6 +14,8 @@
 #include "LPC23xx.h"
 #elif defined(TARGET_LPC29xx)
 #include "LPC29xx.h"
+#elif defined(TARGET_EFM32)
+#include "efm32.h"
 #else
 #error "CMSIS Target not recognised"
 #endif

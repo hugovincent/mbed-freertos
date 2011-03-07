@@ -10,9 +10,9 @@
 
 #include <string.h>
 #include <stdlib.h>
-#include "drivers/wdt.h"
-#include "drivers/uart.h"
-#include "drivers/dma_memcpy.h"
+//#include "drivers/wdt.h"
+//#include "drivers/uart.h"
+//#include "drivers/dma_memcpy.h"
 #include "power_management.h"
 #include "console.h"
 
@@ -48,13 +48,13 @@ void xBadTask(void *params)
 	// than through the GPIO driver, because the driver might be privileged.
 	
 	printf("Bad task: started in privileged mode. Turning LED on...\n");
-	LPC_GPIO1->FIOSET = ( 1UL << 23UL );
+	//LPC_GPIO1->FIOSET = ( 1UL << 23UL );
 	vTaskDelay(150);
 
 	// Now switch to user mode and try again
 	portSWITCH_TO_USER_MODE();
 	printf("Bad task: switched to user mode. Turning LED off...\n");
-	LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
+	//LPC_GPIO1->FIOCLR = ( 1UL << 23UL );
 
 	printf("Bad task: finished.\n");
 
@@ -66,6 +66,7 @@ void xBadTask(void *params)
 }
 #endif
 
+/*
 void simpleSerialTask(void *p)
 {
 	(void)p;
@@ -89,6 +90,7 @@ void simpleSerialTask(void *p)
 		vTaskDelay(500);
 	}
 }
+*/
 
 #include <dirent.h>
 #include <time.h>
@@ -138,7 +140,7 @@ int main()
 #ifdef CORE_HAS_MPU
 	xTaskCreate(xBadTask, (signed char *)"BadTask", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 #endif
-	xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
+	//xTaskCreate(simpleSerialTask, (signed char *)"Ser", configMINIMAL_STACK_SIZE, (void *)NULL, tskIDLE_PRIORITY | portPRIVILEGE_BIT, NULL);
 
 	printf("Starting scheduler.\n");
 	fflush(stdout);
@@ -163,7 +165,7 @@ extern "C" void vApplicationTickHook()
 	{
 		ulTicksSinceLastDisplay = 0;
 
-		WDT_Feed();
+		//WDT_Feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
 		unsigned long long uptime_usec = ullTaskGetSchedulerUptime();

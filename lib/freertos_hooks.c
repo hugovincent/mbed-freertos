@@ -86,6 +86,12 @@ void vConfigureTimerForRunTimeStats( void )
 	theTimer->CTCR = 0x0;
 	theTimer->TCR = 0x1<<0;
 }
+#elif defined(TARGET_EFM32)
+#define RUNTIME_TIMER 1
+void vConfigureTimerForRunTimeStats( void )
+{
+	// FIXME
+}
 #else
 #error "Target not supported"
 #endif

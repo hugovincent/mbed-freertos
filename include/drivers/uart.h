@@ -8,11 +8,15 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-
 #include <cmsis.h>
+
+#if defined(TARGET_LPC17xx)
 #include <drivers/gpdma.h>
+#endif
 
 #ifdef __cplusplus
+
+#if defined(TARGET_LPC17xx)
 
 class UART
 {
@@ -46,6 +50,27 @@ protected:
 	DmaP2M<char> *m_RxDMA;
 	DmaM2P<char> *m_TxDMA;
 };
+
+#elif defined(TARGET_EFM32)
+
+
+/*************** FIXME ******************/
+class UART
+{
+public:
+	UART(int deviceNum, size_t txFifoLen, size_t rxFifoLen, bool useDMA);
+	~UART();
+
+	void SetBaud(uint32_t baud);
+
+	int Read(char * buf, size_t len) { return 0; }
+	int Write(const char * buf, size_t len) { return 0; }
+	int WriteUnbuffered(const char * buf, size_t len) { return 0; } 
+
+	size_t BytesWaiting() { return 0; }
+};
+
+#endif
 
 extern "C" {
 

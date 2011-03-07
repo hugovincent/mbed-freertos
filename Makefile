@@ -12,11 +12,14 @@
 #	disasm	- Produce a disassembly listing of the whole program.
 #
 
-# Set CPU type here (can be lpc2368, lpc1768, or lpc2929):
-TARGET=lpc1768
+# Set CPU type here (can be lpc2368, lpc1768, lpc2929, or efm32):
+TARGET=efm32
 
-# Set programming method here (can be mbed, jtag or serial_isp):
-PROG_TYPE=jtag
+# Set board type here (can be mbed or efm32-olimex-stk):
+BOARD=efm32-olimex-stk
+
+# Set programming method here (can be mbed, openocd or serial_isp):
+PROG_TYPE=openocd
 #ISP_OPT=/dev/tty.usbserial-isp 115200 12000
 
 # Set local options here:
@@ -65,6 +68,31 @@ C_SOURCE= \
 		mach/cpu-lpc1768/system_LPC17xx.c \
 		mach/cpu-lpc1768/crt0.c \
 		mach/cpu-lpc1768/fault_handlers.c
+endif
+
+#------------------------------------------------------------------------------
+# Stuff specific to EFM32 targets:
+ifeq ($(TARGET), efm32)
+CPUFLAGS= \
+		-mcpu=cortex-m3 \
+		-mthumb
+COMMON_FLAGS= \
+		-DTARGET_EFM32 \
+		-DCORE_HAS_MPU \
+		-DEFM32G230F128 \
+		-DPLAT_NAME="\"EFM32G230F128\"" \
+		-DUSE_PROCESS_STACK \
+		-Iinclude/EFM32
+PORT_DIR= \
+		ARM_CM3_MPU
+EXTRA_LDFLAGS= \
+		-mcpu=cortex-m3 \
+		-mthumb
+C_SOURCE= \
+		mach/cpu-efm32/core_cm3.c \
+		mach/cpu-efm32/system_efm32.c \
+		mach/cpu-efm32/crt0.c \
+		mach/cpu-efm32/fault_handlers.c
 endif
 
 #------------------------------------------------------------------------------
@@ -141,7 +169,7 @@ all: $(BINNAME).bin
 
 # Core Operating System
 C_SOURCE+= \
-		mach/board-mbed/board_init.c \
+		mach/board-$(BOARD)/board_init.c \
 		mach/cpu-$(TARGET)/power_management.c \
 		kernel/list.c \
 		kernel/queue.c \
@@ -226,7 +254,7 @@ $(ODIR)/exists:
 	@mkdir -p $(ODIR)/drivers/uart $(ODIR)/drivers/gpio $(ODIR)/drivers/rtc
 	@mkdir -p $(ODIR)/drivers/emac $(ODIR)/drivers/wdt $(ODIR)/drivers/gpdma
 	@mkdir -p $(ODIR)/drivers/xbee
-	@mkdir -p $(ODIR)/mach/board-mbed $(ODIR)/mach/cpu-$(TARGET)
+	@mkdir -p $(ODIR)/mach/board-$(BOARD) $(ODIR)/mach/cpu-$(TARGET)
 	@mkdir -p $(ODIR)/kernel $(ODIR)/mach/cpu-common $(ODIR)/kernel/port/$(PORT_DIR)
 	@mkdir -p $(ODIR)/example_tasks $(ODIR)/apps/webserver $(ODIR)/lib/uip
 	@mkdir -p $(ODIR)/lib/ustl $(ODIR)/tests $(ODIR)/lib/syscalls

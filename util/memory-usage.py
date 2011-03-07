@@ -47,7 +47,7 @@ for line in sh('cat .buildtmp/mach/cpu-' + target + '/' + target + '.ld.S | grep
 	memories[memory[0]] = memsize
 
 # Parse stack allocations from linker output
-if target == 'lpc1768':
+if target == 'lpc1768' or target == 'efm32':
 	line = sh('grep "C_Stack_Size" %s.map' % sys.argv[2].split('.')[0]).strip().split('\n')[0]
 	total_stack = int(line.split()[-1], 16)
 else:

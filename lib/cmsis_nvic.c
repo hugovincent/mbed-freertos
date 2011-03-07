@@ -1,7 +1,7 @@
 #include "cmsis_nvic.h"
 #include "FreeRTOS.h"
 
-#if defined(TARGET_LPC17xx)
+#if defined(TARGET_LPC17xx) || defined(TARGET_EFM32)
 
 PRIVILEGED_FUNCTION void NVIC_SetVector(IRQn_Type IRQn, uint32_t vect)
 {

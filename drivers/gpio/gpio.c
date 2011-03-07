@@ -4,6 +4,8 @@
 #include "task.h"
 #include "drivers/gpio.h"
 
+#if defined(TARGET_LPC17xx) || defined(TARGET_LPC23xx)
+
 static inline LPC_GPIO_TypeDef *block(int which)
 {
 	switch (which)
@@ -59,3 +61,14 @@ unsigned int GPIO_Read(int which)
 	return block(which)->FIOPIN;
 }
 
+#elif defined(TARGET_EFM32)
+
+void GPIO_Init() {}
+void GPIO_SetDirection(int which, unsigned int in_bitmap, unsigned int out_bitmap) {}
+void GPIO_Write(int which, unsigned int set_bitmap, unsigned int clear_bitmap) {}
+void GPIO_Toggle(int which, unsigned int bitmap) {}
+unsigned int GPIO_Read(int which) { return 0; }
+
+#else
+#error "Target not supported for GPIO"
+#endif

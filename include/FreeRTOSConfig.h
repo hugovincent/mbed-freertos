@@ -56,7 +56,7 @@ extern "C" {
 #define configIDLE_STACK_SIZE					( 800 )
 
 
-#if defined(TARGET_LPC17xx)
+#if defined(TARGET_LPC17xx) || defined(TARGET_EFM32)
 #ifdef __NVIC_PRIO_BITS
 	#define configPRIO_BITS       		__NVIC_PRIO_BITS
 #else
@@ -114,7 +114,11 @@ to exclude the API function. */
 #if configGENERATE_RUN_TIME_STATS == 1
 extern void vConfigureTimerForRunTimeStats( void );
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS()	vConfigureTimerForRunTimeStats()
+#if defined(TARGET_LPC17xx) || defined(TARGET_LPC23xx)
 #define portGET_RUN_TIME_COUNTER_VALUE()			(LPC_TIM1->TC)
+#elif defined(TARGET_EFM32)
+#define portGET_RUN_TIME_COUNTER_VALUE()			(TIMER0->CNT)
+#endif
 #endif
 
 #ifdef __cplusplus

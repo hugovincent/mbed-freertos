@@ -120,7 +120,7 @@ void Debug_PrintSavedRegisterState(struct Debug_RegisterDump *regs)
 #define TARGET_REQ_DEBUGMSG_HEXMSG(size)	(0x01 | ((size & 0xff) << 8))
 #define TARGET_REQ_DEBUGCHAR				0x02
 
-#if defined(TARGET_LPC17xx)
+#if defined(TARGET_LPC17xx) || defined(TARGET_EFM32)
 
 /* We use the Cortex-M3 DCRDR reg to simulate a ARM7/9 dcc channel
  *     DCRDR[7:0] is used by target for status

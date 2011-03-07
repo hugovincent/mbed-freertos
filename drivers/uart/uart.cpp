@@ -2,6 +2,8 @@
 #include <math.h>
 #include <string.h>
 
+#if defined(TARGET_LPC17xx)
+
 // UART register bits
 #define UART_LCR_DLAB		(0x80)
 #define UART_LCR_NOPAR		(0x00)
@@ -231,6 +233,10 @@ int UART::Read(char * buf, size_t len)
 	}
 	return m_RxDMA->read(buf, len);
 }
+
+#elif defined(TARGET_EFM32)
+
+#endif
 
 /* ------------------------------------------------------------------------- */
 // C Wrappers:

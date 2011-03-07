@@ -251,7 +251,7 @@ static struct dm_dirent* SemiFS_ReadDir(void *d)
 
 struct FileLikeObj SemiFS_FLO =
 {
-	.pathprefix = "/mbed/",
+	.pathprefix = "/semifs/",
 	.is_leaf = 0,
 
 	.read_  = SemiFS_Read,

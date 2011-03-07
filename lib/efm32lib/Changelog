@@ -1,0 +1,50 @@
+================ Revision history ============================================
+1.3.0:
+ - MSC is automatically enabled/disabled when using the MSC API. This saves
+   power, and reduces errors due to not calling MSC_Init().
+ - Added API for controlling Cortex-M3 MPU (memory protection unit)
+ - Adjusted bit fields to comply with latest CMSIS release, see EFM_CMSIS
+   changes file for details
+ - Fixed issue with bit mask clearing in ACMP
+ - Functions ACMP_Enable and ACMP_DisableNoReset added
+ - Added comment about rev.C chips in PCNT, CMD_LTOPBIM not neccessary any more
+ - Added missing instance validity asserts to peripherals (ACMP, LEUART, USART)
+ - Fixed UART0 check in CMU_ClockFreqGet()
+ - Fixed command sync for PCNT before setting TOPB value during init
+ - Fixed instance validity check macro in PCNT
+ - Fixed TIMER_Reset() removed write to unimplemented timer channel registers
+ - Fixed EFM_ASSERT statements in ACMP, VCNP  
+ - General code style update: added missing curly braces, default cases, etc.
+
+1.2.1:
+ - Feature complete efm32lib, now also includes peripheral API for modules
+   AES,PCNT,MSC,ACMP,VCMP,LCD,EBI 
+ - Fixed _TIMER_CC_CTRL_ICEDGE flags for correct timer configuration
+ - Fixed ADC calibration of Single and Scan mode of operation
+ - Added PCNT (ChipRev A/B PCNT0 errata NOT supported) and AES support
+ - Fixed conditional inclusion in efm32_emu.h
+ - Fixed code for LEUART0 for devices with multiple LEUARTs.
+ - Fixed incorrect setting of DOUT for GPIO configuration
+
+1.1.4
+ - Fix for TIMER_INIT_DEFAULT
+ 
+1.1.3:
+ - Added ADC, DAC, LETIMER, PRS, TIMER (except DTI) support
+ - Added utility for fetching chip revision (efm32_system.c/h)
+ - Removed RTC instance ref in API, only one RTC will be supported
+   (Affects also define in efm32_cmu.h)
+ - Added default init struct macros for LEUART, USART
+ - Added msbf parameter in USART synchronous init struct, USART_InitSync_TypeDef.
+ - Updated reset for I2C, USART, LEUART to also reset IEN register.
+ - Corrected fault in GPIO_PortOutSet()
+
+1.1.2:
+ - Corrected minor issues in EMU, EM3 mode when restoring
+ - Corrected RMU reset cause checking
+ - Changed GPIO enumerator symbols to start with gpio (from GPIO_)
+ - Changed CMU and WDOG enum typedefs to start with CMU_/WDOG_ (from cmu/wdog)
+ - Added USART/UART, LEUART, DMA, I2C support
+
+1.1.1:
+ - First version including support for CMU, DBG, EMU, GPIO, RTC, WDOG
