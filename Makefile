@@ -13,13 +13,13 @@
 #
 
 # Set CPU type here (can be lpc2368, lpc1768, lpc2929, or efm32):
-TARGET=efm32
+TARGET=lpc1768
 
 # Set board type here (can be mbed or efm32-olimex-stk):
-BOARD=efm32-olimex-stk
+BOARD=mbed
 
 # Set programming method here (can be mbed, openocd or serial_isp):
-PROG_TYPE=openocd
+PROG_TYPE=mbed
 #ISP_OPT=/dev/tty.usbserial-isp 115200 12000
 
 # Set local options here:
@@ -54,12 +54,11 @@ CPUFLAGS= \
 		-mthumb
 COMMON_FLAGS= \
 		-DTARGET_LPC17xx \
-		-DCORE_HAS_MPU \
 		-DPLAT_NAME="\"LPC1768\"" \
 		-DUSE_PROCESS_STACK \
 		-Iinclude/LPC1768
 PORT_DIR= \
-		ARM_CM3_MPU
+		ARM_CM3
 EXTRA_LDFLAGS= \
 		-mcpu=cortex-m3 \
 		-mthumb

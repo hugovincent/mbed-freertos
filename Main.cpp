@@ -10,9 +10,9 @@
 
 #include <string.h>
 #include <stdlib.h>
-//#include "drivers/wdt.h"
-//#include "drivers/uart.h"
-//#include "drivers/dma_memcpy.h"
+#include "drivers/wdt.h"
+#include "drivers/uart.h"
+#include "drivers/dma_memcpy.h"
 #include "power_management.h"
 #include "console.h"
 
@@ -165,7 +165,7 @@ extern "C" void vApplicationTickHook()
 	{
 		ulTicksSinceLastDisplay = 0;
 
-		//WDT_Feed();
+		WDT_Feed();
 
 #if configGENERATE_RUN_TIME_STATS == 1
 		unsigned long long uptime_usec = ullTaskGetSchedulerUptime();
