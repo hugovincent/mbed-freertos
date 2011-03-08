@@ -14,6 +14,7 @@ BUGS:
 
 GENERALIZATIONS:
 [1] Support ARM968e-s microcontrollers and LPC29xx specifically. 
+[1] Support for Energy Micro EFM32 series Cortex-M3 microcontrollers. 
 [1] Finish RTC time integration.
 [1] Task startup/exit system (signals, atexit, resource releasing etc).
 [1] Kernel run time statistics should be exposed through a "procfs"-type virtual

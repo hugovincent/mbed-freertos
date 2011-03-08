@@ -11,8 +11,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "drivers/wdt.h"
-#include "drivers/uart.h"
-#include "drivers/dma_memcpy.h"
 #include "power_management.h"
 #include "console.h"
 
@@ -112,7 +110,7 @@ int main()
 
 	// Start the standard demo tasks.
 	vStartLEDFlashTasks(mainFLASH_PRIORITY | portPRIVILEGE_BIT);
-#if 0
+#if 1
 	vStartBlockingQueueTasks(mainBLOCK_Q_PRIORITY);
 	vCreateBlockTimeTasks();
 	vStartGenericQueueTasks(mainGEN_QUEUE_TASK_PRIORITY);
@@ -167,17 +165,13 @@ extern "C" void vApplicationTickHook()
 
 		WDT_Feed();
 
-#if configGENERATE_RUN_TIME_STATS == 1
-		unsigned long long uptime_usec = ullTaskGetSchedulerUptime();
-
 #if 1
 		struct timeval tp;
-		int t = gettimeofday(&tp, NULL);
-		printf("timeofday = %ld seconds %ld microseconds (code %d)\n", (long)tp.tv_sec, (long)tp.tv_usec, t);
+		gettimeofday(&tp, NULL);
+		printf("timeofday = %ld.%08ld seconds\n", (long)tp.tv_sec, (long)tp.tv_usec);
 #endif
 
-		printf("Uptime: %u.%06u seconds\n", (unsigned int)(uptime_usec / 1000000), (unsigned int)(uptime_usec % 1000000));
-
+#if configGENERATE_RUN_TIME_STATS == 1
 		int8_t *taskListBuffer = (int8_t *)malloc(40 * uxTaskGetNumberOfTasks());
 		if (taskListBuffer != NULL)
 		{
@@ -189,7 +183,7 @@ extern "C" void vApplicationTickHook()
 
 		// Has an error been found in any task?
 		int allGood = 1;
-#if 0
+#if 1
 		if( xAreBlockingQueuesStillRunning() != pdTRUE )
 		{
 			printf("ERROR - BLOCKQ\n");

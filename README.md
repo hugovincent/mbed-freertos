@@ -1,7 +1,7 @@
 A FreeRTOS distribution for ARM microcontrollers
 ================================================
 
-	Hugo Vincent <hugo.vincent@gmail.com>, 5 November 2010.
+	Hugo Vincent <hugo.vincent@gmail.com>, 8 March 2011.
 
 This is a real-time operating system for very small devices built around an ARM
 microcontroller (with typically at least 16 kB of RAM and 64 kB of flash).
@@ -77,6 +77,76 @@ It is strongly recommended to use this customized toolchain.
 This has currently only been tested with mbed (www.mbed.org) hardware, some
 versions of which use the NXP LPC2368, and some the LPC1768.
 
+BOOT PROCESS:
+-------------
+
+This is a summary of roughly how early-boot through to OS running works. This example
+is for Cortex-M3 - other ARM devices have a slightly different process at the start
+(the C stack and other C runtime stuff is done in assembler code instead).
+
+	<Reset>
+	Hardware set's up a basic C stack with predefined stack pointer. Hardware jumps
+	to Reset_Handler - these addresses are defined in the .vectors section.
+	[Reset_Handler] 
+		- this code does what is traditionally called crt0 (C run time). 
+		- can't assume all C features are working
+		- initialises C features like data (pre-initialized variables) and bss
+		  (zero-initialized variables)
+		- copy initial vector table from Flash to RAM and atomically perform relocation
+		  of it
+		- set up any faults and so forth (generally a good idea to attempt
+		  to handle faults than to just ignore them, which will trigger reset)
+		- optionally initialise a different stack (the "process stack")
+		- pass control to Boot_Init()
+		[Boot_Init]
+			- call System_Init()
+			[System_Init]
+				- set up clocks and PLLs if applicable
+				- enable clocks and if applicable switch core clock source (normally
+				  to something faster)
+				- enable power/clocks to core peripherals
+				- if applicable, set up memory management/remapping/acceleration etc
+			- call Board_EarlyInit()
+			[Board_EarlyInit]
+				- set NVIC vectors for low-level interrupts (supervisor call, system
+				  timer tick (part of the Cortex M3 complex, not a SoC level timer), etc
+				- if used, set up any debug communications channels, and
+				- set up minimal pin multiplexing etc and peripheral settings so that
+				  the debug UART works (the early/late dichotomy is so that debugging
+				  or error messages during the late init/boot process can be seen, and
+				  that certain boot operations can assume the presence and functionality
+				  of certain OS functionality)
+				- set any "unsafe" GPIOs to a safe value (things that might be left
+				  floating at boot, but need to be in a defined state for safe operation
+				- initialise the watch dog timer (optional)
+			- call Console_EarlyInit()
+			[Console_EarlyInit]
+				- set up buffers etc so that printf or other IO machinery works as
+				  intended. This might be done in a safe-but-slow manner
+			- do any other C/C++ initialisation required (e.g. call C++ constructors)
+			- call OS_Init()
+			[OS_Init]
+				- initialise core OS data structures like the task lists or the
+				  device manager
+				- these structures allow operating system functionality to be used from
+				  here down (e.g. buffered, device-oriented stream IO; atexit();
+				  POSIX-like signals etc.)
+			- call Console_LateInit()
+			[Console_LateInit]
+				- re-initialise IO machinery to work in an efficient and thread-safe
+				  manner
+			- call Board_LateInit()
+			[Board_LateInit]
+				- initialise other IO/peripherals e.g EEPROM/flash where configuration
+				  data might be stored, real-time clock/timer, other ("safe") GPIO etc
+			- call main()
+			[main]
+				- initialise application-level data structures/objects
+				- start application threads
+				- call OS function to start the scheduler (this function does not return)
+			- if main() ever returns, teardown or disable any "unsafe" things,
+			  then power down while we wait for the Watch dog timer to reset us.
+
 COPYING:
 --------
 
@@ -97,9 +167,9 @@ Portions copyright Hugo Vincent:
 
 	Copyright (C) 2010 Hugo Vincent <hugo.vincent@gmail.com>
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License** as published by
-	the Free Software Foundation; version 3.
+	This program is free software; you can redistribute it and/or modify it under
+	the terms of the GNU General Public License (version 3) as published by
+	the Free Software Foundation.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -470,4 +540,42 @@ The GPL license text follows:
 	consider it more useful to permit linking proprietary applications with the
 	library.  If this is what you want to do, use the GNU Library General
 	Public License instead of this License.
+
+GPL Exception
+-------------
+
+Any FreeRTOS source code, whether modified or in it's original release form, or whether
+in whole or in part, can only be distributed by you under the terms of the GNU General
+Public License plus this exception. An independent module is a module which is not
+derived from or based on FreeRTOS.
+
+	EXCEPTION TEXT:
+	
+	Clause 1
+
+	Linking FreeRTOS statically or dynamically with other modules is making a
+	combined work based on FreeRTOS. Thus, the terms and conditions of the GNU
+	General Public License cover the whole combination.
+
+	As a special exception, the copyright holder of FreeRTOS gives you permission
+	to link FreeRTOS with independent modules that communicate with FreeRTOS
+	solely through the FreeRTOS API interface, regardless of the license terms
+	of these independent modules, and to copy and distribute the resulting
+	combined work under terms of your choice, provided that:
+
+	1) every copy of the combined work is accompanied by a written statement that
+	   details to the recipient the version of FreeRTOS used and an offer by
+	   yourself to provide the FreeRTOS source code (including any modifications
+	   you may have made) should the recipient request it.
+	2) The combined work is not itself an RTOS, scheduler, kernel or related product.
+	3) The independent modules add significant and primary functionality to
+	   FreeRTOS and do not merely extend the existing functionality already present
+	   in FreeRTOS.
+	
+	Clause 2
+	
+	FreeRTOS may not be used for any competitive or comparative purpose, including
+	the publication of any form of run time or compile time metric, without the
+	express permission of Real Time Engineers Ltd. (this is the norm within the
+	industry and is intended to ensure information accuracy).
 
